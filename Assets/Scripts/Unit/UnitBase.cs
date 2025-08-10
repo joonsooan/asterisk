@@ -8,11 +8,11 @@ public abstract class UnitBase : MonoBehaviour
         Idle,
         Moving,
         Attacking,
-        Gathering,
+        Mining,
         Retreating
     }
 
-    [Header("Unit Stats")] 
+    [Header("Unit Stats")]
     public float maxHealth;
     public float currentHealth;
     public float moveSpeed;

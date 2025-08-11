@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit_Lifter : UnitBase
@@ -149,20 +148,25 @@ public class Unit_Lifter : UnitBase
                     }
                 }
 
-                if (nearest != _targetResourceNode && nearest != null) {
-                    _targetResourceNode = nearest;
-                    unitMovement.SetNewTarget(nearest.transform.position);
+                if (nearest == null) {
+                    if (currentCarryAmount > 0) {
+                        Debug.Log("[자원 고갈] 남은 자원을 저장고에 반납합니다.");
+                        currentState = UnitState.ReturningToStorage;
+                        unitMovement.SetNewTarget(_storageBuilding.transform.position);
+                        _targetResourceNode = null;
+                    }
+                    else {
+                        Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
+                    }
+                }
+                else {
+                    if (nearest != _targetResourceNode) {
+                        _targetResourceNode = nearest;
+                        unitMovement.SetNewTarget(nearest.transform.position);
+                    }
                 }
             }
             yield return new WaitForSeconds(resourceSearchInterval);
         }
-    }
-
-    public override void PerformAction()
-    {
-    }
-
-    public override void SetActionPriority(Dictionary<string, int> priorities)
-    {
     }
 }

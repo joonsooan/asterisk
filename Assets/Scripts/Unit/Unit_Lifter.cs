@@ -84,6 +84,11 @@ public class Unit_Lifter : UnitBase
             if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
                 unitMining.StopMining();
                 currentState = UnitState.Idle;
+
+                if (_targetResourceNode != null) {
+                    _targetResourceNode.Unreserve();
+                }
+
                 _targetResourceNode = null;
 
                 if (_findResourceCoroutine != null) {
@@ -97,6 +102,12 @@ public class Unit_Lifter : UnitBase
             float distanceToStorage = Vector2.Distance(transform.position, _storageBuilding.transform.position);
             if (distanceToStorage <= unloadDistance) {
                 currentState = UnitState.Unloading;
+
+                if (_targetResourceNode != null) {
+                    _targetResourceNode.Unreserve();
+                    _targetResourceNode = null;
+                }
+
                 StartCoroutine(UnloadResourceCoroutine());
             }
             break;
@@ -138,7 +149,7 @@ public class Unit_Lifter : UnitBase
                 ResourceNode nearest = null;
 
                 foreach (ResourceNode resource in allResources) {
-                    if (resource.IsDepleted) continue;
+                    if (resource.IsDepleted || resource.IsReserved) continue;
 
                     Vector2 gridPos = unitMovement.GetGridPosition(resource.transform.position);
                     float distance = Vector2.Distance(transform.position, gridPos);
@@ -150,7 +161,7 @@ public class Unit_Lifter : UnitBase
 
                 if (nearest == null) {
                     if (currentCarryAmount > 0) {
-                        Debug.Log("[자원 고갈] 남은 자원을 저장고에 반납합니다.");
+                        Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
                         currentState = UnitState.ReturningToStorage;
                         unitMovement.SetNewTarget(_storageBuilding.transform.position);
                         _targetResourceNode = null;
@@ -163,6 +174,7 @@ public class Unit_Lifter : UnitBase
                     if (nearest != _targetResourceNode) {
                         _targetResourceNode = nearest;
                         unitMovement.SetNewTarget(nearest.transform.position);
+                        nearest.Reserve();
                     }
                 }
             }

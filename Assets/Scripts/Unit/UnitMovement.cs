@@ -10,10 +10,9 @@ public class UnitMovement : MonoBehaviour
 
     [Header("Pathfinding")]
     public float waypointTolerance = 0.1f;
+
     private Vector2 _currentWaypoint;
-
     private Queue<Vector2> _path = new Queue<Vector2>();
-
     private Rigidbody2D _rb;
     private UnitSpriteController _spriteController;
 
@@ -39,6 +38,7 @@ public class UnitMovement : MonoBehaviour
     public void SetNewTarget(Vector2 targetPosition)
     {
         _path = FindPath(transform.position, targetPosition);
+
         if (_path.Count > 0) {
             _currentWaypoint = _path.Dequeue();
         }
@@ -85,25 +85,25 @@ public class UnitMovement : MonoBehaviour
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
         HashSet<Vector2> closedList = new HashSet<Vector2>();
 
-        Node startNode = new Node { position = startGridPos, gCost = 0, hCost = Vector2.Distance(startGridPos, endGridPos) };
-        openList.Enqueue(startNode, startNode.fCost);
+        Node startNode = new Node { Position = startGridPos, GCost = 0, HCost = Vector2.Distance(startGridPos, endGridPos) };
+        openList.Enqueue(startNode, startNode.FCost);
 
         while (openList.Count > 0) {
             Node currentNode = openList.Dequeue();
 
-            if (currentNode.position == endGridPos) {
+            if (currentNode.Position == endGridPos) {
                 return ReconstructPath(currentNode);
             }
 
-            closedList.Add(currentNode.position);
+            closedList.Add(currentNode.Position);
 
-            foreach (Vector2 neighborPos in GetNeighbors(currentNode.position)) {
+            foreach (Vector2 neighborPos in GetNeighbors(currentNode.Position)) {
                 if (closedList.Contains(neighborPos)) continue;
 
-                float newGCost = currentNode.gCost + Vector2.Distance(currentNode.position, neighborPos);
+                float newGCost = currentNode.GCost + Vector2.Distance(currentNode.Position, neighborPos);
 
-                Node neighborNode = new Node { position = neighborPos, gCost = newGCost, hCost = Vector2.Distance(neighborPos, endGridPos), parent = currentNode };
-                openList.Enqueue(neighborNode, neighborNode.fCost);
+                Node neighborNode = new Node { Position = neighborPos, GCost = newGCost, HCost = Vector2.Distance(neighborPos, endGridPos), Parent = currentNode };
+                openList.Enqueue(neighborNode, neighborNode.FCost);
             }
         }
 
@@ -115,12 +115,13 @@ public class UnitMovement : MonoBehaviour
         Queue<Vector2> path = new Queue<Vector2>();
         Node currentNode = endNode;
         while (currentNode != null) {
-            path.Enqueue(currentNode.position);
-            currentNode = currentNode.parent;
+            path.Enqueue(currentNode.Position);
+            currentNode = currentNode.Parent;
         }
 
         Vector2[] pathArray = path.ToArray();
         Array.Reverse(pathArray);
+
         return new Queue<Vector2>(pathArray);
     }
 
@@ -136,17 +137,16 @@ public class UnitMovement : MonoBehaviour
         yield return new Vector2(position.x - 1, position.y - 1);
     }
 
-    // A* 알고리즘의 노드 정보를 담는 구조체
     private class Node
     {
-        public float gCost;
-        public float hCost;
-        public Node parent;
-        public Vector2 position;
+        public float GCost;
+        public float HCost;
+        public Node Parent;
+        public Vector2 Position;
 
-        public float fCost {
+        public float FCost {
             get {
-                return gCost + hCost;
+                return GCost + HCost;
             }
         }
     }

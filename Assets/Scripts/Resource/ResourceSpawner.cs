@@ -3,19 +3,30 @@ using UnityEngine.Tilemaps;
 
 public class ResourceSpawner : MonoBehaviour
 {
-    public Tilemap resourceTilemap;
-    public GameObject resourcePrefab;
-    public TileBase resourceTile;
+    [Header("References")]
+    [SerializeField] private Tilemap resourceTilemap;
+    [SerializeField] private GameObject resourcePrefab;
+    [SerializeField] private TileBase resourceTile;
+    [SerializeField] private Grid grid;
 
-    private void Start()
+    public Tilemap ResourceTilemap {
+        get {
+            return resourceTilemap;
+        }
+    }
+
+    public void SpawnResources()
     {
-        foreach (Vector3Int pos in resourceTilemap.cellBounds.allPositionsWithin) {
-            if (resourceTilemap.HasTile(pos)) {
-                Vector3 worldPos = resourceTilemap.GetCellCenterWorld(pos);
+        if (resourceTilemap == null || resourcePrefab == null || resourceTile == null || grid == null) {
+            Debug.LogError("ResourceSpawner: Missing references.");
+            return;
+        }
 
-                if (resourceTilemap.GetTile(pos) == resourceTile) {
-                    Instantiate(resourcePrefab, worldPos, Quaternion.identity);
-                }
+        foreach (Vector3Int pos in resourceTilemap.cellBounds.allPositionsWithin) {
+            if (resourceTilemap.HasTile(pos) && resourceTilemap.GetTile(pos) == resourceTile) {
+                Vector3 worldPos = grid.GetCellCenterWorld(pos);
+                worldPos += new Vector3(0.5f, 0.5f, 0f);
+                Instantiate(resourcePrefab, worldPos, Quaternion.identity);
             }
         }
     }

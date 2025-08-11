@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit_Lifter : UnitBase
@@ -29,8 +30,6 @@ public class Unit_Lifter : UnitBase
     {
         currentHealth = maxHealth;
         currentState = UnitState.Idle;
-        _storageBuilding = FindAnyObjectByType<StorageBuilding>();
-        _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
     }
 
     private void Update()
@@ -53,22 +52,34 @@ public class Unit_Lifter : UnitBase
         if (_findResourceCoroutine != null) {
             StopCoroutine(_findResourceCoroutine);
         }
+        if (_targetResourceNode != null && _targetResourceNode.IsReserved) {
+            _targetResourceNode.Unreserve();
+        }
+    }
+
+    public void StartUnitActions()
+    {
+        _storageBuilding = FindAnyObjectByType<StorageBuilding>();
+        if (_findResourceCoroutine != null) {
+            StopCoroutine(_findResourceCoroutine);
+        }
+        _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
     }
 
     private void DecideNextAction()
     {
         switch (currentState) {
         case UnitState.Idle:
-            if (_targetResourceNode != null) {
-                currentState = UnitState.Moving;
-                unitMovement.SetNewTarget(_targetResourceNode.transform.position);
-            }
             break;
 
         case UnitState.Moving:
             if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
+                if (_targetResourceNode != null) {
+                    _targetResourceNode.Unreserve();
+                }
                 currentState = UnitState.Idle;
                 unitMovement.StopMovement();
+                _targetResourceNode = null;
                 break;
             }
 
@@ -84,11 +95,6 @@ public class Unit_Lifter : UnitBase
             if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
                 unitMining.StopMining();
                 currentState = UnitState.Idle;
-
-                if (_targetResourceNode != null) {
-                    _targetResourceNode.Unreserve();
-                }
-
                 _targetResourceNode = null;
 
                 if (_findResourceCoroutine != null) {
@@ -102,12 +108,6 @@ public class Unit_Lifter : UnitBase
             float distanceToStorage = Vector2.Distance(transform.position, _storageBuilding.transform.position);
             if (distanceToStorage <= unloadDistance) {
                 currentState = UnitState.Unloading;
-
-                if (_targetResourceNode != null) {
-                    _targetResourceNode.Unreserve();
-                    _targetResourceNode = null;
-                }
-
                 StartCoroutine(UnloadResourceCoroutine());
             }
             break;
@@ -126,6 +126,9 @@ public class Unit_Lifter : UnitBase
             unitMining.StopMining();
             currentState = UnitState.ReturningToStorage;
             unitMovement.SetNewTarget(_storageBuilding.transform.position);
+            if (_targetResourceNode != null) {
+                _targetResourceNode.Unreserve();
+            }
         }
     }
 
@@ -138,21 +141,22 @@ public class Unit_Lifter : UnitBase
 
         currentCarryAmount = 0;
         currentState = UnitState.Idle;
+
+        StartUnitActions();
     }
 
     private IEnumerator FindNearestResourceCoroutine()
     {
         while (true) {
             if (currentState == UnitState.Idle) {
-                ResourceNode[] allResources = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
+                List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
                 float minDistance = float.MaxValue;
                 ResourceNode nearest = null;
 
                 foreach (ResourceNode resource in allResources) {
                     if (resource.IsDepleted || resource.IsReserved) continue;
 
-                    Vector2 gridPos = unitMovement.GetGridPosition(resource.transform.position);
-                    float distance = Vector2.Distance(transform.position, gridPos);
+                    float distance = Vector2.Distance(transform.position, resource.transform.position);
                     if (distance < minDistance) {
                         minDistance = distance;
                         nearest = resource;
@@ -171,11 +175,17 @@ public class Unit_Lifter : UnitBase
                     }
                 }
                 else {
-                    if (nearest != _targetResourceNode) {
-                        _targetResourceNode = nearest;
-                        unitMovement.SetNewTarget(nearest.transform.position);
-                        nearest.Reserve();
+                    if (_targetResourceNode != null && _targetResourceNode != nearest) {
+                        _targetResourceNode.Unreserve();
                     }
+
+                    _targetResourceNode = nearest;
+                    _targetResourceNode.Reserve();
+
+                    Vector2 targetPos = nearest.transform.position;
+                    unitMovement.SetNewTarget(targetPos);
+
+                    currentState = UnitState.Moving;
                 }
             }
             yield return new WaitForSeconds(resourceSearchInterval);

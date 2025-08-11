@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager Instance { get; set; }
+    public static GameManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -12,6 +12,30 @@ public class GameManager : MonoBehaviour
         }
         else {
             Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);
+        foreach (BuildingSpawner spawner in buildingSpawners) {
+            spawner.SpawnBuildings();
+            if (spawner.BuildingTilemap != null) {
+                spawner.BuildingTilemap.gameObject.SetActive(false);
+            }
+        }
+
+        ResourceSpawner[] resourceSpawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
+        foreach (ResourceSpawner spawner in resourceSpawners) {
+            spawner.SpawnResources();
+            if (spawner.ResourceTilemap != null) {
+                spawner.ResourceTilemap.gameObject.SetActive(false);
+            }
+        }
+
+        Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
+        foreach (Unit_Lifter unit in allUnits) {
+            unit.StartUnitActions();
         }
     }
 

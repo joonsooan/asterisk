@@ -7,8 +7,8 @@ public class ResourceNode : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private Color highlightColor = Color.red;
-    private Color _originalColor;
 
+    private Color _originalColor;
     private SpriteRenderer _sr;
 
     public bool IsReserved { get; private set; }
@@ -23,6 +23,17 @@ public class ResourceNode : MonoBehaviour
     {
         _sr = GetComponent<SpriteRenderer>();
         _originalColor = _sr.color;
+
+        if (ResourceManager.Instance != null) {
+            ResourceManager.Instance.AddResourceNode(this);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (ResourceManager.Instance != null) {
+            ResourceManager.Instance.RemoveResourceNode(this);
+        }
     }
 
     public void Reserve()
@@ -47,6 +58,7 @@ public class ResourceNode : MonoBehaviour
 
         if (IsDepleted) {
             Debug.Log(gameObject.name + " 을 모두 캤습니다.");
+            Unreserve();
             Destroy(gameObject);
         }
     }

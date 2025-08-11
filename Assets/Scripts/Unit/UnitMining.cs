@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -6,20 +7,17 @@ public class UnitMining : MonoBehaviour
     [Header("Gathering Stats")]
     public int miningRate = 10;
     public float miningRange = 1.5f;
+
     private Coroutine _mineCoroutine;
     private ResourceNode _targetResourceNode;
-
-    public bool IsMining {
-        get {
-            return _mineCoroutine != null;
-        }
-    }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, miningRange);
     }
+
+    public event Action<int> OnResourceMined;
 
     public void StartMining(ResourceNode target)
     {
@@ -44,7 +42,8 @@ public class UnitMining : MonoBehaviour
         while (true) {
             if (_targetResourceNode != null && !_targetResourceNode.IsDepleted) {
                 _targetResourceNode.Mine(miningRate);
-                Debug.Log($"자원 채굴 중... 남은 양: {_targetResourceNode.amountToMine}");
+                OnResourceMined?.Invoke(miningRate);
+                Debug.Log($"[자원 채굴 중] 남은 양: {_targetResourceNode.amountToMine}");
             }
             else {
                 StopMining();

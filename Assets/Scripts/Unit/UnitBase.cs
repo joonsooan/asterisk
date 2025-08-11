@@ -8,8 +8,10 @@ public abstract class UnitBase : MonoBehaviour
         Idle,
         Moving,
         Attacking,
+        Retreating,
         Mining,
-        Retreating
+        ReturningToStorage,
+        Unloading
     }
 
     [Header("Unit Stats")]

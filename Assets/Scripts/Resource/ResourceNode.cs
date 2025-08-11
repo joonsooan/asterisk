@@ -57,7 +57,6 @@ public class ResourceNode : MonoBehaviour
         amountToMine -= workAmount;
 
         if (IsDepleted) {
-            Debug.Log(gameObject.name + " 을 모두 캤습니다.");
             Unreserve();
             Destroy(gameObject);
         }

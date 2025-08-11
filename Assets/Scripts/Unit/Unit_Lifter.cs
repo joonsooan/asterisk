@@ -12,6 +12,10 @@ public class Unit_Lifter : UnitBase
     [Header("Values")]
     [SerializeField] private float resourceSearchInterval = 2f;
 
+    [Header("VFX")]
+    public Canvas canvas;
+    public GameObject floatingNumTextPrefab;
+
     [Header("References")]
     [SerializeField] private UnitMovement unitMovement;
     [SerializeField] private UnitMining unitMining;
@@ -120,7 +124,7 @@ public class Unit_Lifter : UnitBase
     private void HandleResourceMined(int amount)
     {
         currentCarryAmount += amount;
-        Debug.Log($"[자원 획득] 현재 적재량: {currentCarryAmount}/{maxCarryAmount}");
+        ShowFloatingText(amount);
 
         if (currentCarryAmount >= maxCarryAmount) {
             unitMining.StopMining();
@@ -134,11 +138,11 @@ public class Unit_Lifter : UnitBase
 
     private IEnumerator UnloadResourceCoroutine()
     {
-        Debug.Log($"[작업 완료] 자원 {currentCarryAmount}를 비웁니다.");
         unitMovement.StopMovement();
 
         yield return new WaitForSeconds(1f);
 
+        ShowFloatingText(currentCarryAmount);
         currentCarryAmount = 0;
         currentState = UnitState.Idle;
 
@@ -189,6 +193,18 @@ public class Unit_Lifter : UnitBase
                 }
             }
             yield return new WaitForSeconds(resourceSearchInterval);
+        }
+    }
+
+    private void ShowFloatingText(int amount)
+    {
+        if (floatingNumTextPrefab == null || canvas == null) return;
+
+        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, canvas.transform);
+
+        FloatingNumText floatingText = textInstance.GetComponent<FloatingNumText>();
+        if (floatingText != null) {
+            floatingText.SetText($"+{amount}");
         }
     }
 }

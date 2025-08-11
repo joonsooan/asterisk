@@ -43,7 +43,6 @@ public class UnitMining : MonoBehaviour
             if (_targetResourceNode != null && !_targetResourceNode.IsDepleted) {
                 _targetResourceNode.Mine(miningRate);
                 OnResourceMined?.Invoke(miningRate);
-                Debug.Log($"[자원 채굴 중] 남은 양: {_targetResourceNode.amountToMine}");
             }
             else {
                 StopMining();

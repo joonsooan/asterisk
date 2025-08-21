@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4183704755259827819}
   - component: {fileID: 6865986198788389803}
   m_Layer: 0
-  m_Name: 8_Aether Condenser
+  m_Name: 0_Charge Station
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -744711579494064424, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
+  m_Sprite: {fileID: 8762054432747665104, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

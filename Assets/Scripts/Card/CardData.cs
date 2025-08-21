@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 [System.Serializable]
 public class CardCost
@@ -9,6 +10,7 @@ public class CardCost
 
 public enum GadgetType
 {
+    None,
     MetalPanel,
     ChargeCoil,
     BioFilter,
@@ -27,6 +29,7 @@ public class CardData : ScriptableObject
     public string cardName;
     public GameObject buildingPrefab;
     public GadgetType gadgetType;
+    public TileBase gadgetTile;
     
     public CardCost[] costs;
 }

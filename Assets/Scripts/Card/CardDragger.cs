@@ -68,11 +68,10 @@ public class CardDragger : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
         
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(eventData.position);
         Vector3Int cellPos = grid.WorldToCell(mouseWorldPos);
-        GameObject buildingPrefab = cardDisplay.cardData.buildingPrefab;
         
         if (BuildingManager.Instance.CanPlaceBuilding(cellPos)) {
             if (ResourceManager.Instance.HasEnoughResources(cardDisplay.cardData.costs)) {
-                BuildingManager.Instance.PlaceBuilding(buildingPrefab, cellPos);
+                BuildingManager.Instance.PlaceBuilding(cardDisplay.cardData, cellPos);
                 ResourceManager.Instance.SpendResources(cardDisplay.cardData.costs);
                 Debug.Log("Building Constructed");
             }

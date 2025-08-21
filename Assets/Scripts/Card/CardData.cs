@@ -11,6 +11,7 @@ public class CardCost
 public class CardData : ScriptableObject
 {
     public Sprite cardImage;
+    public GameObject buildingPrefab;
     public string cardName;
     public CardCost[] costs;
 }

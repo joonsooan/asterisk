@@ -48,4 +48,12 @@ public class BuildingManager : MonoBehaviour
             Debug.Log($"Cannot place building at {cellPosition}.");
         }
     }
+
+    public void RemoveResourceTile(Vector3Int cellPosition)
+    {
+        if (resourceTilemap != null)
+        {
+            resourceTilemap.SetTile(cellPosition, null);
+        }
+    }
 }

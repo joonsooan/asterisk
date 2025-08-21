@@ -25,7 +25,6 @@ public class BuildingSpawner : MonoBehaviour
         foreach (Vector3Int cellPosition in buildingTilemap.cellBounds.allPositionsWithin) {
             if (buildingTilemap.HasTile(cellPosition) && buildingTilemap.GetTile(cellPosition) == buildingTile) {
                 Vector3 worldPos = grid.GetCellCenterWorld(cellPosition);
-                worldPos += new Vector3(0.5f, 0.5f, 0f);
                 Instantiate(buildingPrefab, worldPos, Quaternion.identity);
             }
         }

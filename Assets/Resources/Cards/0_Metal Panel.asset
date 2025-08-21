@@ -15,7 +15,7 @@ MonoBehaviour:
   cardImage: {fileID: 0}
   cardName: Metal Panel
   buildingPrefab: {fileID: 1574451153020646121, guid: 75b5f4fdfe3bb4f4e8798fd4745e0c30, type: 3}
-  gadgetType: 0
+  gadgetType: 1
   gadgetTile: {fileID: 11400000, guid: 276b58b36d750f44195cd8aea8f6d84e, type: 2}
   costs:
   - resourceType: 0

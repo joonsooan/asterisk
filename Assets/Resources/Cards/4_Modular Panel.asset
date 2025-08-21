@@ -15,7 +15,7 @@ MonoBehaviour:
   cardImage: {fileID: 0}
   cardName: Modular Panel
   buildingPrefab: {fileID: 1574451153020646121, guid: 7efcc70335fa1804fae6ac93616c8461, type: 3}
-  gadgetType: 4
+  gadgetType: 5
   gadgetTile: {fileID: 11400000, guid: 129e3053660309844aeba633a3a24b54, type: 2}
   costs:
   - resourceType: 0

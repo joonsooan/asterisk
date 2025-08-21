@@ -15,7 +15,7 @@ MonoBehaviour:
   cardImage: {fileID: 0}
   cardName: Cooler
   buildingPrefab: {fileID: 1574451153020646121, guid: 4db94240275cbf446afe060110139c5f, type: 3}
-  gadgetType: 3
+  gadgetType: 4
   gadgetTile: {fileID: 11400000, guid: e64062efadc8169498edba2d0c5c6fe0, type: 2}
   costs:
   - resourceType: 3

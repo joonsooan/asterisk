@@ -15,7 +15,7 @@ MonoBehaviour:
   cardImage: {fileID: 0}
   cardName: Bio Cultivator
   buildingPrefab: {fileID: 1574451153020646121, guid: b1eb2ea178c61624698ae92f13d97d5d, type: 3}
-  gadgetType: 6
+  gadgetType: 7
   gadgetTile: {fileID: 11400000, guid: a62199303464e25468d1cf4ddb0b6c6b, type: 2}
   costs:
   - resourceType: 1

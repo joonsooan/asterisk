@@ -73,7 +73,6 @@ public class CardDragger : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
             if (ResourceManager.Instance.HasEnoughResources(cardDisplay.cardData.costs)) {
                 BuildingManager.Instance.PlaceBuilding(cardDisplay.cardData, cellPos);
                 ResourceManager.Instance.SpendResources(cardDisplay.cardData.costs);
-                Debug.Log("Building Constructed");
             }
         } else {
             Debug.Log("Can't Place Here");

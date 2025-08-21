@@ -12,9 +12,10 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private TileBase buildingTile;
     
     [Header("Combo Buildings")]
-    [SerializeField] private List<ComboCardData> comboCardDataList;
+    private List<ComboCardData> comboCardDataList;
     private readonly Dictionary<GadgetType, TileBase> _gadgetTypeToTileCache = new Dictionary<GadgetType, TileBase>();
-
+    private readonly Dictionary<Vector3Int, BuildingPiece> _placedPieces = new Dictionary<Vector3Int, BuildingPiece>();
+    
     public static BuildingManager Instance { get; private set; }
 
     private void Awake()
@@ -32,7 +33,8 @@ public class BuildingManager : MonoBehaviour
     
     private void LoadAllComboCards()
     {
-        comboCardDataList = new List<ComboCardData>(Resources.LoadAll<ComboCardData>("Combo Cards"));
+        comboCardDataList = new List<ComboCardData>(
+            Resources.LoadAll<ComboCardData>("Combo Cards"));
     }
     
     private void CacheAllGadgetTiles()
@@ -53,7 +55,8 @@ public class BuildingManager : MonoBehaviour
 
     public bool CanPlaceBuilding(Vector3Int cellPosition)
     {
-        if (grid == null || groundTilemap == null || resourceTilemap == null || buildingTilemap == null) {
+        if (grid == null || groundTilemap == null || 
+            resourceTilemap == null || buildingTilemap == null) {
             Debug.LogError("BuildingManager: Missing references.");
             return false;
         }
@@ -69,14 +72,21 @@ public class BuildingManager : MonoBehaviour
     {
         if (CanPlaceBuilding(cellPosition)) {
             Vector3 worldPosition = grid.GetCellCenterWorld(cellPosition);
-            Instantiate(cardData.buildingPrefab, worldPosition, Quaternion.identity);
+            GameObject newPieceObject = 
+                Instantiate(cardData.buildingPrefab, worldPosition, Quaternion.identity);
+
+            BuildingPiece pieceComponent = newPieceObject.GetComponent<BuildingPiece>();
+            if (pieceComponent != null)
+            {
+                pieceComponent.gadgetType = cardData.gadgetType;
+                pieceComponent.cellPosition = cellPosition;
+                _placedPieces[cellPosition] = pieceComponent;
+            }
 
             if (cardData.gadgetTile != null) {
                 buildingTilemap.SetTile(cellPosition, cardData.gadgetTile);
             }
 
-            Debug.Log($"Building piece '{cardData.gadgetType}' placed at {cellPosition}.");
-            
             CheckForComboBuildings(cellPosition);
         } else {
             Debug.Log($"Cannot place building at {cellPosition}.");
@@ -113,7 +123,8 @@ public class BuildingManager : MonoBehaviour
             Vector3Int targetPos = originPos + piece.relativePosition;
             TileBase targetTile = buildingTilemap.GetTile(targetPos);
             
-            if (!_gadgetTypeToTileCache.TryGetValue(piece.gadgetType, out TileBase requiredTile) || targetTile != requiredTile) {
+            if (!_gadgetTypeToTileCache.TryGetValue(piece.gadgetType, out TileBase requiredTile) || 
+                targetTile != requiredTile) {
                 return false;
             }
         }
@@ -125,6 +136,7 @@ public class BuildingManager : MonoBehaviour
         foreach (var piece in comboData.recipe) {
             Vector3Int targetPos = originPos + piece.relativePosition;
             buildingTilemap.SetTile(targetPos, null);
+            RemoveBuildingPieceAtPosition(targetPos);
         }
 
         Vector3 worldPos = grid.GetCellCenterWorld(originPos);
@@ -138,6 +150,18 @@ public class BuildingManager : MonoBehaviour
         }
 
         Debug.Log($"Combo Building '{comboData.comboName}' Created");
+    }
+    
+    private void RemoveBuildingPieceAtPosition(Vector3Int cellPosition)
+    {
+        if (_placedPieces.Remove(cellPosition, out BuildingPiece piece))
+        {
+            if (piece != null)
+            {
+                Destroy(piece.gameObject);
+                Debug.Log($"Removed BuildingPiece at {cellPosition}.");
+            }
+        }
     }
     
     public void RemoveResourceTile(Vector3Int cellPosition)

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardImage: {fileID: 0}
   cardName: Bio Filter
   buildingPrefab: {fileID: 1574451153020646121, guid: d1318c4544c1e924bbab298c56de6d42, type: 3}
-  gadgetType: 2
+  gadgetType: 3
   gadgetTile: {fileID: 11400000, guid: faa211a4d7b7c2349a7f55cbbbe90ae9, type: 2}
   costs:
   - resourceType: 2

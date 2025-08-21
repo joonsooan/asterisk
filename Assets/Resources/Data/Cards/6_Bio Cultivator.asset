@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: 6_Bio Cultivator
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
-  buildingPrefab: {fileID: 1574451153020646121, guid: b1eb2ea178c61624698ae92f13d97d5d, type: 3}
   cardName: Bio Cultivator
+  buildingPrefab: {fileID: 1574451153020646121, guid: b1eb2ea178c61624698ae92f13d97d5d, type: 3}
+  gadgetType: 6
   costs:
   - resourceType: 1
     amount: 10

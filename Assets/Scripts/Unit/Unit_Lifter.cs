@@ -24,6 +24,7 @@ public class Unit_Lifter : UnitBase
     private Coroutine _findResourceCoroutine;
     private StorageBuilding _storageBuilding;
     private ResourceNode _targetResourceNode;
+    private ResourceType _currentResourceType;
 
     private void Awake()
     {
@@ -147,6 +148,7 @@ public class Unit_Lifter : UnitBase
             unitMovement.SetNewTarget(_storageBuilding.transform.position);
             if (_targetResourceNode != null) {
                 _targetResourceNode.Unreserve();
+                _currentResourceType = _targetResourceNode.resourceType;
             }
         }
     }
@@ -154,8 +156,11 @@ public class Unit_Lifter : UnitBase
     private IEnumerator UnloadResourceCoroutine()
     {
         unitMovement.StopMovement();
-
         yield return new WaitForSeconds(1f);
+        
+        if (ResourceManager.Instance != null) {
+            ResourceManager.Instance.AddResource(_currentResourceType, currentCarryAmount);
+        }
 
         ShowFloatingText(currentCarryAmount);
         currentCarryAmount = 0;

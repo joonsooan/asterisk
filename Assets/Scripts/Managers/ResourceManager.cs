@@ -1,6 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ResourceType
+{
+    Ferrite,
+    Aether,
+    Biomass,
+    CryoCrystal
+}
+
 public class ResourceManager : MonoBehaviour
 {
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();

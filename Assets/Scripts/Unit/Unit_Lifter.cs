@@ -77,47 +77,62 @@ public class Unit_Lifter : UnitBase
             break;
 
         case UnitState.Moving:
-            if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
-                if (_targetResourceNode != null) {
-                    _targetResourceNode.Unreserve();
-                }
-                currentState = UnitState.Idle;
-                unitMovement.StopMovement();
-                _targetResourceNode = null;
-                break;
-            }
-
-            float distanceToTarget = Vector2.Distance(transform.position, _targetResourceNode.transform.position);
-            if (distanceToTarget <= unitMining.miningRange) {
-                currentState = UnitState.Mining;
-                unitMovement.StopMovement();
-                unitMining.StartMining(_targetResourceNode);
-            }
+            OnMoving();
             break;
 
         case UnitState.Mining:
-            if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
-                unitMining.StopMining();
-                currentState = UnitState.Idle;
-                _targetResourceNode = null;
-
-                if (_findResourceCoroutine != null) {
-                    StopCoroutine(_findResourceCoroutine);
-                }
-                _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
-            }
+            OnMining();
             break;
 
         case UnitState.ReturningToStorage:
-            float distanceToStorage = Vector2.Distance(transform.position, _storageBuilding.transform.position);
-            if (distanceToStorage <= unloadDistance) {
-                currentState = UnitState.Unloading;
-                StartCoroutine(UnloadResourceCoroutine());
-            }
+            OnReturnToStorage();
             break;
 
         case UnitState.Unloading:
             break;
+        }
+    }
+
+    private void OnMoving()
+    {
+        if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
+            if (_targetResourceNode != null) {
+                _targetResourceNode.Unreserve();
+            }
+            currentState = UnitState.Idle;
+            unitMovement.StopMovement();
+            _targetResourceNode = null;
+            return;
+        }
+
+        float distanceToTarget = Vector2.Distance(transform.position, _targetResourceNode.transform.position);
+        if (distanceToTarget <= unitMining.miningRange) {
+            currentState = UnitState.Mining;
+            unitMovement.StopMovement();
+            unitMining.StartMining(_targetResourceNode);
+        }
+    }
+
+    private void OnMining()
+    {
+        if (_targetResourceNode == null || _targetResourceNode.IsDepleted) {
+            unitMining.StopMining();
+            currentState = UnitState.Idle;
+            _targetResourceNode = null;
+
+            if (_findResourceCoroutine != null) {
+                StopCoroutine(_findResourceCoroutine);
+            }
+            _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
+        }
+    }
+
+    private void OnReturnToStorage()
+    {
+        float distanceToStorage = Vector2.Distance(transform.position, _storageBuilding.transform.position);
+        if (distanceToStorage <= unloadDistance) {
+            currentState = UnitState.Unloading;
+            StartCoroutine(UnloadResourceCoroutine());
         }
     }
 

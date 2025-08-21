@@ -5,8 +5,8 @@ public class ResourceSpawner : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Tilemap resourceTilemap;
-    [SerializeField] private GameObject resourcePrefab;
-    [SerializeField] private TileBase resourceTile;
+    [SerializeField] private TileBase[] resourceTiles;
+    [SerializeField] private GameObject[] resourcePrefabs;
     [SerializeField] private Grid grid;
 
     public Tilemap ResourceTilemap {
@@ -17,16 +17,19 @@ public class ResourceSpawner : MonoBehaviour
 
     public void SpawnResources()
     {
-        if (resourceTilemap == null || resourcePrefab == null || resourceTile == null || grid == null) {
-            Debug.LogError("ResourceSpawner: Missing references.");
-            return;
-        }
-
         foreach (Vector3Int pos in resourceTilemap.cellBounds.allPositionsWithin) {
-            if (resourceTilemap.HasTile(pos) && resourceTilemap.GetTile(pos) == resourceTile) {
+            TileBase currentTile = resourceTilemap.GetTile(pos);
+
+            if (currentTile == null) continue;
+            for (var i = 0; i < resourceTiles.Length; i++)
+            {
+                var t = resourceTiles[i];
+                if (currentTile != t) continue;
+
                 Vector3 worldPos = grid.GetCellCenterWorld(pos);
                 worldPos += new Vector3(0.5f, 0.5f, 0f);
-                Instantiate(resourcePrefab, worldPos, Quaternion.identity);
+                Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity);
+                break;
             }
         }
     }

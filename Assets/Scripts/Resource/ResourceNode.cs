@@ -3,6 +3,7 @@ using UnityEngine;
 public class ResourceNode : MonoBehaviour
 {
     [Header("Resource Stats")]
+    public ResourceType resourceType;
     public int amountToMine = 100;
 
     [Header("Visuals")]

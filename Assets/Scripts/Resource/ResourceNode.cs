@@ -11,6 +11,7 @@ public class ResourceNode : MonoBehaviour
 
     private Color _originalColor;
     private SpriteRenderer _sr;
+    [HideInInspector] public Vector3Int cellPosition;
 
     public bool IsReserved { get; private set; }
 
@@ -34,6 +35,9 @@ public class ResourceNode : MonoBehaviour
     {
         if (ResourceManager.Instance != null) {
             ResourceManager.Instance.RemoveResourceNode(this);
+        }
+        if (BuildingManager.Instance != null) {
+            BuildingManager.Instance.RemoveResourceTile(cellPosition);
         }
     }
 

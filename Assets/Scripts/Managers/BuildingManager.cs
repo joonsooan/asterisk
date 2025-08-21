@@ -21,11 +21,6 @@ public class BuildingManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
-    public Tilemap GetBuildingTilemap()
-    {
-        return buildingTilemap;
-    }
 
     public bool CanPlaceBuilding(Vector3Int cellPosition)
     {
@@ -51,6 +46,14 @@ public class BuildingManager : MonoBehaviour
         }
         else {
             Debug.Log($"Cannot place building at {cellPosition}.");
+        }
+    }
+
+    public void RemoveResourceTile(Vector3Int cellPosition)
+    {
+        if (resourceTilemap != null)
+        {
+            resourceTilemap.SetTile(cellPosition, null);
         }
     }
 }

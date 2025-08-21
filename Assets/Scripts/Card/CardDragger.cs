@@ -8,7 +8,7 @@ public class CardDragger : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
 
     private CardDisplay cardDisplay;
     private GameObject ghostBuildingInstance;
-    private bool isDragging = false;
+    private bool isDragging;
 
     private void Start()
     {

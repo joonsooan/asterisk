@@ -27,7 +27,14 @@ public class ResourceSpawner : MonoBehaviour
                 if (currentTile != t) continue;
 
                 Vector3 worldPos = grid.GetCellCenterWorld(pos);
-                Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity);
+                GameObject resourceNodeObj = Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity);
+                ResourceNode nodeComponent = resourceNodeObj.GetComponent<ResourceNode>();
+                
+                if (nodeComponent != null)
+                {
+                    nodeComponent.cellPosition = pos;
+                }
+                
                 break;
             }
         }

@@ -123,6 +123,11 @@ public class ResourceManager : MonoBehaviour
             _allResources.Remove(node);
         }
     }
+    
+    public void RemoveResourceNodeTile(Vector3Int cellPosition)
+    {
+        BuildingManager.Instance.RemoveResourceTile(cellPosition);
+    }
 
     public List<ResourceNode> GetAllResources()
     {

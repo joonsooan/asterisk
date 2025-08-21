@@ -10,13 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
-  m_Name: Cryo Core
+  m_Name: 0_Metal Panel
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
-  buildingPrefab: {fileID: 1574451153020646121, guid: e772a692e91103940bbaff551a487b43, type: 3}
-  cardName: Cryo Core
+  buildingPrefab: {fileID: 1574451153020646121, guid: 75b5f4fdfe3bb4f4e8798fd4745e0c30, type: 3}
+  cardName: Metal Panel
   costs:
-  - resourceType: 1
-    amount: 30
-  - resourceType: 3
-    amount: 40
+  - resourceType: 0
+    amount: 10

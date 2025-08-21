@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
-  m_Name: Energy
+  m_Name: 7_Crystal Link
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
-  buildingPrefab: {fileID: 1574451153020646121, guid: 33866f44b06237c46a1fe3e1f9442144, type: 3}
-  cardName: Energy
+  buildingPrefab: {fileID: 1574451153020646121, guid: 91291eb00fc03314b9617f0bb95e299f, type: 3}
+  cardName: Crystal Link
   costs:
   - resourceType: 0
-    amount: 20
-  - resourceType: 1
-    amount: 30
+    amount: 40
+  - resourceType: 3
+    amount: 5

@@ -10,13 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
-  m_Name: Base
+  m_Name: 5_Electro Magnet
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
-  buildingPrefab: {fileID: 1574451153020646121, guid: 75b5f4fdfe3bb4f4e8798fd4745e0c30, type: 3}
-  cardName: Base
+  buildingPrefab: {fileID: 1574451153020646121, guid: 27a8eee5cacd95840890238555832186, type: 3}
+  cardName: Electro Magnet
   costs:
-  - resourceType: 0
-    amount: 50
   - resourceType: 1
-    amount: 10
+    amount: 20

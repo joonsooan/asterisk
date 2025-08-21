@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4183704755259827819}
   - component: {fileID: 6865986198788389803}
   m_Layer: 0
-  m_Name: Cryo Core
+  m_Name: 1_Charge Coil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

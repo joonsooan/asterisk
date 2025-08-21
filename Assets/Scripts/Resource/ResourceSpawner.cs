@@ -27,7 +27,6 @@ public class ResourceSpawner : MonoBehaviour
                 if (currentTile != t) continue;
 
                 Vector3 worldPos = grid.GetCellCenterWorld(pos);
-                worldPos += new Vector3(0.5f, 0.5f, 0f);
                 Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity);
                 break;
             }

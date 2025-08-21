@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Base
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
+  buildingPrefab: {fileID: 1574451153020646121, guid: 75b5f4fdfe3bb4f4e8798fd4745e0c30, type: 3}
   cardName: Base
   costs:
   - resourceType: 0

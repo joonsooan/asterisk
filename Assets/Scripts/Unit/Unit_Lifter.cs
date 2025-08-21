@@ -206,7 +206,9 @@ public class Unit_Lifter : UnitBase
                     _targetResourceNode = nearest;
                     _targetResourceNode.Reserve();
 
-                    Vector2 targetPos = nearest.transform.position;
+                    Vector3Int cellPosition = unitMovement.grid.WorldToCell(nearest.transform.position);
+                    Vector2 targetPos = unitMovement.grid.GetCellCenterWorld(cellPosition);
+                
                     unitMovement.SetNewTarget(targetPos);
 
                     currentState = UnitState.Moving;

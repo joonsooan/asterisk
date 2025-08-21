@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Plazma
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
-  cardName: Equalizer
+  cardName: Plazma
   costs:
   - resourceType: 1
     amount: 50

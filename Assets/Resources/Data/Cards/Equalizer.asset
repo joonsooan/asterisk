@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Equalizer
   m_EditorClassIdentifier: 
   cardImage: {fileID: 0}
+  buildingPrefab: {fileID: 1574451153020646121, guid: cb1f596638cd57c43a42cc84483c9289, type: 3}
   cardName: Equalizer
   costs:
   - resourceType: 1

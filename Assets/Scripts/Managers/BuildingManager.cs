@@ -21,6 +21,11 @@ public class BuildingManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    
+    public Tilemap GetBuildingTilemap()
+    {
+        return buildingTilemap;
+    }
 
     public bool CanPlaceBuilding(Vector3Int cellPosition)
     {

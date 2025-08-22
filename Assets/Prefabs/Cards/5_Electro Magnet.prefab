@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4183704755259827819}
   - component: {fileID: 6865986198788389803}
+  - component: {fileID: -5091101806622373446}
   m_Layer: 0
   m_Name: 5_Electro Magnet
   m_TagString: Untagged
@@ -87,3 +88,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-5091101806622373446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574451153020646121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370fb1a76a9e5d5418696106cf192f92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gadgetType: 0
+  cellPosition: {x: 0, y: 0, z: 0}

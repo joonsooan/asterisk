@@ -85,6 +85,7 @@ public class BuildingManager : MonoBehaviour
 
             if (cardData.gadgetTile != null) {
                 buildingTilemap.SetTile(cellPosition, cardData.gadgetTile);
+                Debug.Log($"Placed building at {cellPosition}.");
             }
 
             CheckForComboBuildings(cellPosition);
@@ -135,8 +136,8 @@ public class BuildingManager : MonoBehaviour
     {
         foreach (var piece in comboData.recipe) {
             Vector3Int targetPos = originPos + piece.relativePosition;
-            buildingTilemap.SetTile(targetPos, null);
             RemoveBuildingPieceAtPosition(targetPos);
+            buildingTilemap.SetTile(targetPos, null);
         }
 
         Vector3 worldPos = grid.GetCellCenterWorld(originPos);
@@ -152,14 +153,15 @@ public class BuildingManager : MonoBehaviour
         Debug.Log($"Combo Building '{comboData.comboName}' Created");
     }
     
-    private void RemoveBuildingPieceAtPosition(Vector3Int cellPosition)
+    private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)
     {
-        if (_placedPieces.Remove(cellPosition, out BuildingPiece piece))
+        if (_placedPieces.TryGetValue(cellPos, out BuildingPiece piece))
         {
+            _placedPieces.Remove(cellPos);
             if (piece != null)
             {
                 Destroy(piece.gameObject);
-                Debug.Log($"Removed BuildingPiece at {cellPosition}.");
+                Debug.Log($"Removed BuildingPiece at {cellPos}.");
             }
         }
     }

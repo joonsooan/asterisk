@@ -13,14 +13,15 @@ public class Unit_Lifter : UnitBase
     [SerializeField] private float resourceSearchInterval = 2f;
 
     [Header("VFX")]
-    public Canvas canvas;
-    public GameObject floatingNumTextPrefab;
+    [SerializeField] private string canvasName = "FloatingText Canvas";
+    [SerializeField] private GameObject floatingNumTextPrefab;
 
     [Header("References")]
     [SerializeField] private UnitMovement unitMovement;
     [SerializeField] private UnitMining unitMining;
     [SerializeField] private UnitSpriteController unitSpriteController;
 
+    private Canvas _canvas;
     private Coroutine _findResourceCoroutine;
     private StorageBuilding _storageBuilding;
     private ResourceNode _targetResourceNode;
@@ -28,6 +29,13 @@ public class Unit_Lifter : UnitBase
 
     private void Awake()
     {
+        GameObject canvasObject = GameObject.Find(canvasName);
+        
+        if (canvasObject != null)
+        {
+            _canvas = canvasObject.GetComponent<Canvas>();
+        }
+        
         unitMining.OnResourceMined += HandleResourceMined;
     }
 
@@ -220,9 +228,9 @@ public class Unit_Lifter : UnitBase
 
     private void ShowFloatingText(int amount)
     {
-        if (floatingNumTextPrefab == null || canvas == null) return;
+        if (floatingNumTextPrefab == null || _canvas == null) return;
 
-        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, canvas.transform);
+        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, _canvas.transform);
 
         FloatingNumText floatingText = textInstance.GetComponent<FloatingNumText>();
         if (floatingText != null) {

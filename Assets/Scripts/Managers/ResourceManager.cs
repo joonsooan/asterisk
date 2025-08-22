@@ -7,7 +7,8 @@ public enum ResourceType
     Ferrite,
     Aether,
     Biomass,
-    CryoCrystal
+    CryoCrystal,
+    Solana
 }
 
 public class ResourceManager : MonoBehaviour
@@ -17,6 +18,7 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text aetherNumber;
     [SerializeField] private TMP_Text biomassNumber;
     [SerializeField] private TMP_Text cryoCrystalNumber;
+    [SerializeField] private TMP_Text solanaNumber;
     
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
@@ -33,6 +35,7 @@ public class ResourceManager : MonoBehaviour
             _resourceCounts[ResourceType.Aether] = 0;
             _resourceCounts[ResourceType.Biomass] = 0;
             _resourceCounts[ResourceType.CryoCrystal] = 0;
+            _resourceCounts[ResourceType.Solana] = 0;
             
             UpdateAllResourceUI();
         }
@@ -99,6 +102,9 @@ public class ResourceManager : MonoBehaviour
             case ResourceType.CryoCrystal:
                 cryoCrystalNumber.text = _resourceCounts[type].ToString();
                 break;
+            case ResourceType.Solana:
+                solanaNumber.text = _resourceCounts[type].ToString();
+                break;
         }
     }
     
@@ -108,6 +114,7 @@ public class ResourceManager : MonoBehaviour
         aetherNumber.text = _resourceCounts[ResourceType.Aether].ToString();
         biomassNumber.text = _resourceCounts[ResourceType.Biomass].ToString();
         cryoCrystalNumber.text = _resourceCounts[ResourceType.CryoCrystal].ToString();
+        solanaNumber.text = _resourceCounts[ResourceType.Solana].ToString();
     }
 
     public void AddResourceNode(ResourceNode node)

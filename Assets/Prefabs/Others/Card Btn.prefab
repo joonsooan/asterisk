@@ -123,19 +123,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4972124663225001278}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5839969122033935923}
-        m_TargetAssemblyTypeName: CardDisplay, Assembly-CSharp
-        m_MethodName: OnClickBuy
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5839969122033935923
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,7 +154,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grid: {fileID: 0}
-  canvas: {fileID: 0}
 --- !u!1 &4254415167102692210
 GameObject:
   m_ObjectHideFlags: 0

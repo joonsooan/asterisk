@@ -50,11 +50,4 @@ public class CardDisplay : MonoBehaviour
         }
         costText.text = costString.ToString();
     }
-
-    public void OnClickBuy()
-    {
-        if (CardManager.Instance != null) {
-            CardManager.Instance.BuyCard(cardData);
-        }
-    }
 }

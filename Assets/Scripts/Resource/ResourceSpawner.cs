@@ -8,7 +8,8 @@ public class ResourceSpawner : MonoBehaviour
     [SerializeField] private TileBase[] resourceTiles;
     [SerializeField] private GameObject[] resourcePrefabs;
     [SerializeField] private Grid grid;
-
+    [SerializeField] private Transform parentTransform;
+    
     public Tilemap ResourceTilemap {
         get {
             return resourceTilemap;
@@ -17,6 +18,10 @@ public class ResourceSpawner : MonoBehaviour
 
     public void SpawnResources()
     {
+        if (parentTransform == null) {
+            parentTransform = this.transform;
+        }
+        
         foreach (Vector3Int pos in resourceTilemap.cellBounds.allPositionsWithin) {
             TileBase currentTile = resourceTilemap.GetTile(pos);
 
@@ -27,7 +32,7 @@ public class ResourceSpawner : MonoBehaviour
                 if (currentTile != t) continue;
 
                 Vector3 worldPos = grid.GetCellCenterWorld(pos);
-                GameObject resourceNodeObj = Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity);
+                GameObject resourceNodeObj = Instantiate(resourcePrefabs[i], worldPos, Quaternion.identity, parentTransform);
                 ResourceNode nodeComponent = resourceNodeObj.GetComponent<ResourceNode>();
                 
                 if (nodeComponent != null)

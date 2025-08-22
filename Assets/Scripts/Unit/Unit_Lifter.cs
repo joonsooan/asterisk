@@ -13,14 +13,15 @@ public class Unit_Lifter : UnitBase
     [SerializeField] private float resourceSearchInterval = 2f;
 
     [Header("VFX")]
-    public Canvas canvas;
-    public GameObject floatingNumTextPrefab;
+    [SerializeField] private string canvasName = "FloatingText Canvas";
+    [SerializeField] private GameObject floatingNumTextPrefab;
 
     [Header("References")]
     [SerializeField] private UnitMovement unitMovement;
     [SerializeField] private UnitMining unitMining;
     [SerializeField] private UnitSpriteController unitSpriteController;
 
+    private Canvas _canvas;
     private Coroutine _findResourceCoroutine;
     private StorageBuilding _storageBuilding;
     private ResourceNode _targetResourceNode;
@@ -28,13 +29,19 @@ public class Unit_Lifter : UnitBase
 
     private void Awake()
     {
+        GameObject canvasObject = GameObject.Find(canvasName);
+        
+        if (canvasObject != null)
+        {
+            _canvas = canvasObject.GetComponent<Canvas>();
+        }
+
         unitMining.OnResourceMined += HandleResourceMined;
     }
 
     private void Start()
     {
         currentHealth = maxHealth;
-        currentState = UnitState.Idle;
     }
 
     private void Update()
@@ -171,58 +178,68 @@ public class Unit_Lifter : UnitBase
 
     private IEnumerator FindNearestResourceCoroutine()
     {
-        while (true) {
-            if (currentState == UnitState.Idle) {
-                List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
-                float minDistance = float.MaxValue;
-                ResourceNode nearest = null;
+        FindAndSetTarget();
 
-                foreach (ResourceNode resource in allResources) {
-                    if (resource.IsDepleted || resource.IsReserved) continue;
-
-                    float distance = Vector2.Distance(transform.position, resource.transform.position);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        nearest = resource;
-                    }
-                }
-
-                if (nearest == null) {
-                    if (currentCarryAmount > 0) {
-                        Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
-                        currentState = UnitState.ReturningToStorage;
-                        unitMovement.SetNewTarget(_storageBuilding.transform.position);
-                        _targetResourceNode = null;
-                    }
-                    else {
-                        Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
-                    }
-                }
-                else {
-                    if (_targetResourceNode != null && _targetResourceNode != nearest) {
-                        _targetResourceNode.Unreserve();
-                    }
-
-                    _targetResourceNode = nearest;
-                    _targetResourceNode.Reserve();
-
-                    Vector3Int cellPosition = unitMovement.grid.WorldToCell(nearest.transform.position);
-                    Vector2 targetPos = unitMovement.grid.GetCellCenterWorld(cellPosition);
-                
-                    unitMovement.SetNewTarget(targetPos);
-
-                    currentState = UnitState.Moving;
-                }
+        while (true)
+        {
+            if (currentState == UnitState.Idle)
+            {
+                yield return new WaitForSeconds(resourceSearchInterval);
+                FindAndSetTarget();
             }
-            yield return new WaitForSeconds(resourceSearchInterval);
+            else
+            {
+                yield return null;
+            }
+        }
+    }
+
+    private void FindAndSetTarget()
+    {
+        List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
+        float minDistance = float.MaxValue;
+        ResourceNode nearest = null;
+
+        foreach (ResourceNode resource in allResources) {
+            if (resource.IsDepleted || resource.IsReserved) continue;
+
+            float distance = Vector2.Distance(transform.position, resource.transform.position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearest = resource;
+            }
+        }
+
+        if (nearest == null) {
+            if (currentCarryAmount > 0) {
+                Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
+                currentState = UnitState.ReturningToStorage;
+                unitMovement.SetNewTarget(_storageBuilding.transform.position);
+                _targetResourceNode = null;
+            }
+            else {
+                Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
+            }
+        }
+        else {
+            if (_targetResourceNode != null && _targetResourceNode != nearest) {
+                _targetResourceNode.Unreserve();
+            }
+
+            _targetResourceNode = nearest;
+            _targetResourceNode.Reserve();
+
+            unitMovement.SetNewTarget(_targetResourceNode.transform.position);
+
+            currentState = UnitState.Moving;
         }
     }
 
     private void ShowFloatingText(int amount)
     {
-        if (floatingNumTextPrefab == null || canvas == null) return;
+        if (floatingNumTextPrefab == null || _canvas == null) return;
 
-        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, canvas.transform);
+        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, _canvas.transform);
 
         FloatingNumText floatingText = textInstance.GetComponent<FloatingNumText>();
         if (floatingText != null) {

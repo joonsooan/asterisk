@@ -2670,9 +2670,9 @@ GameObject:
   m_Component:
   - component: {fileID: 508392700}
   - component: {fileID: 508392703}
-  - component: {fileID: 508392702}
   - component: {fileID: 508392701}
   - component: {fileID: 508392704}
+  - component: {fileID: 508392702}
   m_Layer: 0
   m_Name: _Managers
   m_TagString: Untagged
@@ -2724,6 +2724,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ab7edb7e41cd14fba2d87c27d59786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceCheckInterval: 60
+  requiredResourceAmounts: 050000000f00000032000000640000002c010000
+  requiredResourceType: 4
 --- !u!114 &508392703
 MonoBehaviour:
   m_ObjectHideFlags: 0

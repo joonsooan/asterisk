@@ -140,4 +140,9 @@ public class ResourceManager : MonoBehaviour
     {
         return _allResources;
     }
+
+    public int GetResource(ResourceType type)
+    {
+        return _resourceCounts[type];
+    }
 }

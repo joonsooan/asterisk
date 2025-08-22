@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,9 +23,32 @@ public class GameManager : MonoBehaviour
         else {
             Destroy(gameObject);
         }
+        
+        if (SceneManager.GetActiveScene().name == "GameScene")
+        {
+            Initiate();
+        }
     }
 
     private void Start()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "GameScene")
+        {
+            Initiate();
+        }
+    }
+
+    private void Initiate()
     {
         BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);
         foreach (BuildingSpawner spawner in buildingSpawners) {
@@ -79,12 +103,17 @@ public class GameManager : MonoBehaviour
     
     private void GameOver()
     {
-        Time.timeScale = 0;
-        Debug.Log("Game Over");
+        SceneManager.LoadScene("TitleScene");
+        Time.timeScale = 1;
     }
 
     private void SetTimeScale()
     {
+        if (SceneManager.GetActiveScene().name != "GameScene")
+        {
+            return;
+        }
+        
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             Time.timeScale = 1;
         }

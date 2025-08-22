@@ -35,14 +35,13 @@ public class Unit_Lifter : UnitBase
         {
             _canvas = canvasObject.GetComponent<Canvas>();
         }
-        
+
         unitMining.OnResourceMined += HandleResourceMined;
     }
 
     private void Start()
     {
         currentHealth = maxHealth;
-        currentState = UnitState.Idle;
     }
 
     private void Update()
@@ -179,50 +178,61 @@ public class Unit_Lifter : UnitBase
 
     private IEnumerator FindNearestResourceCoroutine()
     {
-        while (true) {
-            if (currentState == UnitState.Idle) {
-                List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
-                float minDistance = float.MaxValue;
-                ResourceNode nearest = null;
+        FindAndSetTarget();
 
-                foreach (ResourceNode resource in allResources) {
-                    if (resource.IsDepleted || resource.IsReserved) continue;
-
-                    float distance = Vector2.Distance(transform.position, resource.transform.position);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        nearest = resource;
-                    }
-                }
-
-                if (nearest == null) {
-                    if (currentCarryAmount > 0) {
-                        Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
-                        currentState = UnitState.ReturningToStorage;
-                        unitMovement.SetNewTarget(_storageBuilding.transform.position);
-                        _targetResourceNode = null;
-                    }
-                    else {
-                        Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
-                    }
-                }
-                else {
-                    if (_targetResourceNode != null && _targetResourceNode != nearest) {
-                        _targetResourceNode.Unreserve();
-                    }
-
-                    _targetResourceNode = nearest;
-                    _targetResourceNode.Reserve();
-
-                    Vector3Int cellPosition = unitMovement.grid.WorldToCell(nearest.transform.position);
-                    Vector2 targetPos = unitMovement.grid.GetCellCenterWorld(cellPosition);
-                
-                    unitMovement.SetNewTarget(targetPos);
-
-                    currentState = UnitState.Moving;
-                }
+        while (true)
+        {
+            if (currentState == UnitState.Moving || currentState == UnitState.ReturningToStorage)
+            {
+                yield return null;
             }
-            yield return new WaitForSeconds(resourceSearchInterval);
+            else
+            {
+                yield return new WaitForSeconds(resourceSearchInterval);
+            
+                FindAndSetTarget();
+            }
+        }
+    }
+
+    private void FindAndSetTarget()
+    {
+        List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
+        float minDistance = float.MaxValue;
+        ResourceNode nearest = null;
+
+        foreach (ResourceNode resource in allResources) {
+            if (resource.IsDepleted || resource.IsReserved) continue;
+
+            float distance = Vector2.Distance(transform.position, resource.transform.position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearest = resource;
+            }
+        }
+
+        if (nearest == null) {
+            if (currentCarryAmount > 0) {
+                Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
+                currentState = UnitState.ReturningToStorage;
+                unitMovement.SetNewTarget(_storageBuilding.transform.position);
+                _targetResourceNode = null;
+            }
+            else {
+                Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
+            }
+        }
+        else {
+            if (_targetResourceNode != null && _targetResourceNode != nearest) {
+                _targetResourceNode.Unreserve();
+            }
+
+            _targetResourceNode = nearest;
+            _targetResourceNode.Reserve();
+
+            unitMovement.SetNewTarget(_targetResourceNode.transform.position);
+
+            currentState = UnitState.Moving;
         }
     }
 

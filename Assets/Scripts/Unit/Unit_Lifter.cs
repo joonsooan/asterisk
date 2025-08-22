@@ -182,15 +182,14 @@ public class Unit_Lifter : UnitBase
 
         while (true)
         {
-            if (currentState == UnitState.Moving || currentState == UnitState.ReturningToStorage)
+            if (currentState == UnitState.Idle)
             {
-                yield return null;
+                yield return new WaitForSeconds(resourceSearchInterval);
+                FindAndSetTarget();
             }
             else
             {
-                yield return new WaitForSeconds(resourceSearchInterval);
-            
-                FindAndSetTarget();
+                yield return null;
             }
         }
     }

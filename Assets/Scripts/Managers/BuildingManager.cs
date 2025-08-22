@@ -10,6 +10,7 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private Tilemap resourceTilemap;
     [SerializeField] private Tilemap buildingTilemap;
     [SerializeField] private TileBase buildingTile;
+    [SerializeField] private Transform parentTransform;
     
     [Header("Combo Buildings")]
     private List<ComboCardData> comboCardDataList;
@@ -70,10 +71,14 @@ public class BuildingManager : MonoBehaviour
 
     public void PlaceBuilding(CardData cardData, Vector3Int cellPosition)
     {
+        if (parentTransform == null) {
+            parentTransform = this.transform;
+        }
+        
         if (CanPlaceBuilding(cellPosition)) {
             Vector3 worldPosition = grid.GetCellCenterWorld(cellPosition);
             GameObject newPieceObject = 
-                Instantiate(cardData.buildingPrefab, worldPosition, Quaternion.identity);
+                Instantiate(cardData.buildingPrefab, worldPosition, Quaternion.identity, parentTransform);
 
             BuildingPiece pieceComponent = newPieceObject.GetComponent<BuildingPiece>();
             if (pieceComponent != null)
@@ -143,7 +148,7 @@ public class BuildingManager : MonoBehaviour
         Vector3 worldPos = grid.GetCellCenterWorld(originPos);
         foreach (var piece in comboData.recipe) {
             Vector3 targetPos = worldPos + piece.relativePosition;
-            Instantiate(comboData.comboPrefab, targetPos, Quaternion.identity);
+            Instantiate(comboData.comboPrefab, targetPos, Quaternion.identity, parentTransform);
         }
 
         if (comboData.comboTile != null) {
@@ -158,9 +163,8 @@ public class BuildingManager : MonoBehaviour
     
     private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)
     {
-        if (_placedPieces.TryGetValue(cellPos, out BuildingPiece piece))
+        if (_placedPieces.Remove(cellPos, out BuildingPiece piece))
         {
-            _placedPieces.Remove(cellPos);
             if (piece != null)
             {
                 Destroy(piece.gameObject);

@@ -8,6 +8,7 @@ public class BuildingSpawner : MonoBehaviour
     [SerializeField] private GameObject buildingPrefab;
     [SerializeField] private TileBase buildingTile;
     [SerializeField] private Grid grid;
+    [SerializeField] private Transform parentTransform;
 
     public Tilemap BuildingTilemap {
         get {
@@ -21,11 +22,15 @@ public class BuildingSpawner : MonoBehaviour
             Debug.LogError("BuildingSpawner: Missing references.");
             return;
         }
+        
+        if (parentTransform == null) {
+            parentTransform = this.transform;
+        }
 
         foreach (Vector3Int cellPosition in buildingTilemap.cellBounds.allPositionsWithin) {
             if (buildingTilemap.HasTile(cellPosition) && buildingTilemap.GetTile(cellPosition) == buildingTile) {
                 Vector3 worldPos = grid.GetCellCenterWorld(cellPosition);
-                Instantiate(buildingPrefab, worldPos, Quaternion.identity);
+                Instantiate(buildingPrefab, worldPos, Quaternion.identity, parentTransform);
             }
         }
     }

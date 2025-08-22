@@ -23,11 +23,6 @@ public class GameManager : MonoBehaviour
         else {
             Destroy(gameObject);
         }
-        
-        if (SceneManager.GetActiveScene().name == "GameScene")
-        {
-            Initiate();
-        }
     }
 
     private void Start()

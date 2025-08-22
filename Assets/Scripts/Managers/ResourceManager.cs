@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum ResourceType
 {
@@ -31,17 +32,50 @@ public class ResourceManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
-            _resourceCounts[ResourceType.Ferrite] = 0;
-            _resourceCounts[ResourceType.Aether] = 0;
-            _resourceCounts[ResourceType.Biomass] = 0;
-            _resourceCounts[ResourceType.CryoCrystal] = 0;
-            _resourceCounts[ResourceType.Solana] = 0;
-            
+            ResetResourceCount();
             UpdateAllResourceUI();
         }
         else {
             Destroy(gameObject);
         }
+    }
+    
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "GameScene")
+        {
+            FindAndConnectUI();
+            ResetResourceCount();
+            UpdateAllResourceUI();
+        }
+    }
+    
+    private void ResetResourceCount()
+    {
+        _resourceCounts[ResourceType.Ferrite] = 0;
+        _resourceCounts[ResourceType.Aether] = 0;
+        _resourceCounts[ResourceType.Biomass] = 0;
+        _resourceCounts[ResourceType.CryoCrystal] = 0;
+        _resourceCounts[ResourceType.Solana] = 0;
+    }
+
+    private void FindAndConnectUI()
+    {
+        ferriteNumber = GameObject.Find("Resource0_txt")?.GetComponent<TMP_Text>();
+        aetherNumber = GameObject.Find("Resource1_txt")?.GetComponent<TMP_Text>();
+        biomassNumber = GameObject.Find("Resource2_txt")?.GetComponent<TMP_Text>();
+        cryoCrystalNumber = GameObject.Find("Resource3_txt")?.GetComponent<TMP_Text>();
+        solanaNumber = GameObject.Find("Resource4_txt")?.GetComponent<TMP_Text>();
     }
 
     public void AddResource(ResourceType type, int amount)
@@ -89,6 +123,11 @@ public class ResourceManager : MonoBehaviour
 
     private void UpdateResourceUI(ResourceType type)
     {
+        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null)
+        {
+            return;
+        }
+        
         switch (type) {
             case ResourceType.Ferrite:
                 ferriteNumber.text = _resourceCounts[type].ToString();
@@ -110,6 +149,11 @@ public class ResourceManager : MonoBehaviour
     
     private void UpdateAllResourceUI()
     {
+        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null)
+        {
+            return;
+        }
+        
         ferriteNumber.text = _resourceCounts[ResourceType.Ferrite].ToString();
         aetherNumber.text = _resourceCounts[ResourceType.Aether].ToString();
         biomassNumber.text = _resourceCounts[ResourceType.Biomass].ToString();

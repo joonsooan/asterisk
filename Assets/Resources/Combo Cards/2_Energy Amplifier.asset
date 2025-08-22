@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
+  m_Name: 2_Energy Amplifier
+  m_EditorClassIdentifier: 
+  comboName: Energy Amplifier
+  comboPrefab: {fileID: 1574451153020646121, guid: acecfec883c9fa049a4ad70d9025636d, type: 3}
+  comboTile: {fileID: 11400000, guid: d1d202dbbd11f64459375f02d13e7cb6, type: 2}
+  recipe:
+  - gadgetType: 2
+    relativePosition: {x: 0, y: 0, z: 0}
+  - gadgetType: 5
+    relativePosition: {x: 1, y: 0, z: 0}
+  - gadgetType: 2
+    relativePosition: {x: 2, y: 0, z: 0}

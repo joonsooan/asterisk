@@ -18,7 +18,7 @@ MonoBehaviour:
   recipe:
   - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}
-  - gadgetType: 7
+  - gadgetType: 3
     relativePosition: {x: 1, y: 0, z: 0}
   - gadgetType: 1
     relativePosition: {x: 2, y: 0, z: 0}

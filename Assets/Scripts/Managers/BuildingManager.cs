@@ -139,9 +139,12 @@ public class BuildingManager : MonoBehaviour
             RemoveBuildingPieceAtPosition(targetPos);
             buildingTilemap.SetTile(targetPos, null);
         }
-
+        
         Vector3 worldPos = grid.GetCellCenterWorld(originPos);
-        Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity);
+        foreach (var piece in comboData.recipe) {
+            Vector3 targetPos = worldPos + piece.relativePosition;
+            Instantiate(comboData.comboPrefab, targetPos, Quaternion.identity);
+        }
 
         if (comboData.comboTile != null) {
             foreach (var piece in comboData.recipe) {

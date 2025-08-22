@@ -16,9 +16,9 @@ MonoBehaviour:
   comboPrefab: {fileID: 1574451153020646121, guid: 5096adcd5d0a0c24798eefaccd2ee91a, type: 3}
   comboTile: {fileID: 11400000, guid: af606fc7f30fcfb4e9d2706ac1d9c9ef, type: 2}
   recipe:
-  - gadgetType: 6
-    relativePosition: {x: 0, y: 0, z: 0}
   - gadgetType: 8
+    relativePosition: {x: 0, y: 0, z: 0}
+  - gadgetType: 6
     relativePosition: {x: 1, y: 0, z: 0}
   - gadgetType: 5
-    relativePosition: {x: 1, y: 0, z: 0}
+    relativePosition: {x: 2, y: 0, z: 0}

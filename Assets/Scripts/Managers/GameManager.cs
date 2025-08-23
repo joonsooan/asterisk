@@ -10,8 +10,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<int> requiredResourceAmounts;
     [SerializeField] private ResourceType requiredResourceType;
 
+    public ExpansionPanel expansionPanel;
+
     private int _currentQuotaIndex;
-    private ExpansionPanel _expansionPanel;
     private MapGenerator _mapGenerator;
     public static GameManager Instance { get; private set; }
 
@@ -48,8 +49,8 @@ public class GameManager : MonoBehaviour
     private void ToggleExpansionPanel()
     {
         if (Input.GetKeyDown(KeyCode.M)) {
-            if (_expansionPanel != null) {
-                _expansionPanel.TogglePanelVisibility();
+            if (expansionPanel != null) {
+                expansionPanel.TogglePanelVisibility();
             }
         }
     }
@@ -68,9 +69,9 @@ public class GameManager : MonoBehaviour
             _mapGenerator.GenerateMap();
         }
 
-        _expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        if (_expansionPanel != null) {
-            _expansionPanel.InitiateExpansionPanel();
+        expansionPanel = FindFirstObjectByType<ExpansionPanel>();
+        if (expansionPanel != null) {
+            expansionPanel.InitiateExpansionPanel();
         }
 
         BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);

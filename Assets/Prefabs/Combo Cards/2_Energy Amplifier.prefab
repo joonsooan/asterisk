@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4183704755259827819}
   - component: {fileID: 6865986198788389803}
+  - component: {fileID: 3315068465467343459}
   m_Layer: 0
   m_Name: 2_Energy Amplifier
   m_TagString: Untagged
@@ -87,3 +88,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3315068465467343459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574451153020646121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 275c8d8ff6b6bfd47a43c10ab278f9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

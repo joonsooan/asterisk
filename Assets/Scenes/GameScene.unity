@@ -535,7 +535,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilemap: {fileID: 558756081}
   groundTile: {fileID: 11400000, guid: 7d463f590028a4e46a4251ccd769d5d4, type: 2}
-  wallTile: {fileID: 11400000, guid: 3df602178a95da94098a6eba3da86f53, type: 2}
+  wallTile: {fileID: 11400000, guid: 787e1735ac1d8604dbe237d920efeda7, type: 2}
+  fogTile: {fileID: 11400000, guid: f6c1325a036363440b78b860bedf0d41, type: 2}
   roomSize: {x: 50, y: 30}
   mapGridSize: {x: 5, y: 5}
 --- !u!1 &401860327

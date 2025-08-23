@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,6 @@ public class Unit_Lifter : UnitBase
 {
     [Header("Cargo")]
     public int maxCarryAmount = 50;
-    [SerializeField] private int currentCarryAmount;
     [SerializeField] private float unloadDistance = 1.5f;
 
     [Header("Values")]
@@ -20,23 +20,26 @@ public class Unit_Lifter : UnitBase
     [SerializeField] private UnitMovement unitMovement;
     [SerializeField] private UnitMining unitMining;
     [SerializeField] private UnitSpriteController unitSpriteController;
+    private readonly Dictionary<ResourceType, int> _currentCarryAmounts = new Dictionary<ResourceType, int>();
 
     private Canvas _canvas;
     private Coroutine _findResourceCoroutine;
     private StorageBuilding _storageBuilding;
     private ResourceNode _targetResourceNode;
-    private ResourceType _currentResourceType;
 
     private void Awake()
     {
         GameObject canvasObject = GameObject.Find(canvasName);
-        
-        if (canvasObject != null)
-        {
+
+        if (canvasObject != null) {
             _canvas = canvasObject.GetComponent<Canvas>();
         }
 
         unitMining.OnResourceMined += HandleResourceMined;
+
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
+            _currentCarryAmounts[type] = 0;
+        }
     }
 
     private void Start()
@@ -144,18 +147,27 @@ public class Unit_Lifter : UnitBase
         }
     }
 
-    private void HandleResourceMined(int amount)
+    private void HandleResourceMined(ResourceType type, int amount)
     {
-        currentCarryAmount += amount;
+        if (_currentCarryAmounts.ContainsKey(type)) {
+            _currentCarryAmounts[type] += amount;
+        }
+        else {
+            _currentCarryAmounts[type] = amount;
+        }
         ShowFloatingText(amount);
 
-        if (currentCarryAmount >= maxCarryAmount) {
+        int totalCarriedAmount = 0;
+        foreach (KeyValuePair<ResourceType, int> pair in _currentCarryAmounts) {
+            totalCarriedAmount += pair.Value;
+        }
+
+        if (totalCarriedAmount >= maxCarryAmount) {
             unitMining.StopMining();
             currentState = UnitState.ReturningToStorage;
             unitMovement.SetNewTarget(_storageBuilding.transform.position);
             if (_targetResourceNode != null) {
                 _targetResourceNode.Unreserve();
-                _currentResourceType = _targetResourceNode.resourceType;
             }
         }
     }
@@ -164,13 +176,21 @@ public class Unit_Lifter : UnitBase
     {
         unitMovement.StopMovement();
         yield return new WaitForSeconds(1f);
-        
+
         if (ResourceManager.Instance != null) {
-            ResourceManager.Instance.AddResource(_currentResourceType, currentCarryAmount);
+            foreach (KeyValuePair<ResourceType, int> pair in _currentCarryAmounts) {
+                if (pair.Value > 0) {
+                    ResourceManager.Instance.AddResource(pair.Key, pair.Value);
+
+                    // ShowFloatingText(pair.Value);
+                }
+            }
         }
 
-        ShowFloatingText(currentCarryAmount);
-        currentCarryAmount = 0;
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
+            _currentCarryAmounts[type] = 0;
+        }
+
         currentState = UnitState.Idle;
 
         StartUnitActions();
@@ -180,15 +200,12 @@ public class Unit_Lifter : UnitBase
     {
         FindAndSetTarget();
 
-        while (true)
-        {
-            if (currentState == UnitState.Idle)
-            {
+        while (true) {
+            if (currentState == UnitState.Idle) {
                 yield return new WaitForSeconds(resourceSearchInterval);
                 FindAndSetTarget();
             }
-            else
-            {
+            else {
                 yield return null;
             }
         }
@@ -211,7 +228,12 @@ public class Unit_Lifter : UnitBase
         }
 
         if (nearest == null) {
-            if (currentCarryAmount > 0) {
+            int totalCarriedAmount = 0;
+            foreach (KeyValuePair<ResourceType, int> pair in _currentCarryAmounts) {
+                totalCarriedAmount += pair.Value;
+            }
+
+            if (totalCarriedAmount > 0) {
                 Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
                 currentState = UnitState.ReturningToStorage;
                 unitMovement.SetNewTarget(_storageBuilding.transform.position);

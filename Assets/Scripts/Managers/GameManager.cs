@@ -5,14 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-    
     [Header("Mission Quota")]
     [SerializeField] private float resourceCheckInterval = 120f;
     [SerializeField] private List<int> requiredResourceAmounts;
     [SerializeField] private ResourceType requiredResourceType;
 
     private int _currentQuotaIndex;
+    public static GameManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -28,8 +27,16 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        if (SceneManager.GetActiveScene().name == "GameScene") {
+            Initiate();
+        }
     }
-    
+
+    private void Update()
+    {
+        SetTimeScale();
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -37,8 +44,7 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "GameScene")
-        {
+        if (scene.name == "GameScene") {
             Initiate();
         }
     }
@@ -70,32 +76,24 @@ public class GameManager : MonoBehaviour
         StartCoroutine(CheckResourceQuota());
     }
 
-    private void Update()
-    {
-        SetTimeScale();
-    }
-    
     private IEnumerator CheckResourceQuota()
     {
-        while (true)
-        {
+        while (true) {
             yield return new WaitForSeconds(resourceCheckInterval);
 
             int currentRequiredAmount = requiredResourceAmounts[_currentQuotaIndex];
-            
-            if (ResourceManager.Instance.GetResource(requiredResourceType) >= currentRequiredAmount)
-            {
+
+            if (ResourceManager.Instance.GetResource(requiredResourceType) >= currentRequiredAmount) {
                 ResourceManager.Instance.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
             }
-            else
-            {
+            else {
                 GameOver();
                 yield break;
             }
         }
     }
-    
+
     private void GameOver()
     {
         SceneManager.LoadScene("TitleScene");
@@ -104,11 +102,10 @@ public class GameManager : MonoBehaviour
 
     private void SetTimeScale()
     {
-        if (SceneManager.GetActiveScene().name != "GameScene")
-        {
+        if (SceneManager.GetActiveScene().name != "GameScene") {
             return;
         }
-        
+
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             Time.timeScale = 1;
         }

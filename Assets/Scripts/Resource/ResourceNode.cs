@@ -8,10 +8,10 @@ public class ResourceNode : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private Color highlightColor = Color.red;
+    [HideInInspector] public Vector3Int cellPosition;
 
     private Color _originalColor;
     private SpriteRenderer _sr;
-    [HideInInspector] public Vector3Int cellPosition;
 
     public bool IsReserved { get; private set; }
 
@@ -57,13 +57,16 @@ public class ResourceNode : MonoBehaviour
         }
     }
 
-    public void Mine(int workAmount)
+    public int Mine(int workAmount)
     {
-        amountToMine -= workAmount;
+        int amountMined = Mathf.Min(amountToMine, workAmount);
+        amountToMine -= amountMined;
 
         if (IsDepleted) {
             Unreserve();
             Destroy(gameObject);
         }
+
+        return amountMined;
     }
 }

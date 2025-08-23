@@ -17,7 +17,7 @@ public class UnitMining : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, miningRange);
     }
 
-    public event Action<int> OnResourceMined;
+    public event Action<ResourceType, int> OnResourceMined;
 
     public void StartMining(ResourceNode target)
     {
@@ -41,8 +41,8 @@ public class UnitMining : MonoBehaviour
 
         while (true) {
             if (_targetResourceNode != null && !_targetResourceNode.IsDepleted) {
-                _targetResourceNode.Mine(miningRate);
-                OnResourceMined?.Invoke(miningRate);
+                int minedAmount = _targetResourceNode.Mine(miningRate);
+                OnResourceMined?.Invoke(_targetResourceNode.resourceType, minedAmount);
             }
             else {
                 StopMining();

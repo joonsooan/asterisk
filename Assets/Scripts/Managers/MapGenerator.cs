@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -53,7 +54,6 @@ public class MapGenerator : MonoBehaviour
     public void UnlockRoom(int roomX, int roomY)
     {
         if (roomX < 0 || roomX >= mapGridSize.x || roomY < 0 || roomY >= mapGridSize.y) {
-            Debug.LogWarning("Invalid room coordinates provided.");
             return;
         }
 
@@ -91,5 +91,39 @@ public class MapGenerator : MonoBehaviour
             return wallTile;
         }
         return groundTile;
+    }
+
+    public List<Vector2Int> FindExpandableRooms()
+    {
+        List<Vector2Int> expandableRooms = new List<Vector2Int>();
+
+        for (int x = 0; x < mapGridSize.x; x++) {
+            for (int y = 0; y < mapGridSize.y; y++) {
+                if (_roomUnlocked[x, y]) {
+                    CheckNeighbor(x + 1, y, expandableRooms);
+                    CheckNeighbor(x - 1, y, expandableRooms);
+                    CheckNeighbor(x, y + 1, expandableRooms);
+                    CheckNeighbor(x, y - 1, expandableRooms);
+                }
+            }
+        }
+        return expandableRooms;
+    }
+
+    private void CheckNeighbor(int x, int y, List<Vector2Int> list)
+    {
+        if (x >= 0 && x < mapGridSize.x && y >= 0 && y < mapGridSize.y) {
+            if (!_roomUnlocked[x, y] && !list.Contains(new Vector2Int(x, y))) {
+                list.Add(new Vector2Int(x, y));
+            }
+        }
+    }
+
+    public bool IsRoomUnlocked(int x, int y)
+    {
+        if (x >= 0 && x < mapGridSize.x && y >= 0 && y < mapGridSize.y) {
+            return _roomUnlocked[x, y];
+        }
+        return false;
     }
 }

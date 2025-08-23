@@ -9,7 +9,13 @@ public class UnitMining : MonoBehaviour
     public float miningRange = 1.5f;
 
     private Coroutine _mineCoroutine;
+    private WaitForSeconds _miningDelay;
     private ResourceNode _targetResourceNode;
+
+    private void Awake()
+    {
+        _miningDelay = new WaitForSeconds(1.0f);
+    }
 
     private void OnDrawGizmosSelected()
     {
@@ -37,7 +43,7 @@ public class UnitMining : MonoBehaviour
 
     private IEnumerator MineResourceCoroutine()
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return _miningDelay;
 
         while (true) {
             if (_targetResourceNode != null && !_targetResourceNode.IsDepleted) {
@@ -48,7 +54,7 @@ public class UnitMining : MonoBehaviour
                 StopMining();
                 yield break;
             }
-            yield return new WaitForSeconds(1.0f);
+            yield return _miningDelay;
         }
     }
 }

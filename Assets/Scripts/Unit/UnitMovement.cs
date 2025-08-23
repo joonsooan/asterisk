@@ -81,9 +81,10 @@ public class UnitMovement : MonoBehaviour
         Vector3Int endCellPos = grid.WorldToCell(endPos);
 
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
-        HashSet<Vector3Int> closedList = new HashSet<Vector3Int>();
+        Dictionary<Vector3Int, Node> allNodes = new Dictionary<Vector3Int, Node>();
 
-        Node startNode = new Node { Position = startCellPos, GCost = 0, HCost = Vector3Int.Distance(startCellPos, endCellPos) };
+        Node startNode = new Node { Position = startCellPos, GCost = 0, HCost = GetDistance(startCellPos, endCellPos) };
+        allNodes.Add(startCellPos, startNode);
         openList.Enqueue(startNode, startNode.FCost);
 
         while (openList.Count > 0) {
@@ -93,19 +94,44 @@ public class UnitMovement : MonoBehaviour
                 return ReconstructPath(currentNode);
             }
 
-            closedList.Add(currentNode.Position);
-
             foreach (Vector3Int neighborPos in GetNeighbors(currentNode.Position)) {
-                if (closedList.Contains(neighborPos)) continue;
+                // 인접 노드가 장애물인지 확인하는 로직 추가 필요 (예: grid.HasTile(neighborPos) 등)
+                // if (isObstacle(neighborPos)) continue; 
 
-                float newGCost = currentNode.GCost + Vector3Int.Distance(currentNode.Position, neighborPos);
+                Node neighborNode;
+                float newGCost = currentNode.GCost + GetDistance(currentNode.Position, neighborPos);
 
-                Node neighborNode = new Node { Position = neighborPos, GCost = newGCost, HCost = Vector3Int.Distance(neighborPos, endCellPos), Parent = currentNode };
-                openList.Enqueue(neighborNode, neighborNode.FCost);
+                if (allNodes.TryGetValue(neighborPos, out neighborNode)) {
+                    if (newGCost < neighborNode.GCost) {
+                        neighborNode.Parent = currentNode;
+                        neighborNode.GCost = newGCost;
+                        neighborNode.HCost = GetDistance(neighborPos, endCellPos);
+
+                        openList.Enqueue(neighborNode, neighborNode.FCost);
+                    }
+                }
+                else {
+                    neighborNode = new Node {
+                        Position = neighborPos,
+                        GCost = newGCost,
+                        HCost = GetDistance(neighborPos, endCellPos),
+                        Parent = currentNode
+                    };
+                    allNodes.Add(neighborPos, neighborNode);
+                    openList.Enqueue(neighborNode, neighborNode.FCost);
+                }
             }
         }
 
         return new Queue<Vector3>();
+    }
+
+    private float GetDistance(Vector3Int a, Vector3Int b)
+    {
+        int dx = Mathf.Abs(a.x - b.x);
+        int dy = Mathf.Abs(a.y - b.y);
+
+        return Mathf.Max(dx, dy);
     }
 
     private Queue<Vector3> ReconstructPath(Node endNode)

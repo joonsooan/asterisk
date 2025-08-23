@@ -15,6 +15,7 @@ public class Unit_Lifter : UnitBase
     [Header("VFX")]
     [SerializeField] private string canvasName = "FloatingText Canvas";
     [SerializeField] private GameObject floatingNumTextPrefab;
+    [SerializeField] private bool showFloatingText;
 
     [Header("References")]
     [SerializeField] private UnitMovement unitMovement;
@@ -24,6 +25,7 @@ public class Unit_Lifter : UnitBase
 
     private Canvas _canvas;
     private Coroutine _findResourceCoroutine;
+    private WaitForSeconds _searchWait;
     private StorageBuilding _storageBuilding;
     private ResourceNode _targetResourceNode;
 
@@ -40,6 +42,8 @@ public class Unit_Lifter : UnitBase
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
             _currentCarryAmounts[type] = 0;
         }
+
+        _searchWait = new WaitForSeconds(resourceSearchInterval);
     }
 
     private void Start()
@@ -201,12 +205,9 @@ public class Unit_Lifter : UnitBase
         FindAndSetTarget();
 
         while (true) {
+            yield return _searchWait;
             if (currentState == UnitState.Idle) {
-                yield return new WaitForSeconds(resourceSearchInterval);
                 FindAndSetTarget();
-            }
-            else {
-                yield return null;
             }
         }
     }
@@ -218,7 +219,7 @@ public class Unit_Lifter : UnitBase
         ResourceNode nearest = null;
 
         foreach (ResourceNode resource in allResources) {
-            if (resource.IsDepleted || resource.IsReserved) continue;
+            if (resource == null || resource.IsDepleted || resource.IsReserved || !resource.gameObject.activeInHierarchy) continue;
 
             float distance = Vector2.Distance(transform.position, resource.transform.position);
             if (distance < minDistance) {
@@ -259,6 +260,7 @@ public class Unit_Lifter : UnitBase
 
     private void ShowFloatingText(int amount)
     {
+        if (!showFloatingText) return;
         if (floatingNumTextPrefab == null || _canvas == null) return;
 
         GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, _canvas.transform);

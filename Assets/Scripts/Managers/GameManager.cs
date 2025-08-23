@@ -10,8 +10,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<int> requiredResourceAmounts;
     [SerializeField] private ResourceType requiredResourceType;
 
+    public ExpansionPanel expansionPanel;
+    public MapGenerator mapGenerator;
+
     private int _currentQuotaIndex;
-    private MapGenerator _mapGenerator;
+    private Coroutine _quotaCoroutine;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -36,11 +39,21 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         SetTimeScale();
+        ToggleExpansionPanel();
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void ToggleExpansionPanel()
+    {
+        if (Input.GetKeyDown(KeyCode.M)) {
+            if (expansionPanel != null) {
+                expansionPanel.TogglePanelVisibility();
+            }
+        }
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -52,9 +65,14 @@ public class GameManager : MonoBehaviour
 
     private void Initiate()
     {
-        _mapGenerator = FindFirstObjectByType<MapGenerator>();
-        if (_mapGenerator != null) {
-            _mapGenerator.GenerateMap();
+        mapGenerator = FindFirstObjectByType<MapGenerator>();
+        if (mapGenerator != null) {
+            mapGenerator.GenerateMap();
+        }
+
+        expansionPanel = FindFirstObjectByType<ExpansionPanel>();
+        if (expansionPanel != null) {
+            expansionPanel.InitiateExpansionPanel();
         }
 
         BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);
@@ -79,7 +97,10 @@ public class GameManager : MonoBehaviour
         }
 
         _currentQuotaIndex = 0;
-        StartCoroutine(CheckResourceQuota());
+        if (_quotaCoroutine != null) {
+            StopCoroutine(_quotaCoroutine);
+        }
+        _quotaCoroutine = StartCoroutine(CheckResourceQuota());
     }
 
     private IEnumerator CheckResourceQuota()
@@ -87,10 +108,20 @@ public class GameManager : MonoBehaviour
         while (true) {
             yield return new WaitForSeconds(resourceCheckInterval);
 
+            if (_currentQuotaIndex >= requiredResourceAmounts.Count) {
+                _quotaCoroutine = null;
+                yield break;
+            }
+
             int currentRequiredAmount = requiredResourceAmounts[_currentQuotaIndex];
 
-            if (ResourceManager.Instance.GetResource(requiredResourceType) >= currentRequiredAmount) {
-                ResourceManager.Instance.SpendResources(requiredResourceType, currentRequiredAmount);
+            ResourceManager rm = ResourceManager.Instance;
+            if (rm == null) {
+                continue;
+            }
+
+            if (rm.GetResource(requiredResourceType) >= currentRequiredAmount) {
+                rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
             }
             else {

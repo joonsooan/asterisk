@@ -20,10 +20,10 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text biomassNumber;
     [SerializeField] private TMP_Text cryoCrystalNumber;
     [SerializeField] private TMP_Text solanaNumber;
-    
-    private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
-    
+
+    private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
+
     public static ResourceManager Instance { get; private set; }
 
     private void Awake()
@@ -31,7 +31,7 @@ public class ResourceManager : MonoBehaviour
         if (Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
+
             ResetResourceCount();
             UpdateAllResourceUI();
         }
@@ -39,7 +39,7 @@ public class ResourceManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -52,14 +52,13 @@ public class ResourceManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "GameScene")
-        {
+        if (scene.name == "GameScene") {
             FindAndConnectUI();
             ResetResourceCount();
             UpdateAllResourceUI();
         }
     }
-    
+
     private void ResetResourceCount()
     {
         _resourceCounts[ResourceType.Ferrite] = 0;
@@ -101,7 +100,7 @@ public class ResourceManager : MonoBehaviour
             UpdateResourceUI(type);
         }
     }
-    
+
     public bool HasEnoughResources(CardCost[] costs)
     {
         foreach (CardCost cost in costs) {
@@ -123,37 +122,35 @@ public class ResourceManager : MonoBehaviour
 
     private void UpdateResourceUI(ResourceType type)
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null)
-        {
+        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-        
+
         switch (type) {
-            case ResourceType.Ferrite:
-                ferriteNumber.text = _resourceCounts[type].ToString();
-                break;
-            case ResourceType.Aether:
-                aetherNumber.text = _resourceCounts[type].ToString();
-                break;
-            case ResourceType.Biomass:
-                biomassNumber.text = _resourceCounts[type].ToString();
-                break;
-            case ResourceType.CryoCrystal:
-                cryoCrystalNumber.text = _resourceCounts[type].ToString();
-                break;
-            case ResourceType.Solana:
-                solanaNumber.text = _resourceCounts[type].ToString();
-                break;
+        case ResourceType.Ferrite:
+            ferriteNumber.text = _resourceCounts[type].ToString();
+            break;
+        case ResourceType.Aether:
+            aetherNumber.text = _resourceCounts[type].ToString();
+            break;
+        case ResourceType.Biomass:
+            biomassNumber.text = _resourceCounts[type].ToString();
+            break;
+        case ResourceType.CryoCrystal:
+            cryoCrystalNumber.text = _resourceCounts[type].ToString();
+            break;
+        case ResourceType.Solana:
+            solanaNumber.text = _resourceCounts[type].ToString();
+            break;
         }
     }
-    
+
     private void UpdateAllResourceUI()
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null)
-        {
+        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-        
+
         ferriteNumber.text = _resourceCounts[ResourceType.Ferrite].ToString();
         aetherNumber.text = _resourceCounts[ResourceType.Aether].ToString();
         biomassNumber.text = _resourceCounts[ResourceType.Biomass].ToString();
@@ -173,8 +170,15 @@ public class ResourceManager : MonoBehaviour
         if (_allResources.Contains(node)) {
             _allResources.Remove(node);
         }
+
+        ResourceSpawner[] spawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
+        foreach (ResourceSpawner spawner in spawners) {
+            if (spawner != null) {
+                spawner.NotifyResourceDestroyed(node);
+            }
+        }
     }
-    
+
     public void RemoveResourceNodeTile(Vector3Int cellPosition)
     {
         BuildingManager.Instance.RemoveResourceTile(cellPosition);
@@ -187,6 +191,9 @@ public class ResourceManager : MonoBehaviour
 
     public int GetResource(ResourceType type)
     {
-        return _resourceCounts[type];
+        if (_resourceCounts.TryGetValue(type, out int value)) {
+            return value;
+        }
+        return 0;
     }
 }

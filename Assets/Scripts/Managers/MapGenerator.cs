@@ -15,10 +15,15 @@ public class MapGenerator : MonoBehaviour
     public Vector2Int mapGridSize = new Vector2Int(5, 5);
 
     private Bounds _mapWorldBounds;
+    private ResourceSpawner _resourceSpawner;
     private bool[,] _roomUnlocked;
     private int _totalMapHeight;
-
     private int _totalMapWidth;
+
+    private void Start()
+    {
+        _resourceSpawner = FindFirstObjectByType<ResourceSpawner>();
+    }
 
     public void GenerateMap()
     {
@@ -60,6 +65,10 @@ public class MapGenerator : MonoBehaviour
         if (!_roomUnlocked[roomX, roomY]) {
             _roomUnlocked[roomX, roomY] = true;
             DrawRoom(roomX, roomY, false);
+        }
+
+        if (_resourceSpawner != null) {
+            _resourceSpawner.ActivateResourcesInRoom(new Vector2Int(roomX, roomY));
         }
     }
 
@@ -125,5 +134,21 @@ public class MapGenerator : MonoBehaviour
             return _roomUnlocked[x, y];
         }
         return false;
+    }
+
+    public Vector2Int GetRoomCoordinates(Vector3 worldPosition)
+    {
+        Vector3 localPos = tilemap.transform.InverseTransformPoint(worldPosition);
+
+        int cellX = Mathf.FloorToInt(localPos.x + _totalMapWidth / 2f);
+        int cellY = Mathf.FloorToInt(localPos.y + _totalMapHeight / 2f);
+
+        int roomX = cellX / roomSize.x;
+        int roomY = cellY / roomSize.y;
+
+        return new Vector2Int(
+            Mathf.Clamp(roomX, 0, mapGridSize.x - 1),
+            Mathf.Clamp(roomY, 0, mapGridSize.y - 1)
+        );
     }
 }

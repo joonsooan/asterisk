@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ResourceType requiredResourceType;
 
     private int _currentQuotaIndex;
+    private MapGenerator _mapGenerator;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -51,6 +52,11 @@ public class GameManager : MonoBehaviour
 
     private void Initiate()
     {
+        _mapGenerator = FindFirstObjectByType<MapGenerator>();
+        if (_mapGenerator != null) {
+            _mapGenerator.GenerateMap();
+        }
+
         BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);
         foreach (BuildingSpawner spawner in buildingSpawners) {
             spawner.SpawnBuildings();

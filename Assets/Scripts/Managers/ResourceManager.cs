@@ -191,6 +191,9 @@ public class ResourceManager : MonoBehaviour
 
     public int GetResource(ResourceType type)
     {
-        return _resourceCounts[type];
+        if (_resourceCounts.TryGetValue(type, out int value)) {
+            return value;
+        }
+        return 0;
     }
 }

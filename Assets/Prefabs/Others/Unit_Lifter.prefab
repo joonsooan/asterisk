@@ -136,11 +136,11 @@ MonoBehaviour:
   moveSpeed: 8
   currentState: 0
   maxCarryAmount: 50
-  currentCarryAmount: 0
   unloadDistance: 1.5
   resourceSearchInterval: 1
   canvasName: FloatingText Canvas
   floatingNumTextPrefab: {fileID: 176529985360585926, guid: c122ec1d854b9a04994f510c553243e5, type: 3}
+  showFloatingText: 1
   unitMovement: {fileID: 4483249089817793867}
   unitMining: {fileID: 8882647708804449670}
   unitSpriteController: {fileID: 7616754858952366261}

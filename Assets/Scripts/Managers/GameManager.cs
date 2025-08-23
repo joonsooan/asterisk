@@ -109,17 +109,19 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(resourceCheckInterval);
 
             if (_currentQuotaIndex >= requiredResourceAmounts.Count) {
-                if (_quotaCoroutine != null) {
-                    StopCoroutine(_quotaCoroutine);
-                    _quotaCoroutine = null;
-                }
+                _quotaCoroutine = null;
                 yield break;
             }
 
             int currentRequiredAmount = requiredResourceAmounts[_currentQuotaIndex];
 
-            if (ResourceManager.Instance.GetResource(requiredResourceType) >= currentRequiredAmount) {
-                ResourceManager.Instance.SpendResources(requiredResourceType, currentRequiredAmount);
+            ResourceManager rm = ResourceManager.Instance;
+            if (rm == null) {
+                continue;
+            }
+
+            if (rm.GetResource(requiredResourceType) >= currentRequiredAmount) {
+                rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
             }
             else {

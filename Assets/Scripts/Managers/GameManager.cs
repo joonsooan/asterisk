@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -15,11 +16,14 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public Image cameraActiveImage;
+    public GameObject cameraActiveObject;
 
-    private CardDragger activeDragger;
     private int _currentQuotaIndex;
+    private CardDragger _activeDragger;
     private Coroutine _quotaCoroutine;
+    private Image _cameraActiveImg;
+    private TMP_Text _cameraActiveText;
+    
     private readonly Color _cameraActiveColor = Color.green;
     private readonly Color _cameraInactiveColor = Color.red;
 
@@ -57,7 +61,17 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         SetTimeScale();
-        ToggleExpansionPanel();
+        ToggleExpansionPanel(); // For Debug
+        ToggleShortcut();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
+    private void ToggleShortcut()
+    {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             isShortcutActive = !isShortcutActive;
@@ -67,21 +81,22 @@ public class GameManager : MonoBehaviour
 
     public void SetActiveDragger(CardDragger dragger)
     {
-        activeDragger = dragger;
+        _activeDragger = dragger;
     }
 
     public CardDragger GetActiveDragger()
     {
-        return activeDragger;
+        return _activeDragger;
     }
     
     private void ToggleCamera(bool isActive)
     {
-        if (isActive == false && activeDragger != null)
+        if (isActive == false && _activeDragger != null)
         {
-            activeDragger.EndDrag();
+            _activeDragger.EndDrag();
         }
-        cameraActiveImage.color = isActive ? _cameraInactiveColor : _cameraActiveColor;
+        _cameraActiveImg.color = isActive ? _cameraInactiveColor : _cameraActiveColor;
+        _cameraActiveText.text = isActive ? "Build" : "Camera";
     }
 
     public int GetRequiredAmountForCurrentQuota()
@@ -114,7 +129,10 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cameraActiveImage = GameObject.Find("Camera Active Image").GetComponent<Image>();
+        
+        cameraActiveObject = GameObject.Find("Camera Active Object");
+        _cameraActiveImg = cameraActiveObject.GetComponent<Image>();
+        _cameraActiveText = cameraActiveObject.GetComponentInChildren<TMP_Text>();
         
         isShortcutActive = true;
         ToggleCamera(isShortcutActive);

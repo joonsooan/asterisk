@@ -25,11 +25,11 @@ public enum GadgetType
 [CreateAssetMenu(fileName = "New Card", menuName = "Card System/Card Data")]
 public class CardData : ScriptableObject
 {
-    public Sprite cardImage;
     public string cardName;
     public GameObject buildingPrefab;
     public GadgetType gadgetType;
     public TileBase gadgetTile;
+    [TextArea] public string cardDescription; 
     
     public CardCost[] costs;
 }

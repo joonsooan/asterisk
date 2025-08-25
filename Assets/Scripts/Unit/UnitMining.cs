@@ -5,17 +5,12 @@ using UnityEngine;
 public class UnitMining : MonoBehaviour
 {
     [Header("Gathering Stats")]
-    public int miningRate = 10;
+    public int mineAmountPerAction = 1; // 한번 채굴 시 캐는 양
     public float miningRange = 1.5f;
 
     private Coroutine _mineCoroutine;
     private WaitForSeconds _miningDelay;
     private ResourceNode _targetResourceNode;
-
-    private void Awake()
-    {
-        _miningDelay = new WaitForSeconds(1.0f);
-    }
 
     private void OnDrawGizmosSelected()
     {
@@ -28,6 +23,9 @@ public class UnitMining : MonoBehaviour
     public void StartMining(ResourceNode target)
     {
         _targetResourceNode = target;
+        
+        _miningDelay = new WaitForSeconds(target.timeToMinePerUnit);
+        
         if (_mineCoroutine == null) {
             _mineCoroutine = StartCoroutine(MineResourceCoroutine());
         }
@@ -47,7 +45,7 @@ public class UnitMining : MonoBehaviour
 
         while (true) {
             if (_targetResourceNode != null && !_targetResourceNode.IsDepleted) {
-                int minedAmount = _targetResourceNode.Mine(miningRate);
+                int minedAmount = _targetResourceNode.Mine(mineAmountPerAction);
                 OnResourceMined?.Invoke(_targetResourceNode.resourceType, minedAmount);
             }
             else {

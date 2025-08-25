@@ -12,16 +12,31 @@ public enum ResourceType
     Solana
 }
 
+[System.Serializable]
+public class ResourceStats
+{
+    public ResourceType resourceType;
+    public int amountToMine = 100;
+    public float timeToMinePerUnit = 0.1f;
+}
+
 public class ResourceManager : MonoBehaviour
 {
+    [Header("Resource Icons")]
+    [SerializeField] private List<Sprite> resourceIcons;
+    
+    [Header("Resource Stats")]
+    [SerializeField] private List<ResourceStats> resourceStatsList;
+    
     [Header("Resource UI")]
     [SerializeField] private TMP_Text ferriteNumber;
     [SerializeField] private TMP_Text aetherNumber;
     [SerializeField] private TMP_Text biomassNumber;
     [SerializeField] private TMP_Text cryoCrystalNumber;
     [SerializeField] private TMP_Text solanaNumber;
+    
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
-
+    private readonly Dictionary<ResourceType, ResourceStats> _resourceStats = new Dictionary<ResourceType, ResourceStats>();
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
 
     public static ResourceManager Instance { get; private set; }
@@ -32,12 +47,41 @@ public class ResourceManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            InitializeResourceStats();
             ResetResourceCount();
             UpdateAllResourceUI();
         }
         else {
             Destroy(gameObject);
         }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            _resourceCounts[ResourceType.Ferrite] += 100000;
+            _resourceCounts[ResourceType.Aether] += 100000;
+            _resourceCounts[ResourceType.Biomass] += 100000;
+            _resourceCounts[ResourceType.CryoCrystal] += 100000;
+            UpdateAllResourceUI();
+        }
+    }
+
+    private void InitializeResourceStats()
+    {
+        _resourceStats.Clear();
+        foreach (var stats in resourceStatsList) {
+            _resourceStats[stats.resourceType] = stats;
+        }
+    }
+    
+    public ResourceStats GetResourceStats(ResourceType type)
+    {
+        if (_resourceStats.TryGetValue(type, out var stats)) {
+            return stats;
+        }
+        return null;
     }
 
     private void OnEnable()
@@ -85,7 +129,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public bool HasEnoughResources(ResourceType type, int amount)
+    private bool HasEnoughResources(ResourceType type, int amount)
     {
         if (_resourceCounts.ContainsKey(type)) {
             return _resourceCounts[type] >= amount;
@@ -119,43 +163,63 @@ public class ResourceManager : MonoBehaviour
             }
         }
     }
+    
+    public Sprite GetResourceIcon(ResourceType type)
+    {
+        int index = (int)type;
+        if (index >= 0 && index < resourceIcons.Count)
+        {
+            return resourceIcons[index];
+        }
+        return null;
+    }
 
     private void UpdateResourceUI(ResourceType type)
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
+        if (GameManager.Instance == null || ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-
-        switch (type) {
-        case ResourceType.Ferrite:
-            ferriteNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Aether:
-            aetherNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Biomass:
-            biomassNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.CryoCrystal:
-            cryoCrystalNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Solana:
-            solanaNumber.text = _resourceCounts[type].ToString();
-            break;
+        
+        if (type == ResourceType.Solana)
+        {
+            int requiredAmount = GameManager.Instance.GetRequiredAmountForCurrentQuota();
+            string displayText = $"{_resourceCounts[type]} / {requiredAmount}";
+            solanaNumber.text = displayText;
+        }
+        else
+        {
+            switch (type)
+            {
+                case ResourceType.Ferrite:
+                    ferriteNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.Aether:
+                    aetherNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.Biomass:
+                    biomassNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.CryoCrystal:
+                    cryoCrystalNumber.text = _resourceCounts[type].ToString();
+                    break;
+            }
         }
     }
 
-    private void UpdateAllResourceUI()
+    public void UpdateAllResourceUI()
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
+        if (GameManager.Instance == null || ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-
+        
         ferriteNumber.text = _resourceCounts[ResourceType.Ferrite].ToString();
         aetherNumber.text = _resourceCounts[ResourceType.Aether].ToString();
         biomassNumber.text = _resourceCounts[ResourceType.Biomass].ToString();
         cryoCrystalNumber.text = _resourceCounts[ResourceType.CryoCrystal].ToString();
-        solanaNumber.text = _resourceCounts[ResourceType.Solana].ToString();
+        
+        int requiredAmount = GameManager.Instance.GetRequiredAmountForCurrentQuota();
+        string displayText = $"{_resourceCounts[ResourceType.Solana]} / {requiredAmount}";
+        solanaNumber.text = displayText;
     }
 
     public void AddResourceNode(ResourceNode node)

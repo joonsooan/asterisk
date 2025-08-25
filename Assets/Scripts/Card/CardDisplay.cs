@@ -30,9 +30,9 @@ public class CardDisplay : MonoBehaviour
     
     private void OnCardClick()
     {
-        if (GameManager.Instance.cardInformation != null)
+        if (GameManager.Instance.cardInfoManager != null)
         {
-            GameManager.Instance.cardInformation.UpdateCardUI(cardData);
+            GameManager.Instance.cardInfoManager.UpdateCardUI(cardData);
         }
 
         _cardDragger.TryStartDrag();
@@ -40,7 +40,7 @@ public class CardDisplay : MonoBehaviour
     
     private void CheckForShortcutKey()
     {
-        if (GameManager.Instance.isShortcutActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
+        if (!GameManager.Instance.isCameraActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
         {
             OnCardClick();
         }

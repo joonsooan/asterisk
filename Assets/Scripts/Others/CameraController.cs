@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (GameManager.Instance.isShortcutActive) return;
+        if (!GameManager.Instance.isCameraActive) return;
         
         if (_isManualMode)
         {

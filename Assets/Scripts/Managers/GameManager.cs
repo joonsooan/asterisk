@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
     public GameObject cameraActiveObject;
-    public CardInformation cardInformation;
+    public CardInfoManager cardInfoManager;
 
     private int _currentQuotaIndex;
     private CardDragger _activeDragger;
@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     private readonly Color _cameraActiveColor = Color.green;
     private readonly Color _cameraInactiveColor = Color.red;
 
-    [HideInInspector] public bool isShortcutActive;
+    [HideInInspector] public bool isCameraActive;
     
     public static GameManager Instance { get; private set; }
 
@@ -75,8 +75,9 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            isShortcutActive = !isShortcutActive;
-            ToggleCamera(isShortcutActive);
+            isCameraActive = !isCameraActive;
+            ToggleCamera(isCameraActive);
+            cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
         }
     }
 
@@ -96,8 +97,8 @@ public class GameManager : MonoBehaviour
         {
             _activeDragger.EndDrag();
         }
-        _cameraActiveImg.color = isActive ? _cameraInactiveColor : _cameraActiveColor;
-        _cameraActiveText.text = isActive ? "Build" : "Camera";
+        _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
+        _cameraActiveText.text = isActive ? "Camera" : "Build";
     }
 
     public int GetRequiredAmountForCurrentQuota()
@@ -130,14 +131,13 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cardInformation =  FindFirstObjectByType<CardInformation>();
+        cardInfoManager =  FindFirstObjectByType<CardInfoManager>();
         
         cameraActiveObject = GameObject.Find("Camera Active Object");
         _cameraActiveImg = cameraActiveObject.GetComponent<Image>();
         _cameraActiveText = cameraActiveObject.GetComponentInChildren<TMP_Text>();
         
-        isShortcutActive = true;
-        ToggleCamera(isShortcutActive);
+        ToggleCamera(isCameraActive);
         
         if (mapGenerator != null)
         {

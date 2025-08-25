@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
     public GameObject cameraActiveObject;
+    public CardInformation cardInformation;
 
     private int _currentQuotaIndex;
     private CardDragger _activeDragger;
@@ -129,6 +130,7 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
+        cardInformation =  FindFirstObjectByType<CardInformation>();
         
         cameraActiveObject = GameObject.Find("Camera Active Object");
         _cameraActiveImg = cameraActiveObject.GetComponent<Image>();

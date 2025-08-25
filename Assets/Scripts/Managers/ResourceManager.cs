@@ -22,6 +22,9 @@ public class ResourceStats
 
 public class ResourceManager : MonoBehaviour
 {
+    [Header("Resource Icons")]
+    [SerializeField] private List<Sprite> resourceIcons;
+    
     [Header("Resource Stats")]
     [SerializeField] private List<ResourceStats> resourceStatsList;
     
@@ -159,6 +162,16 @@ public class ResourceManager : MonoBehaviour
                 SpendResources(cost.resourceType, cost.amount);
             }
         }
+    }
+    
+    public Sprite GetResourceIcon(ResourceType type)
+    {
+        int index = (int)type;
+        if (index >= 0 && index < resourceIcons.Count)
+        {
+            return resourceIcons[index];
+        }
+        return null;
     }
 
     private void UpdateResourceUI(ResourceType type)

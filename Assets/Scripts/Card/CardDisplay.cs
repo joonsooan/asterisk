@@ -1,4 +1,3 @@
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,9 +10,7 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] private KeyCode shortcutKey;
 
     [Header("UI References")]
-    [SerializeField] private Image cardImage;
     [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text costText;
     [SerializeField] private Button buyButton;
 
     private CardDragger _cardDragger;
@@ -31,11 +28,21 @@ public class CardDisplay : MonoBehaviour
         CheckForShortcutKey();
     }
     
+    private void OnCardClick()
+    {
+        if (GameManager.Instance.cardInformation != null)
+        {
+            GameManager.Instance.cardInformation.UpdateCardUI(cardData);
+        }
+
+        _cardDragger.TryStartDrag();
+    }
+    
     private void CheckForShortcutKey()
     {
         if (GameManager.Instance.isShortcutActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
         {
-            _cardDragger.TryStartDrag();
+            OnCardClick();
         }
     }
 
@@ -55,15 +62,5 @@ public class CardDisplay : MonoBehaviour
 
         nameText.text = cardData.cardName;
         // cardImage.sprite = cardData.cardImage;
-        
-        StringBuilder costString = new StringBuilder();
-        for (int i = 0; i < cardData.costs.Length; i++) {
-            CardCost cost = cardData.costs[i];
-            costString.Append($"{cost.amount} {cost.resourceType}");
-            if (i < cardData.costs.Length - 1) {
-                costString.Append("\n");
-            }
-        }
-        costText.text = costString.ToString();
     }
 }

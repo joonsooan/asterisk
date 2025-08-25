@@ -16,7 +16,6 @@ public abstract class UnitBase : MonoBehaviour
     [Header("Unit Stats")]
     public float maxHealth;
     public float currentHealth;
-    public float moveSpeed;
 
     public UnitState currentState;
 

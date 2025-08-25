@@ -133,9 +133,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 50
   currentHealth: 0
-  moveSpeed: 8
   currentState: 0
-  maxCarryAmount: 50
+  maxCarryAmount: 10
   unloadDistance: 1.5
   resourceSearchInterval: 1
   canvasName: FloatingText Canvas
@@ -156,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b447c487e675044fa741bf0ef32e9b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  miningRate: 10
+  mineAmountPerAction: 1
   miningRange: 1.5
 --- !u!114 &4483249089817793867
 MonoBehaviour:
@@ -170,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330c45daea6434b46bc02141d339b613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
+  moveSpeed: 4
   waypointTolerance: 0.1
   grid: {fileID: 0}
 --- !u!114 &7616754858952366261

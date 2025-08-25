@@ -12,16 +12,28 @@ public enum ResourceType
     Solana
 }
 
+[System.Serializable]
+public class ResourceStats
+{
+    public ResourceType resourceType;
+    public int amountToMine = 100;
+    public float timeToMinePerUnit = 0.1f;
+}
+
 public class ResourceManager : MonoBehaviour
 {
+    [Header("Resource Stats")]
+    [SerializeField] private List<ResourceStats> resourceStatsList;
+    
     [Header("Resource UI")]
     [SerializeField] private TMP_Text ferriteNumber;
     [SerializeField] private TMP_Text aetherNumber;
     [SerializeField] private TMP_Text biomassNumber;
     [SerializeField] private TMP_Text cryoCrystalNumber;
     [SerializeField] private TMP_Text solanaNumber;
+    
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
-
+    private readonly Dictionary<ResourceType, ResourceStats> _resourceStats = new Dictionary<ResourceType, ResourceStats>();
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
 
     public static ResourceManager Instance { get; private set; }
@@ -32,6 +44,7 @@ public class ResourceManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            InitializeResourceStats();
             ResetResourceCount();
             UpdateAllResourceUI();
         }
@@ -39,6 +52,23 @@ public class ResourceManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    
+    private void InitializeResourceStats()
+    {
+        _resourceStats.Clear();
+        foreach (var stats in resourceStatsList) {
+            _resourceStats[stats.resourceType] = stats;
+        }
+    }
+    
+    public ResourceStats GetResourceStats(ResourceType type)
+    {
+        if (_resourceStats.TryGetValue(type, out var stats)) {
+            return stats;
+        }
+        return null;
+    }
+
 
     private void OnEnable()
     {

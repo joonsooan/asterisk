@@ -52,7 +52,19 @@ public class ResourceManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            _resourceCounts[ResourceType.Ferrite] += 100000;
+            _resourceCounts[ResourceType.Aether] += 100000;
+            _resourceCounts[ResourceType.Biomass] += 100000;
+            _resourceCounts[ResourceType.CryoCrystal] += 100000;
+            UpdateAllResourceUI();
+        }
+    }
+
     private void InitializeResourceStats()
     {
         _resourceStats.Clear();
@@ -68,7 +80,6 @@ public class ResourceManager : MonoBehaviour
         }
         return null;
     }
-
 
     private void OnEnable()
     {
@@ -115,7 +126,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public bool HasEnoughResources(ResourceType type, int amount)
+    private bool HasEnoughResources(ResourceType type, int amount)
     {
         if (_resourceCounts.ContainsKey(type)) {
             return _resourceCounts[type] >= amount;
@@ -152,40 +163,50 @@ public class ResourceManager : MonoBehaviour
 
     private void UpdateResourceUI(ResourceType type)
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
+        if (GameManager.Instance == null || ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-
-        switch (type) {
-        case ResourceType.Ferrite:
-            ferriteNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Aether:
-            aetherNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Biomass:
-            biomassNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.CryoCrystal:
-            cryoCrystalNumber.text = _resourceCounts[type].ToString();
-            break;
-        case ResourceType.Solana:
-            solanaNumber.text = _resourceCounts[type].ToString();
-            break;
+        
+        if (type == ResourceType.Solana)
+        {
+            int requiredAmount = GameManager.Instance.GetRequiredAmountForCurrentQuota();
+            string displayText = $"{_resourceCounts[type]} / {requiredAmount}";
+            solanaNumber.text = displayText;
+        }
+        else
+        {
+            switch (type)
+            {
+                case ResourceType.Ferrite:
+                    ferriteNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.Aether:
+                    aetherNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.Biomass:
+                    biomassNumber.text = _resourceCounts[type].ToString();
+                    break;
+                case ResourceType.CryoCrystal:
+                    cryoCrystalNumber.text = _resourceCounts[type].ToString();
+                    break;
+            }
         }
     }
 
-    private void UpdateAllResourceUI()
+    public void UpdateAllResourceUI()
     {
-        if (ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
+        if (GameManager.Instance == null || ferriteNumber == null || aetherNumber == null || biomassNumber == null || cryoCrystalNumber == null || solanaNumber == null) {
             return;
         }
-
+        
         ferriteNumber.text = _resourceCounts[ResourceType.Ferrite].ToString();
         aetherNumber.text = _resourceCounts[ResourceType.Aether].ToString();
         biomassNumber.text = _resourceCounts[ResourceType.Biomass].ToString();
         cryoCrystalNumber.text = _resourceCounts[ResourceType.CryoCrystal].ToString();
-        solanaNumber.text = _resourceCounts[ResourceType.Solana].ToString();
+        
+        int requiredAmount = GameManager.Instance.GetRequiredAmountForCurrentQuota();
+        string displayText = $"{_resourceCounts[ResourceType.Solana]} / {requiredAmount}";
+        solanaNumber.text = displayText;
     }
 
     public void AddResourceNode(ResourceNode node)

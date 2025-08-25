@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
         {
             Initiate();
         }
+        isCameraActive = true;
+        ToggleCamera(isCameraActive);
     }
 
     private void OnDestroy()
@@ -80,16 +82,6 @@ public class GameManager : MonoBehaviour
             cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
         }
     }
-
-    public void SetActiveDragger(CardDragger dragger)
-    {
-        _activeDragger = dragger;
-    }
-
-    public CardDragger GetActiveDragger()
-    {
-        return _activeDragger;
-    }
     
     private void ToggleCamera(bool isActive)
     {
@@ -100,6 +92,24 @@ public class GameManager : MonoBehaviour
         _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
         _cameraActiveText.text = isActive ? "Camera" : "Build";
     }
+    
+    private void ToggleExpansionPanel()
+    {
+        if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
+        {
+            expansionPanel.TogglePanelVisibility();
+        }
+    }
+
+    public void SetActiveDragger(CardDragger dragger)
+    {
+        _activeDragger = dragger;
+    }
+
+    public CardDragger GetActiveDragger()
+    {
+        return _activeDragger;
+    }
 
     public int GetRequiredAmountForCurrentQuota()
     {
@@ -108,14 +118,6 @@ public class GameManager : MonoBehaviour
             return requiredResourceAmounts[_currentQuotaIndex];
         }
         return -1;
-    }
-
-    private void ToggleExpansionPanel()
-    {
-        if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
-        {
-            expansionPanel.TogglePanelVisibility();
-        }
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -136,8 +138,6 @@ public class GameManager : MonoBehaviour
         cameraActiveObject = GameObject.Find("Camera Active Object");
         _cameraActiveImg = cameraActiveObject.GetComponent<Image>();
         _cameraActiveText = cameraActiveObject.GetComponentInChildren<TMP_Text>();
-        
-        ToggleCamera(isCameraActive);
         
         if (mapGenerator != null)
         {

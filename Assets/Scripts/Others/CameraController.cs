@@ -23,6 +23,11 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        CameraMove();
+    }
+
+    private void CameraMove()
+    {
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
 
@@ -30,10 +35,6 @@ public class CameraController : MonoBehaviour
 
         if (_manualDirection != Vector3.zero) {
             _isManualMode = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            _isManualMode = false;
         }
     }
 

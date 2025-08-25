@@ -22,7 +22,7 @@ public class CardDisplay : MonoBehaviour
     {
         _cardDragger = GetComponent<CardDragger>();
         UpdateCardUI();
-        buyButton.onClick.AddListener(() => _cardDragger.StartDrag());
+        buyButton.onClick.AddListener(() => _cardDragger.TryStartDrag());
     }
     
     private void Update()
@@ -33,9 +33,9 @@ public class CardDisplay : MonoBehaviour
     
     private void CheckForShortcutKey()
     {
-        if (Input.GetKeyDown(shortcutKey) && buyButton.interactable)
+        if (GameManager.Instance.isShortcutActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
         {
-            _cardDragger.StartDrag();
+            _cardDragger.TryStartDrag();
         }
     }
 

@@ -9,7 +9,6 @@ public class CameraController : MonoBehaviour
     public float panSpeed = 10f;
 
     private Camera _cam;
-
     private bool _isManualMode;
     private Vector3 _manualDirection;
     private Bounds? _worldBounds;
@@ -40,12 +39,19 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_isManualMode) {
-            transform.Translate(_manualDirection * panSpeed * Time.unscaledDeltaTime, Space.World);
+        if (GameManager.Instance.isShortcutActive) return;
+        
+        if (_isManualMode)
+        {
+            transform.Translate(_manualDirection * panSpeed * Time.unscaledDeltaTime,
+                Space.World);
         }
-        else if (target != null) {
-            Vector3 targetPosition = new Vector3(target.position.x, target.position.y, transform.position.z);
-            transform.position = Vector3.Lerp(transform.position, targetPosition, smoothing * Time.unscaledDeltaTime);
+        else if (target != null)
+        {
+            Vector3 targetPosition = new Vector3(target.position.x, target.position.y,
+                transform.position.z);
+            transform.position = Vector3.Lerp(transform.position, targetPosition,
+                smoothing * Time.unscaledDeltaTime);
         }
 
         ClampToBounds();

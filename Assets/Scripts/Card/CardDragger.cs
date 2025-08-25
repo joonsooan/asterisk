@@ -9,7 +9,7 @@ public class CardDragger : MonoBehaviour
     private CardDisplay _cardDisplay;
     private GameObject _ghostBuildingInstance;
     private bool _isDragging;
-
+    
     private void Start()
     {
         _cardDisplay = GetComponent<CardDisplay>();
@@ -44,8 +44,8 @@ public class CardDragger : MonoBehaviour
             }
         }
     }
-
-    public void StartDrag()
+    
+    public void TryStartDrag()
     {
         if (_cardDisplay == null || _cardDisplay.cardData == null) return;
         if (!ResourceManager.Instance.HasEnoughResources(_cardDisplay.cardData.costs))
@@ -54,11 +54,18 @@ public class CardDragger : MonoBehaviour
             return;
         }
 
+        if (GameManager.Instance.GetActiveDragger() != null)
+        {
+            GameManager.Instance.GetActiveDragger().EndDrag();
+        }
+        GameManager.Instance.SetActiveDragger(this);
+    
         _isDragging = true;
+        
         GameObject buildingPrefab = _cardDisplay.cardData.buildingPrefab;
 
         if (buildingPrefab != null) {
-           _ghostBuildingInstance = Instantiate(buildingPrefab, Vector3.zero, Quaternion.identity);
+            _ghostBuildingInstance = Instantiate(buildingPrefab, Vector3.zero, Quaternion.identity);
 
             SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
             if (sr != null) {
@@ -88,12 +95,18 @@ public class CardDragger : MonoBehaviour
         Debug.Log("Placement Canceled");
     }
 
-    private void EndDrag()
+    public void EndDrag()
     {
         if (_ghostBuildingInstance != null)
         {
             Destroy(_ghostBuildingInstance);
         }
+        
         _isDragging = false;
+        
+        if (GameManager.Instance.GetActiveDragger() == this)
+        {
+            GameManager.Instance.SetActiveDragger(null);
+        }
     }
 }

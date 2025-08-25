@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class CardDisplay : MonoBehaviour
 {
     public CardData cardData;
+    
+    [Header("Shortcut Key")]
+    [SerializeField] private KeyCode shortcutKey;
 
     [Header("UI References")]
     [SerializeField] private Image cardImage;
@@ -13,14 +16,27 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] private TMP_Text costText;
     [SerializeField] private Button buyButton;
 
+    private CardDragger _cardDragger;
+    
     private void Start()
     {
+        _cardDragger = GetComponent<CardDragger>();
         UpdateCardUI();
+        buyButton.onClick.AddListener(() => _cardDragger.StartDrag());
     }
     
     private void Update()
     {
         UpdateButtonState();
+        CheckForShortcutKey();
+    }
+    
+    private void CheckForShortcutKey()
+    {
+        if (Input.GetKeyDown(shortcutKey) && buyButton.interactable)
+        {
+            _cardDragger.StartDrag();
+        }
     }
 
     private void UpdateButtonState()

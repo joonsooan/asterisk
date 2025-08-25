@@ -48,12 +48,17 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        InitializeGameScene();
+    }
+
+    private void InitializeGameScene()
+    {
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             Initiate();
+            isCameraActive = true;
+            ToggleCamera(isCameraActive);
         }
-        isCameraActive = true;
-        ToggleCamera(isCameraActive);
     }
 
     private void OnDestroy()
@@ -122,10 +127,7 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "GameScene")
-        {
-            Initiate();
-        }
+        InitializeGameScene();
     }
 
     private void Initiate()

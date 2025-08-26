@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -16,20 +15,12 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public GameObject cameraActiveObject;
     public CardInfoManager cardInfoManager;
+    public CardDragger cardDragger;
 
     private int _currentQuotaIndex;
-    private CardDragger _activeDragger;
     private Coroutine _quotaCoroutine;
-    private Image _cameraActiveImg;
-    private TMP_Text _cameraActiveText;
-    
-    private readonly Color _cameraActiveColor = Color.green;
-    private readonly Color _cameraInactiveColor = Color.red;
 
-    [HideInInspector] public bool isCameraActive;
-    
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -56,9 +47,7 @@ public class GameManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             Initiate();
-            isCameraActive = true;
-            _cameraActiveImg.color = _cameraActiveColor;
-            // ToggleCamera(isCameraActive);
+            // CardManager.Instance.ToggleCameraModeUI(true);
         }
     }
 
@@ -70,8 +59,17 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         SetTimeScale();
-        ToggleExpansionPanel(); // For Debug
-        // ToggleShortcut();
+        ToggleExpansionPanel();
+
+        // if (Input.GetKeyDown(KeyCode.LeftShift))
+        // {
+        //     bool isCameraActive = CardManager.Instance.isCameraActive;
+        //     if (isCameraActive)
+        //     {
+        //         EndDrag();
+        //     }
+        //     CardManager.Instance.ToggleCameraModeUI(!isCameraActive);
+        // }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -79,26 +77,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // private void ToggleShortcut()
-    // {
-    //     if (Input.GetKeyDown(KeyCode.LeftShift))
-    //     {
-    //         isCameraActive = !isCameraActive;
-    //         ToggleCamera(isCameraActive);
-    //         cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
-    //     }
-    // }
-    //
-    // private void ToggleCamera(bool isActive)
-    // {
-    //     if (_activeDragger != null)
-    //     {
-    //         _activeDragger.EndDrag();
-    //     }
-    //     _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
-    //     _cameraActiveText.text = isActive ? "Camera" : "Build";
-    // }
-    
     private void ToggleExpansionPanel()
     {
         if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
@@ -107,14 +85,38 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SetActiveDragger(CardDragger dragger)
+    public void SelectCard(CardData cardData)
     {
-        _activeDragger = dragger;
+        if (cardDragger == null) return;
+
+        if (cardDragger.IsDragging)
+        {
+            cardDragger.EndDrag();
+        }
+        else
+        {
+            if (cardInfoManager != null)
+            {
+                cardInfoManager.UpdateCardUI(cardData);
+            }
+            cardDragger.StartDrag(cardData);
+        }
     }
 
-    public CardDragger GetActiveDragger()
+    public void EndDrag()
     {
-        return _activeDragger;
+        if (cardDragger != null)
+        {
+            cardDragger.EndDrag();
+        }
+    }
+
+    public void CancelDrag()
+    {
+        if (cardDragger != null)
+        {
+            cardDragger.EndDrag();
+        }
     }
 
     public int GetRequiredAmountForCurrentQuota()
@@ -136,12 +138,9 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cardInfoManager =  FindFirstObjectByType<CardInfoManager>();
-        
-        cameraActiveObject = GameObject.Find("Camera Active Object");
-        _cameraActiveImg = cameraActiveObject.GetComponent<Image>();
-        _cameraActiveText = cameraActiveObject.GetComponentInChildren<TMP_Text>();
-        
+        cardInfoManager = FindFirstObjectByType<CardInfoManager>();
+        cardDragger = FindFirstObjectByType<CardDragger>();
+
         if (mapGenerator != null)
         {
             mapGenerator.GenerateMap();
@@ -228,8 +227,9 @@ public class GameManager : MonoBehaviour
             {
                 rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
-                
-                if (ResourceManager.Instance != null) {
+
+                if (ResourceManager.Instance != null)
+                {
                     ResourceManager.Instance.UpdateAllResourceUI();
                 }
             }

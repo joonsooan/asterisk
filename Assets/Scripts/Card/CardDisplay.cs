@@ -5,59 +5,34 @@ using UnityEngine.UI;
 public class CardDisplay : MonoBehaviour
 {
     public CardData cardData;
-    
-    [Header("Shortcut Key")]
-    [SerializeField] private KeyCode shortcutKey;
 
     [Header("UI References")]
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Button buyButton;
 
-    private CardDragger _cardDragger;
-    
     private void Start()
     {
-        _cardDragger = GetComponent<CardDragger>();
         UpdateCardUI();
         buyButton.onClick.AddListener(OnCardClick);
     }
-    
+
     private void Update()
     {
         UpdateButtonState();
-        // CheckForShortcutKey();
     }
 
     private void OnCardClick()
     {
-        CardDragger activeDragger = GameManager.Instance.GetActiveDragger();
-
-        if (activeDragger == _cardDragger)
+        if (GameManager.Instance != null)
         {
-            _cardDragger.EndDrag();
-        }
-        else
-        {
-            if (GameManager.Instance.cardInfoManager != null)
-            {
-                GameManager.Instance.cardInfoManager.UpdateCardUI(cardData);
-            }
-
-            _cardDragger.TryStartDrag();
+            GameManager.Instance.SelectCard(cardData);
         }
     }
 
-    // private void CheckForShortcutKey()
-    // {
-    //     if (!GameManager.Instance.isCameraActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
-    //     {
-    //         OnCardClick();
-    //     }
-    // }
-
     private void UpdateButtonState()
     {
-        if (cardData != null && ResourceManager.Instance != null) {
+        if (cardData != null && ResourceManager.Instance != null)
+        {
             bool canAfford = ResourceManager.Instance.HasEnoughResources(cardData.costs);
             buyButton.interactable = canAfford;
         }
@@ -65,11 +40,11 @@ public class CardDisplay : MonoBehaviour
 
     private void UpdateCardUI()
     {
-        if (cardData == null) {
+        if (cardData == null)
+        {
             return;
         }
 
         nameText.text = cardData.cardName;
-        // cardImage.sprite = cardData.cardImage;
     }
 }

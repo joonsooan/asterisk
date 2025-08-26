@@ -49,12 +49,17 @@ public class ResourceNode : MonoBehaviour
         }
     }
 
-    public void Reserve()
+    public bool Reserve()
     {
+        if (IsReserved) {
+            return false;
+        }
         IsReserved = true;
         if (_sr != null) {
             _sr.color = highlightColor;
         }
+
+        return true;
     }
 
     public void Unreserve()
@@ -71,7 +76,6 @@ public class ResourceNode : MonoBehaviour
         amountToMine -= amountMined;
 
         if (IsDepleted) {
-            Unreserve();
             Destroy(gameObject);
         }
 

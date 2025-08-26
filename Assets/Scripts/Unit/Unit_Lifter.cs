@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Unit_Lifter : UnitBase
@@ -8,6 +9,7 @@ public class Unit_Lifter : UnitBase
     [Header("Cargo")]
     public int maxCarryAmount = 50;
     [SerializeField] private float unloadDistance = 1.5f;
+    public ResourceType[] mineableResourceTypes;
 
     [Header("Values")]
     [SerializeField] private float resourceSearchInterval = 2f;
@@ -194,9 +196,14 @@ public class Unit_Lifter : UnitBase
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
             _currentCarryAmounts[type] = 0;
         }
+        
+        if (_targetResourceNode != null)
+        {
+            _targetResourceNode.Unreserve();
+            _targetResourceNode = null;
+        }
 
         currentState = UnitState.Idle;
-
         StartUnitActions();
     }
 
@@ -215,45 +222,61 @@ public class Unit_Lifter : UnitBase
     private void FindAndSetTarget()
     {
         List<ResourceNode> allResources = ResourceManager.Instance.GetAllResources();
-        float minDistance = float.MaxValue;
-        ResourceNode nearest = null;
+        
+        allResources.Sort((a, b) => {
+            float distA = Vector2.Distance(transform.position, a.transform.position);
+            float distB = Vector2.Distance(transform.position, b.transform.position);
+            return distA.CompareTo(distB);
+        });
 
-        foreach (ResourceNode resource in allResources) {
-            if (resource == null || resource.IsDepleted || resource.IsReserved || !resource.gameObject.activeInHierarchy) continue;
+        ResourceNode newTarget = null;
+        
+        foreach (ResourceNode resource in allResources)
+        {
+            if (resource == null || resource.IsDepleted || !resource.gameObject.activeInHierarchy) continue;
 
-            float distance = Vector2.Distance(transform.position, resource.transform.position);
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = resource;
+            bool canMine = false;
+            foreach (ResourceType type in mineableResourceTypes)
+            {
+                if (resource.resourceType == type)
+                {
+                    canMine = true;
+                    break;
+                }
+            }
+            if (!canMine) continue;
+
+            if (resource.Reserve())
+            {
+                newTarget = resource;
+                break;
             }
         }
 
-        if (nearest == null) {
-            int totalCarriedAmount = 0;
-            foreach (KeyValuePair<ResourceType, int> pair in _currentCarryAmounts) {
-                totalCarriedAmount += pair.Value;
-            }
+        if (newTarget == null)
+        {
+            int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
 
-            if (totalCarriedAmount > 0) {
+            if (totalCarriedAmount > 0)
+            {
                 Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
                 currentState = UnitState.ReturningToStorage;
                 unitMovement.SetNewTarget(_storageBuilding.transform.position);
-                _targetResourceNode = null;
             }
-            else {
+            else
+            {
                 Debug.Log("[자원 고갈] 더 이상 채굴할 자원이 없습니다. 대기합니다.");
             }
+            _targetResourceNode = null;
         }
-        else {
-            if (_targetResourceNode != null && _targetResourceNode != nearest) {
+        else
+        {
+            if (_targetResourceNode != null && _targetResourceNode != newTarget)
+            {
                 _targetResourceNode.Unreserve();
             }
-
-            _targetResourceNode = nearest;
-            _targetResourceNode.Reserve();
-
+            _targetResourceNode = newTarget;
             unitMovement.SetNewTarget(_targetResourceNode.transform.position);
-
             currentState = UnitState.Moving;
         }
     }

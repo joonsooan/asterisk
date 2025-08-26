@@ -2,16 +2,17 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public Transform target;
-
     [Header("Controls")]
     public float smoothing = 5f;
     public float panSpeed = 10f;
+    public float edgePanSpeed = 20f;
+    public float panBorderThickness = 10f;
 
     private Camera _cam;
     private bool _isManualMode;
-    private Vector3 _manualDirection;
+    private Vector3 _direction;
     private Bounds? _worldBounds;
+    public Transform target;
 
     private void Awake()
     {
@@ -23,41 +24,67 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        CameraMove();
+        HandlePlayerInput();
     }
 
-    private void CameraMove()
+    private void HandlePlayerInput()
     {
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
-
-        _manualDirection = new Vector3(moveX, moveY, 0).normalized;
-
-        if (_manualDirection != Vector3.zero) {
-            _isManualMode = true;
-        }
+        _direction = new Vector3(moveX, moveY, 0).normalized;
     }
 
     private void LateUpdate()
     {
-        if (!GameManager.Instance.isCameraActive) return;
-        
-        if (_isManualMode)
-        {
-            transform.Translate(_manualDirection * panSpeed * Time.unscaledDeltaTime,
-                Space.World);
-        }
-        else if (target != null)
-        {
-            Vector3 targetPosition = new Vector3(target.position.x, target.position.y,
-                transform.position.z);
-            transform.position = Vector3.Lerp(transform.position, targetPosition,
-                smoothing * Time.unscaledDeltaTime);
-        }
-
-        ClampToBounds();
+        HandleCameraMovement();
     }
 
+    private void HandleCameraMovement()
+    {
+        // if (!GameManager.Instance.isCameraActive) return;
+
+        Vector3 mousePanDirection = Vector3.zero;
+
+        if (Input.mousePosition.y >= Screen.height - panBorderThickness)
+        {
+            mousePanDirection += Vector3.up;
+        }
+        if (Input.mousePosition.y <= panBorderThickness)
+        {
+            mousePanDirection += Vector3.down;
+        }
+        if (Input.mousePosition.x >= Screen.width - panBorderThickness)
+        {
+            mousePanDirection += Vector3.right;
+        }
+        if (Input.mousePosition.x <= panBorderThickness)
+        {
+            mousePanDirection += Vector3.left;
+        }
+        mousePanDirection.Normalize();
+
+        if (_direction != Vector3.zero || mousePanDirection != Vector3.zero)
+        {
+            _isManualMode = true;
+            Vector3 finalDirection = (_direction != Vector3.zero) ? _direction : mousePanDirection;
+            float currentPanSpeed = (_direction != Vector3.zero) ? panSpeed : edgePanSpeed;
+
+            transform.Translate(finalDirection * currentPanSpeed * Time.unscaledDeltaTime, Space.World);
+        }
+        else
+        {
+            _isManualMode = false;
+        }
+
+        if (!_isManualMode && target != null)
+        {
+            Vector3 targetPosition = new Vector3(target.position.x, target.position.y, transform.position.z);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, smoothing * Time.unscaledDeltaTime);
+        }
+        
+        ClampToBounds();
+    }
+    
     public void SetBounds(Bounds bounds)
     {
         _worldBounds = bounds;

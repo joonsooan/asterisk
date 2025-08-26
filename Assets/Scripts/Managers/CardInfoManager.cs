@@ -5,7 +5,7 @@ public class CardInfoManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject resourceInfoCellPrefab;
-    public GameObject parent;
+    [SerializeField] private GameObject parent;
     
     [Header("References")]
     [SerializeField] private TMP_Text cardName;
@@ -13,19 +13,17 @@ public class CardInfoManager : MonoBehaviour
     [SerializeField] private GameObject cardInfoPanel;
     [SerializeField] private GameObject resourceInfoPanel;
 
-    public void UpdateCardUI(CardData data)
+    public void DisplayCardInfo(CardData data)
     {
-        cardName.text = data.cardName;
-        cardDescription.text = data.cardDescription;
+        if (cardInfoPanel == null) return;
         
-        if (parent != null)
-        {
-            foreach (Transform child in parent.transform)
-            {
-                Destroy(child.gameObject);
-            }
-        }
-
+        cardInfoPanel.SetActive(true);
+        
+        ClearResourceInfoPanel();
+        
+        if (cardName != null) cardName.text = data.cardName;
+        if (cardDescription != null) cardDescription.text = data.cardDescription;
+        
         if (resourceInfoCellPrefab != null && parent != null)
         {
             foreach (CardCost cost in data.costs)
@@ -41,21 +39,24 @@ public class CardInfoManager : MonoBehaviour
         }
     }
 
-    public void ToggleCardInfoPanel(bool isActive)
+    private void ClearResourceInfoPanel()
     {
-        cardInfoPanel.SetActive(isActive);
-        if (isActive)
+        if (resourceInfoPanel != null)
         {
-            cardName.text = "";
-            cardDescription.text = "";
-            
-            if (resourceInfoPanel != null)
+            foreach (Transform child in resourceInfoPanel.transform)
             {
-                foreach (Transform child in resourceInfoPanel.transform)
-                {
-                    Destroy(child.gameObject);
-                }
+                Destroy(child.gameObject);
             }
         }
+    }
+
+    public void HideCardInfo()
+    {
+        cardInfoPanel.SetActive(false);
+        
+        cardName.text = "";
+        cardDescription.text = "";
+
+        ClearResourceInfoPanel();
     }
 }

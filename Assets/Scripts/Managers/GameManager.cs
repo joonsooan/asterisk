@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -16,20 +15,12 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public GameObject cameraActiveObject;
     public CardInfoManager cardInfoManager;
+    public CardDragger cardDragger;
 
     private int _currentQuotaIndex;
-    private CardDragger _activeDragger;
     private Coroutine _quotaCoroutine;
-    private Image _cameraActiveImg;
-    private TMP_Text _cameraActiveText;
-    
-    private readonly Color _cameraActiveColor = Color.green;
-    private readonly Color _cameraInactiveColor = Color.red;
 
-    [HideInInspector] public bool isCameraActive;
-    
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -55,9 +46,7 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
-            Initiate();
-            isCameraActive = true;
-            ToggleCamera(isCameraActive);
+            InitializeAllManagers();
         }
     }
 
@@ -69,8 +58,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         SetTimeScale();
-        ToggleExpansionPanel(); // For Debug
-        ToggleShortcut();
+        ToggleExpansionPanel();
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -78,26 +66,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void ToggleShortcut()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            isCameraActive = !isCameraActive;
-            ToggleCamera(isCameraActive);
-            cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
-        }
-    }
-    
-    private void ToggleCamera(bool isActive)
-    {
-        if (isActive == false && _activeDragger != null)
-        {
-            _activeDragger.EndDrag();
-        }
-        _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
-        _cameraActiveText.text = isActive ? "Camera" : "Build";
-    }
-    
     private void ToggleExpansionPanel()
     {
         if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
@@ -105,17 +73,20 @@ public class GameManager : MonoBehaviour
             expansionPanel.TogglePanelVisibility();
         }
     }
-
-    public void SetActiveDragger(CardDragger dragger)
+    
+    public void StartDrag(CardData cardData)
     {
-        _activeDragger = dragger;
+        if (cardDragger == null) return;
+        
+        cardDragger.EndDrag();
+        
+        if (cardInfoManager != null)
+        {
+            cardInfoManager.DisplayCardInfo(cardData);
+        }
+        cardDragger.StartDrag(cardData);
     }
-
-    public CardDragger GetActiveDragger()
-    {
-        return _activeDragger;
-    }
-
+    
     public int GetRequiredAmountForCurrentQuota()
     {
         if (_currentQuotaIndex >= 0 && _currentQuotaIndex < requiredResourceAmounts.Count)
@@ -129,26 +100,39 @@ public class GameManager : MonoBehaviour
     {
         InitializeGameScene();
     }
+    
+    public void EndDrag()
+    {
+        if (cardDragger != null)
+        {
+            cardDragger.EndDrag();
+        }
+    }
+    
+    public bool IsDragging()
+    {
+        return cardDragger != null && cardDragger.IsDragging;
+    }
+    
+    public CardData GetActiveCardData()
+    {
+        if (cardDragger != null)
+        {
+            return cardDragger.GetActiveCardData();
+        }
+        return null;
+    }
 
-    private void Initiate()
+    private void InitializeAllManagers()
     {
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cardInfoManager =  FindFirstObjectByType<CardInfoManager>();
-        
-        cameraActiveObject = GameObject.Find("Camera Active Object");
-        _cameraActiveImg = cameraActiveObject.GetComponent<Image>();
-        _cameraActiveText = cameraActiveObject.GetComponentInChildren<TMP_Text>();
-        
-        if (mapGenerator != null)
-        {
-            mapGenerator.GenerateMap();
-        }
-        if (expansionPanel != null)
-        {
-            expansionPanel.InitiateExpansionPanel();
-        }
+        cardInfoManager = FindFirstObjectByType<CardInfoManager>();
+        cardDragger = FindFirstObjectByType<CardDragger>();
+
+        mapGenerator?.GenerateMap();
+        expansionPanel?.InitiateExpansionPanel();
 
         InitializeSpawnersAndUnits();
 
@@ -165,20 +149,14 @@ public class GameManager : MonoBehaviour
         foreach (BuildingSpawner spawner in buildingSpawners)
         {
             spawner.SpawnBuildings();
-            if (spawner.BuildingTilemap != null)
-            {
-                spawner.BuildingTilemap.gameObject.SetActive(false);
-            }
+            spawner.BuildingTilemap?.gameObject.SetActive(false);
         }
 
         ResourceSpawner[] resourceSpawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
         foreach (ResourceSpawner spawner in resourceSpawners)
         {
             spawner.SpawnResources();
-            if (spawner.ResourceTilemap != null)
-            {
-                spawner.ResourceTilemap.gameObject.SetActive(false);
-            }
+            spawner.ResourceTilemap?.gameObject.SetActive(false);
         }
 
         Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
@@ -209,17 +187,6 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
 
-            if (slider != null)
-            {
-                slider.value = resourceCheckInterval;
-            }
-
-            if (_currentQuotaIndex >= requiredResourceAmounts.Count)
-            {
-                _quotaCoroutine = null;
-                yield break;
-            }
-
             int currentRequiredAmount = requiredResourceAmounts[_currentQuotaIndex];
             ResourceManager rm = ResourceManager.Instance;
 
@@ -227,17 +194,14 @@ public class GameManager : MonoBehaviour
             {
                 rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
-                
-                if (ResourceManager.Instance != null) {
-                    ResourceManager.Instance.UpdateAllResourceUI();
-                }
+                ResourceManager.Instance?.UpdateAllResourceUI();
             }
             else
             {
                 GameOver();
                 yield break;
             }
-
+            
             if (slider != null)
             {
                 slider.value = 0f;

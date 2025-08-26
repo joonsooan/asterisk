@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
   m_Name: 6_Bio Cultivator
   m_EditorClassIdentifier: 
+  cardIcon: {fileID: 2719411617091679611, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   cardName: Bio Cultivator
   buildingPrefab: {fileID: 1574451153020646121, guid: b1eb2ea178c61624698ae92f13d97d5d, type: 3}
   gadgetType: 7

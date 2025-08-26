@@ -7,6 +7,7 @@ public class CardDisplay : MonoBehaviour
     public CardData cardData;
 
     [Header("UI References")]
+    [SerializeField] private Image cardIcon;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Button buyButton;
 
@@ -48,14 +49,7 @@ public class CardDisplay : MonoBehaviour
 
     private void UpdateCardUI()
     {
-        if (cardData == null)
-        {
-            return;
-        }
-
-        if (nameText != null)
-        {
-            nameText.text = cardData.cardName;
-        }
+        nameText.text = cardData.cardName;
+        cardIcon.sprite = cardData.cardIcon;
     }
 }

@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
   m_Name: 7_Hyper Station
   m_EditorClassIdentifier: 
-  comboIcon: {fileID: 0}
+  comboIcon: {fileID: 1580907503307545026, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   comboName: Hyper Station
   comboPrefab: {fileID: 1574451153020646121, guid: 5096adcd5d0a0c24798eefaccd2ee91a, type: 3}
   comboTile: {fileID: 11400000, guid: af606fc7f30fcfb4e9d2706ac1d9c9ef, type: 2}
   comboDescription: This is Combo Description
   recipe:
   - gadgetType: 8
-    relativePosition: {x: 0, y: 0, z: 0}
+    relativePosition: {x: -1, y: 0, z: 0}
   - gadgetType: 6
-    relativePosition: {x: 1, y: 0, z: 0}
+    relativePosition: {x: 0, y: 0, z: 0}
   - gadgetType: 5
-    relativePosition: {x: 2, y: 0, z: 0}
+    relativePosition: {x: 1, y: 0, z: 0}

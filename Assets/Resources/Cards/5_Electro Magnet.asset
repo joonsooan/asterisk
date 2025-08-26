@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
   m_Name: 5_Electro Magnet
   m_EditorClassIdentifier: 
+  cardIcon: {fileID: -6603733120670669710, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   cardName: Electro Magnet
   buildingPrefab: {fileID: 1574451153020646121, guid: 27a8eee5cacd95840890238555832186, type: 3}
   gadgetType: 6

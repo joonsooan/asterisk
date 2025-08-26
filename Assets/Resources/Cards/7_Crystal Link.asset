@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
   m_Name: 7_Crystal Link
   m_EditorClassIdentifier: 
-  cardImage: {fileID: 0}
+  cardIcon: {fileID: 8989666341983048895, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   cardName: Crystal Link
   buildingPrefab: {fileID: 1574451153020646121, guid: 91291eb00fc03314b9617f0bb95e299f, type: 3}
   gadgetType: 8
   gadgetTile: {fileID: 11400000, guid: 5c7ea19fdeddcd54e94baea43e58665e, type: 2}
+  cardDescription: This is card description
   costs:
   - resourceType: 0
     amount: 200

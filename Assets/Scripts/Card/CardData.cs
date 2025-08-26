@@ -25,6 +25,7 @@ public enum GadgetType
 [CreateAssetMenu(fileName = "New Card", menuName = "Card System/Card Data")]
 public class CardData : ScriptableObject
 {
+    public Sprite cardIcon;
     public string cardName;
     public GameObject buildingPrefab;
     public GadgetType gadgetType;

@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4f3bbf69d4b524f891e94150a6c7ff, type: 3}
   m_Name: 8_Aether Condenser
   m_EditorClassIdentifier: 
-  cardImage: {fileID: 0}
+  cardIcon: {fileID: -744711579494064424, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   cardName: Aether Condenser
   buildingPrefab: {fileID: 1574451153020646121, guid: 8f85f6638a008c648a0f77ef31feb3d8, type: 3}
   gadgetType: 9
   gadgetTile: {fileID: 11400000, guid: 7e1c9ffd4ad5b6944b190bd11c1d781c, type: 2}
+  cardDescription: This is card description
   costs:
   - resourceType: 1
     amount: 150

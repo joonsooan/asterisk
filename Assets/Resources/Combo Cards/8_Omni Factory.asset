@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
   m_Name: 8_Omni Factory
   m_EditorClassIdentifier: 
+  comboIcon: {fileID: 462570485905842811, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   comboName: Omni Factory
   comboPrefab: {fileID: 1574451153020646121, guid: 971f040c8f472d648a4ec96d41826013, type: 3}
   comboTile: {fileID: 11400000, guid: 5182e0968296d1e45bf4c2851ea94685, type: 2}
+  comboDescription: This is Combo Description
   recipe:
   - gadgetType: 5
     relativePosition: {x: 0, y: 0, z: 0}
@@ -25,6 +27,6 @@ MonoBehaviour:
   - gadgetType: 7
     relativePosition: {x: 1, y: 1, z: 0}
   - gadgetType: 8
-    relativePosition: {x: 0, y: 2, z: 0}
+    relativePosition: {x: 0, y: -1, z: 0}
   - gadgetType: 5
-    relativePosition: {x: 1, y: 2, z: 0}
+    relativePosition: {x: 1, y: -1, z: 0}

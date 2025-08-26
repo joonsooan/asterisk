@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public MapGenerator mapGenerator;
     public CardInfoManager cardInfoManager;
     public CardDragger cardDragger;
+    public RecipeManager recipeManager;
 
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
@@ -130,6 +131,7 @@ public class GameManager : MonoBehaviour
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
         cardInfoManager = FindFirstObjectByType<CardInfoManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
+        recipeManager = FindFirstObjectByType<RecipeManager>();
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();

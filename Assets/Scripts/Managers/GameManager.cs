@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             Initiate();
-            // CardManager.Instance.ToggleCameraModeUI(true);
         }
     }
 
@@ -60,16 +59,6 @@ public class GameManager : MonoBehaviour
     {
         SetTimeScale();
         ToggleExpansionPanel();
-
-        // if (Input.GetKeyDown(KeyCode.LeftShift))
-        // {
-        //     bool isCameraActive = CardManager.Instance.isCameraActive;
-        //     if (isCameraActive)
-        //     {
-        //         EndDrag();
-        //     }
-        //     CardManager.Instance.ToggleCameraModeUI(!isCameraActive);
-        // }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {

@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
   m_Name: 0_Charge Station
   m_EditorClassIdentifier: 
+  comboIcon: {fileID: 0}
   comboName: Charge Station
   comboPrefab: {fileID: 1574451153020646121, guid: bb1d61d0bb9212a43a284a4716380a4b, type: 3}
   comboTile: {fileID: 11400000, guid: dccb7f9df74bdb94383ec7f2eb536869, type: 2}
+  comboDescription: This is Combo Description
   recipe:
   - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}

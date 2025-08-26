@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
   m_Name: 1_Bio Harvester
   m_EditorClassIdentifier: 
+  comboIcon: {fileID: 0}
   comboName: Bio Harvester
   comboPrefab: {fileID: 1574451153020646121, guid: bca5fc75e320a7c4882e0538e3e0036b, type: 3}
   comboTile: {fileID: 11400000, guid: e9261a2af17ff4c4cada78f576673eae, type: 2}
+  comboDescription: This is Combo Description
   recipe:
   - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}

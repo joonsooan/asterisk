@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
-            Initiate();
+            InitializeAllManagers();
         }
     }
 
@@ -73,41 +73,20 @@ public class GameManager : MonoBehaviour
             expansionPanel.TogglePanelVisibility();
         }
     }
-
-    public void SelectCard(CardData cardData)
+    
+    public void StartDrag(CardData cardData)
     {
         if (cardDragger == null) return;
-
-        if (cardDragger.IsDragging)
+        
+        cardDragger.EndDrag();
+        
+        if (cardInfoManager != null)
         {
-            cardDragger.EndDrag();
+            cardInfoManager.DisplayCardInfo(cardData);
         }
-        else
-        {
-            if (cardInfoManager != null)
-            {
-                cardInfoManager.UpdateCardUI(cardData);
-            }
-            cardDragger.StartDrag(cardData);
-        }
+        cardDragger.StartDrag(cardData);
     }
-
-    public void EndDrag()
-    {
-        if (cardDragger != null)
-        {
-            cardDragger.EndDrag();
-        }
-    }
-
-    public void CancelDrag()
-    {
-        if (cardDragger != null)
-        {
-            cardDragger.EndDrag();
-        }
-    }
-
+    
     public int GetRequiredAmountForCurrentQuota()
     {
         if (_currentQuotaIndex >= 0 && _currentQuotaIndex < requiredResourceAmounts.Count)
@@ -122,7 +101,7 @@ public class GameManager : MonoBehaviour
         InitializeGameScene();
     }
 
-    private void Initiate()
+    private void InitializeAllManagers()
     {
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
@@ -130,14 +109,8 @@ public class GameManager : MonoBehaviour
         cardInfoManager = FindFirstObjectByType<CardInfoManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
 
-        if (mapGenerator != null)
-        {
-            mapGenerator.GenerateMap();
-        }
-        if (expansionPanel != null)
-        {
-            expansionPanel.InitiateExpansionPanel();
-        }
+        mapGenerator?.GenerateMap();
+        expansionPanel?.InitiateExpansionPanel();
 
         InitializeSpawnersAndUnits();
 
@@ -154,20 +127,14 @@ public class GameManager : MonoBehaviour
         foreach (BuildingSpawner spawner in buildingSpawners)
         {
             spawner.SpawnBuildings();
-            if (spawner.BuildingTilemap != null)
-            {
-                spawner.BuildingTilemap.gameObject.SetActive(false);
-            }
+            spawner.BuildingTilemap?.gameObject.SetActive(false);
         }
 
         ResourceSpawner[] resourceSpawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
         foreach (ResourceSpawner spawner in resourceSpawners)
         {
             spawner.SpawnResources();
-            if (spawner.ResourceTilemap != null)
-            {
-                spawner.ResourceTilemap.gameObject.SetActive(false);
-            }
+            spawner.ResourceTilemap?.gameObject.SetActive(false);
         }
 
         Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
@@ -198,17 +165,6 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
 
-            if (slider != null)
-            {
-                slider.value = resourceCheckInterval;
-            }
-
-            if (_currentQuotaIndex >= requiredResourceAmounts.Count)
-            {
-                _quotaCoroutine = null;
-                yield break;
-            }
-
             int currentRequiredAmount = requiredResourceAmounts[_currentQuotaIndex];
             ResourceManager rm = ResourceManager.Instance;
 
@@ -216,18 +172,14 @@ public class GameManager : MonoBehaviour
             {
                 rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
-
-                if (ResourceManager.Instance != null)
-                {
-                    ResourceManager.Instance.UpdateAllResourceUI();
-                }
+                ResourceManager.Instance?.UpdateAllResourceUI();
             }
             else
             {
                 GameOver();
                 yield break;
             }
-
+            
             if (slider != null)
             {
                 slider.value = 0f;

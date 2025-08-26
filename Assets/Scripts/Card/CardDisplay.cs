@@ -13,7 +13,7 @@ public class CardDisplay : MonoBehaviour
     private void Start()
     {
         UpdateCardUI();
-        buyButton.onClick.AddListener(OnCardClick);
+        buyButton.onClick.AddListener(OnBuyButtonClick);
     }
 
     private void Update()
@@ -21,17 +21,17 @@ public class CardDisplay : MonoBehaviour
         UpdateButtonState();
     }
 
-    private void OnCardClick()
+    private void OnBuyButtonClick()
     {
-        if (GameManager.Instance != null)
+        if (GameManager.Instance != null && cardData != null)
         {
-            GameManager.Instance.SelectCard(cardData);
+            GameManager.Instance.StartDrag(cardData);
         }
     }
 
     private void UpdateButtonState()
     {
-        if (cardData != null && ResourceManager.Instance != null)
+        if (cardData != null && ResourceManager.Instance != null && buyButton != null)
         {
             bool canAfford = ResourceManager.Instance.HasEnoughResources(cardData.costs);
             buyButton.interactable = canAfford;
@@ -45,6 +45,9 @@ public class CardDisplay : MonoBehaviour
             return;
         }
 
-        nameText.text = cardData.cardName;
+        if (nameText != null)
+        {
+            nameText.text = cardData.cardName;
+        }
     }
 }

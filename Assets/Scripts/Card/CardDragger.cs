@@ -9,11 +9,13 @@ public class CardDragger : MonoBehaviour
     private CardData _activeCardData;
     private bool _isDragging;
 
-    public bool IsDragging => _isDragging;
-
     private void Update()
     {
-        HandleMouseInput();
+        if (_isDragging)
+        {
+            HandleDragVisuals();
+            HandleMousePlacement();
+        }
     }
 
     public void StartDrag(CardData cardData)
@@ -25,14 +27,7 @@ public class CardDragger : MonoBehaviour
 
         if (_activeCardData.buildingPrefab != null)
         {
-            _ghostBuildingInstance = Instantiate(_activeCardData.buildingPrefab, Vector3.zero, Quaternion.identity);
-            SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                Color ghostColor = sr.color;
-                ghostColor.a = 0.5f;
-                sr.color = ghostColor;
-            }
+            CreateGhostBuilding();
         }
         else
         {
@@ -49,34 +44,59 @@ public class CardDragger : MonoBehaviour
         _isDragging = false;
         _activeCardData = null;
     }
-
-    private void HandleMouseInput()
+    
+    private void CreateGhostBuilding()
     {
-        if (_isDragging)
+        _ghostBuildingInstance = Instantiate(_activeCardData.buildingPrefab, Vector3.zero, Quaternion.identity);
+        
+        SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
+        if (sr != null)
         {
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorldPos.z = 0;
+            Color ghostColor = sr.color;
+            ghostColor.a = 0.5f;
+            sr.color = ghostColor;
+        }
+    }
+    
+    private void HandleDragVisuals()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPos.z = 0;
 
-            Vector3Int cellPosition = grid.WorldToCell(mouseWorldPos);
-            Vector3 cellCenterWorld = grid.GetCellCenterWorld(cellPosition);
-            _ghostBuildingInstance.transform.position = cellCenterWorld;
+        Vector3Int cellPosition = grid.WorldToCell(mouseWorldPos);
+        Vector3 cellCenterWorld = grid.GetCellCenterWorld(cellPosition);
+        _ghostBuildingInstance.transform.position = cellCenterWorld;
+        
+        bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
+        UpdateGhostColor(canPlace);
+    }
+    
+    private void UpdateGhostColor(bool canPlace)
+    {
+        SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            Color color = canPlace ? Color.green : Color.red;
+            sr.color = new Color(color.r, color.g, color.b, 0.5f);
+        }
+    }
 
+    private void HandleMousePlacement()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
-            SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                Color color = canPlace ? Color.green : Color.red;
-                sr.color = new Color(color.r, color.g, color.b, 0.5f);
-            }
 
-            if (Input.GetMouseButtonDown(0) && canPlace)
+            if (canPlace)
             {
                 AttemptPlacement(cellPosition);
             }
-            else if (Input.GetMouseButtonDown(1))
-            {
-                GameManager.Instance.CancelDrag();
-            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            EndDrag();
+            GameManager.Instance.cardInfoManager.HideCardInfo();
         }
     }
 
@@ -86,11 +106,13 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
-            GameManager.Instance.EndDrag();
+            
+            EndDrag();
+            GameManager.Instance.cardInfoManager.HideCardInfo();
         }
         else
         {
-            Debug.Log("Not enough resources to place this building.");
+            Debug.Log("Not enough resources.");
         }
     }
 

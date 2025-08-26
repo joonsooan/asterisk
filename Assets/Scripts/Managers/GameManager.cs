@@ -100,6 +100,28 @@ public class GameManager : MonoBehaviour
     {
         InitializeGameScene();
     }
+    
+    public void EndDrag()
+    {
+        if (cardDragger != null)
+        {
+            cardDragger.EndDrag();
+        }
+    }
+    
+    public bool IsDragging()
+    {
+        return cardDragger != null && cardDragger.IsDragging;
+    }
+    
+    public CardData GetActiveCardData()
+    {
+        if (cardDragger != null)
+        {
+            return cardDragger.GetActiveCardData();
+        }
+        return null;
+    }
 
     private void InitializeAllManagers()
     {

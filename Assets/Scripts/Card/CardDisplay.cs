@@ -25,7 +25,15 @@ public class CardDisplay : MonoBehaviour
     {
         if (GameManager.Instance != null && cardData != null)
         {
-            GameManager.Instance.StartDrag(cardData);
+            if (GameManager.Instance.IsDragging() && GameManager.Instance.GetActiveCardData() == cardData)
+            {
+                GameManager.Instance.EndDrag();
+                GameManager.Instance.cardInfoManager.HideCardInfo();
+            }
+            else
+            {
+                GameManager.Instance.StartDrag(cardData);
+            }
         }
     }
 

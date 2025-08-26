@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CardDragger : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class CardDragger : MonoBehaviour
     private GameObject _ghostBuildingInstance;
     private CardData _activeCardData;
     private bool _isDragging;
+    
+    public bool IsDragging => _isDragging;
 
     private void Update()
     {
@@ -58,6 +61,11 @@ public class CardDragger : MonoBehaviour
         }
     }
     
+    public CardData GetActiveCardData()
+    {
+        return _activeCardData;
+    }
+    
     private void HandleDragVisuals()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -87,10 +95,19 @@ public class CardDragger : MonoBehaviour
         {
             Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
-
+            
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                EndDrag();
+                GameManager.Instance.cardInfoManager.HideCardInfo();
+                return;
+            }
+            
             if (canPlace)
             {
                 AttemptPlacement(cellPosition);
+                EndDrag();
+                GameManager.Instance.cardInfoManager.HideCardInfo();
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -106,9 +123,6 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
-            
-            EndDrag();
-            GameManager.Instance.cardInfoManager.HideCardInfo();
         }
         else
         {

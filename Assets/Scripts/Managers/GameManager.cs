@@ -57,7 +57,8 @@ public class GameManager : MonoBehaviour
         {
             Initiate();
             isCameraActive = true;
-            ToggleCamera(isCameraActive);
+            _cameraActiveImg.color = _cameraActiveColor;
+            // ToggleCamera(isCameraActive);
         }
     }
 
@@ -70,7 +71,7 @@ public class GameManager : MonoBehaviour
     {
         SetTimeScale();
         ToggleExpansionPanel(); // For Debug
-        ToggleShortcut();
+        // ToggleShortcut();
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -78,25 +79,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void ToggleShortcut()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            isCameraActive = !isCameraActive;
-            ToggleCamera(isCameraActive);
-            cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
-        }
-    }
-    
-    private void ToggleCamera(bool isActive)
-    {
-        if (isActive == false && _activeDragger != null)
-        {
-            _activeDragger.EndDrag();
-        }
-        _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
-        _cameraActiveText.text = isActive ? "Camera" : "Build";
-    }
+    // private void ToggleShortcut()
+    // {
+    //     if (Input.GetKeyDown(KeyCode.LeftShift))
+    //     {
+    //         isCameraActive = !isCameraActive;
+    //         ToggleCamera(isCameraActive);
+    //         cardInfoManager.ToggleCardInfoPanel(!isCameraActive);
+    //     }
+    // }
+    //
+    // private void ToggleCamera(bool isActive)
+    // {
+    //     if (_activeDragger != null)
+    //     {
+    //         _activeDragger.EndDrag();
+    //     }
+    //     _cameraActiveImg.color = isActive ? _cameraActiveColor : _cameraInactiveColor;
+    //     _cameraActiveText.text = isActive ? "Camera" : "Build";
+    // }
     
     private void ToggleExpansionPanel()
     {

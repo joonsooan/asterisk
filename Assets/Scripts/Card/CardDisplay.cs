@@ -19,32 +19,41 @@ public class CardDisplay : MonoBehaviour
     {
         _cardDragger = GetComponent<CardDragger>();
         UpdateCardUI();
-        buyButton.onClick.AddListener(() => _cardDragger.TryStartDrag());
+        buyButton.onClick.AddListener(OnCardClick);
     }
     
     private void Update()
     {
         UpdateButtonState();
-        CheckForShortcutKey();
+        // CheckForShortcutKey();
     }
-    
+
     private void OnCardClick()
     {
-        if (GameManager.Instance.cardInfoManager != null)
-        {
-            GameManager.Instance.cardInfoManager.UpdateCardUI(cardData);
-        }
+        CardDragger activeDragger = GameManager.Instance.GetActiveDragger();
 
-        _cardDragger.TryStartDrag();
-    }
-    
-    private void CheckForShortcutKey()
-    {
-        if (!GameManager.Instance.isCameraActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
+        if (activeDragger == _cardDragger)
         {
-            OnCardClick();
+            _cardDragger.EndDrag();
+        }
+        else
+        {
+            if (GameManager.Instance.cardInfoManager != null)
+            {
+                GameManager.Instance.cardInfoManager.UpdateCardUI(cardData);
+            }
+
+            _cardDragger.TryStartDrag();
         }
     }
+
+    // private void CheckForShortcutKey()
+    // {
+    //     if (!GameManager.Instance.isCameraActive && Input.GetKeyDown(shortcutKey) && buyButton.interactable)
+    //     {
+    //         OnCardClick();
+    //     }
+    // }
 
     private void UpdateButtonState()
     {

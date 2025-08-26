@@ -17,6 +17,11 @@ public class CardDragger : MonoBehaviour
     
     private void Update()
     {
+        HandleMouseInput();
+    }
+
+    private void HandleMouseInput()
+    {
         if (_isDragging)
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -44,7 +49,7 @@ public class CardDragger : MonoBehaviour
             }
         }
     }
-    
+
     public void TryStartDrag()
     {
         if (_cardDisplay == null || _cardDisplay.cardData == null) return;
@@ -78,7 +83,7 @@ public class CardDragger : MonoBehaviour
     
     private void AttemptPlacement(Vector3Int cellPos)
     {
-        if (BuildingManager.Instance.CanPlaceBuilding(cellPos)) {
+        if (BuildingManager.Instance.CanPlaceBuilding(cellPos)  && IsRoomUnlockedForPlacement(cellPos)) {
             if (ResourceManager.Instance.HasEnoughResources(_cardDisplay.cardData.costs)) {
                 BuildingManager.Instance.PlaceBuilding(_cardDisplay.cardData, cellPos);
                 ResourceManager.Instance.SpendResources(_cardDisplay.cardData.costs);
@@ -108,5 +113,16 @@ public class CardDragger : MonoBehaviour
         {
             GameManager.Instance.SetActiveDragger(null);
         }
+    }
+    
+    private bool IsRoomUnlockedForPlacement(Vector3Int cellPos)
+    {
+        if (GameManager.Instance.mapGenerator == null)
+        {
+            return false;
+        }
+        
+        Vector2Int roomCoordinates = GameManager.Instance.mapGenerator.GetRoomCoordinates(grid.GetCellCenterWorld(cellPos));
+        return GameManager.Instance.mapGenerator.IsRoomUnlocked(roomCoordinates.x, roomCoordinates.y);
     }
 }

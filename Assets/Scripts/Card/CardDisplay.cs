@@ -49,7 +49,6 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         else
         {
             _isUIPinned = false;
-            GameManager.Instance.cardInfoManager.HideCardInfo();
         }
     }
     

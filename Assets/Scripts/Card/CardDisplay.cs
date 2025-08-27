@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class CardDisplay : MonoBehaviour
+public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public CardData cardData;
 
@@ -10,16 +11,71 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] private Image cardIcon;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Button buyButton;
+    
+    private bool _isInfoPanelLockedByClick = false;
 
     private void Start()
     {
         UpdateCardUI();
         buyButton.onClick.AddListener(OnBuyButtonClick);
+        
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.onStartDrag.AddListener(OnDragStart);
+            GameManager.Instance.onEndDrag.AddListener(OnDragEnd);
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.onStartDrag.RemoveListener(OnDragStart);
+            GameManager.Instance.onEndDrag.RemoveListener(OnDragEnd);
+        }
     }
 
     private void Update()
     {
         UpdateButtonState();
+    }
+    
+    private void OnDragStart(CardData activeCardData)
+    {
+        if (activeCardData == cardData)
+        {
+            _isInfoPanelLockedByClick = true;
+        }
+        else
+        {
+            _isInfoPanelLockedByClick = false;
+        }
+        if (GameManager.Instance.cardDragger.IsDragging)
+        {
+            GameManager.Instance.cardInfoManager.HideCardInfo();
+        }
+    }
+    
+    private void OnDragEnd()
+    {
+        _isInfoPanelLockedByClick = false;
+        GameManager.Instance.cardInfoManager.HideCardInfo();
+    }
+    
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!_isInfoPanelLockedByClick)
+        {
+            GameManager.Instance.cardInfoManager.DisplayCardInfo(cardData);
+        }
+    }
+    
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (_isInfoPanelLockedByClick)
+        {
+            GameManager.Instance.cardInfoManager.HideCardInfo();
+        }
     }
 
     private void OnBuyButtonClick()
@@ -29,7 +85,6 @@ public class CardDisplay : MonoBehaviour
             if (GameManager.Instance.IsDragging() && GameManager.Instance.GetActiveCardData() == cardData)
             {
                 GameManager.Instance.EndDrag();
-                GameManager.Instance.cardInfoManager.HideCardInfo();
             }
             else
             {

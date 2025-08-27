@@ -500,15 +500,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ab7edb7e41cd14fba2d87c27d59786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceCheckInterval: 200
+  resourceCheckInterval: 120
   requiredResourceAmounts: 050000003200000064000000c800000090010000e8030000d00700008813000010270000983a000030750000
   requiredResourceType: 4
   slider: {fileID: 0}
   expansionPanel: {fileID: 0}
   mapGenerator: {fileID: 0}
-  cameraActiveObject: {fileID: 0}
   cardInfoManager: {fileID: 0}
-  isCameraActive: 0
+  cardDragger: {fileID: 0}
+  recipeManager: {fileID: 0}
 --- !u!114 &508392703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -698,9 +698,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b9929205a757b64f82f73a559b731a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
   smoothing: 5
   panSpeed: 10
+  edgePanSpeed: 20
+  panBorderThickness: 10
+  target: {fileID: 0}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   comboName: Omni Factory
   comboPrefab: {fileID: 1574451153020646121, guid: 971f040c8f472d648a4ec96d41826013, type: 3}
   comboTile: {fileID: 11400000, guid: 5182e0968296d1e45bf4c2851ea94685, type: 2}
-  comboDescription: This is Combo Description
+  comboDescription: Ultimate structure
   recipe:
   - gadgetType: 5
     relativePosition: {x: 0, y: 0, z: 0}

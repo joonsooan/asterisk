@@ -16,7 +16,7 @@ MonoBehaviour:
   comboName: Radar Beacon
   comboPrefab: {fileID: 1574451153020646121, guid: 1c5d22b4641dfd74799d5a3e598b8f32, type: 3}
   comboTile: {fileID: 11400000, guid: d88ca77cc0c54a045878abc204720739, type: 2}
-  comboDescription: This is Combo Description
+  comboDescription: Enhances ability of nearby units
   recipe:
   - gadgetType: 6
     relativePosition: {x: 0, y: 0, z: 0}

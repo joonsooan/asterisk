@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
 
+    public UnityEvent<CardData> onStartDrag;
+    public UnityEvent onEndDrag;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -86,6 +89,7 @@ public class GameManager : MonoBehaviour
             cardInfoManager.DisplayCardInfo(cardData);
         }
         cardDragger.StartDrag(cardData);
+        onStartDrag?.Invoke(cardData);
     }
     
     public int GetRequiredAmountForCurrentQuota()
@@ -107,6 +111,7 @@ public class GameManager : MonoBehaviour
         if (cardDragger != null)
         {
             cardDragger.EndDrag();
+            onEndDrag?.Invoke();
         }
     }
     
@@ -131,7 +136,7 @@ public class GameManager : MonoBehaviour
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
         cardInfoManager = FindFirstObjectByType<CardInfoManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
-        recipeManager = FindFirstObjectByType<RecipeManager>();
+        recipeManager = FindFirstObjectByType<RecipeManager>(FindObjectsInactive.Include);
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();

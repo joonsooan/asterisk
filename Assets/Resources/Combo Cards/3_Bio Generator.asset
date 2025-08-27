@@ -16,7 +16,7 @@ MonoBehaviour:
   comboName: Bio Generator
   comboPrefab: {fileID: 1574451153020646121, guid: 27bc39bc03e5d03439ca8d886b903910, type: 3}
   comboTile: {fileID: 11400000, guid: 09bd143e0b18dff4fa36fad3e049332b, type: 2}
-  comboDescription: This is Combo Description
+  comboDescription: Produces more solana than the Bio Harvester
   recipe:
   - gadgetType: 3
     relativePosition: {x: 0, y: 0, z: 0}

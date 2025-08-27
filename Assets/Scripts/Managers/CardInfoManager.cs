@@ -12,6 +12,9 @@ public class CardInfoManager : MonoBehaviour
     [SerializeField] private TMP_Text cardDescription;
     [SerializeField] private GameObject cardInfoPanel;
     [SerializeField] private GameObject resourceInfoPanel;
+    [SerializeField] private GameObject recipeInfoPanel;
+
+    private bool _isRecipeInfoPanelActive;
 
     public void DisplayCardInfo(CardData data)
     {
@@ -58,5 +61,28 @@ public class CardInfoManager : MonoBehaviour
         cardDescription.text = "";
 
         ClearResourceInfoPanel();
+    }
+
+    public void ToggleRecipePanel()
+    {
+        if (_isRecipeInfoPanelActive)
+        {
+            HideRecipePanel();
+        }
+        else
+        {
+            DisplayRecipePanel();
+        }
+        _isRecipeInfoPanelActive = !_isRecipeInfoPanelActive;
+    }
+
+    private void DisplayRecipePanel()
+    {
+        recipeInfoPanel.SetActive(true);
+    }
+
+    private void HideRecipePanel()
+    {
+        recipeInfoPanel.SetActive(false);
     }
 }

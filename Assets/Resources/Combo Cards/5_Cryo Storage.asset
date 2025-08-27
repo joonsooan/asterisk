@@ -16,7 +16,7 @@ MonoBehaviour:
   comboName: Cryo Storage
   comboPrefab: {fileID: 1574451153020646121, guid: 311c19976827dd149824725e12a6d499, type: 3}
   comboTile: {fileID: 11400000, guid: 46fe9f16adcf7564684614bfab75fb0b, type: 2}
-  comboDescription: This is Combo Description
+  comboDescription: Freezes nearby structures to cooldown faster
   recipe:
   - gadgetType: 8
     relativePosition: {x: 0, y: 0, z: 0}

@@ -93,27 +93,24 @@ public class CardDragger : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
-            
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                EndDrag();
-                GameManager.Instance.cardInfoManager.HideCardInfo();
+                GameManager.Instance.EndDrag();
                 return;
             }
+            
+            Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
             
             if (canPlace)
             {
                 AttemptPlacement(cellPosition);
-                EndDrag();
-                GameManager.Instance.cardInfoManager.HideCardInfo();
+                GameManager.Instance.EndDrag();
             }
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            EndDrag();
-            GameManager.Instance.cardInfoManager.HideCardInfo();
+            GameManager.Instance.EndDrag();
         }
     }
 

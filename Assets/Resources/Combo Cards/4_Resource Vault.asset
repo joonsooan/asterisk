@@ -16,7 +16,7 @@ MonoBehaviour:
   comboName: Resource Vault
   comboPrefab: {fileID: 1574451153020646121, guid: 483e52b18d4383241a2d55f98d3aaa9b, type: 3}
   comboTile: {fileID: 11400000, guid: e8a111ff6f9e013438c7d62d0b57765b, type: 2}
-  comboDescription: This is Combo Description
+  comboDescription: Construct to hold on to more resources
   recipe:
   - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}

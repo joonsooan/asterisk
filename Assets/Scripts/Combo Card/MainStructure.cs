@@ -24,4 +24,12 @@ public class MainStructure : MonoBehaviour, IStorage
     {
         return transform.position;
     }
+    
+    private void OnDestroy()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.RemoveStorage(this);
+        }
+    }
 }

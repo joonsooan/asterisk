@@ -100,4 +100,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aab36819f981474b8f2f84b64e92e6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxStorageAmount: 50
+  maxStorageAmount: 1000

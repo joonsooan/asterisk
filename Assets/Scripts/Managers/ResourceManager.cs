@@ -91,14 +91,12 @@ public class ResourceManager : MonoBehaviour
 
     public void RemoveStorage(IStorage storage)
     {
-        if (_allStorages.Contains(storage))
-        {
-            _allStorages.Remove(storage);
-        }
+        _allStorages.Remove(storage);
     }
 
     public List<IStorage> GetAllStorages()
     {
+        _allStorages.RemoveAll(s => s == null || ((Component)s).gameObject == null);
         return _allStorages;
     }
     

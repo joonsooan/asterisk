@@ -63,6 +63,24 @@ public class Unit_Lifter : UnitBase
             _targetResourceNode.Unreserve();
         }
     }
+    
+    private void OnEnable()
+    {
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+    }
+    
+    private void OnSceneUnloaded(Scene scene)
+    {
+        if (_targetStorage is MainStructure)
+        {
+            _targetStorage = null;
+        }
+    }
 
     private void SubscribeEvents()
     {
@@ -134,8 +152,7 @@ public class Unit_Lifter : UnitBase
     {
         int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
         
-        if (currentState is UnitState.Idle or UnitState.ReturningToStorage ||
-            (currentState == UnitState.Mining && totalCarriedAmount >= maxCarryAmount))
+        if (currentState is UnitState.Idle or UnitState.ReturningToStorage)
         {
             FindAndSetStorage();
             if (_targetStorage != null)
@@ -247,13 +264,16 @@ public class Unit_Lifter : UnitBase
 
     private void HandleStorageLoss()
     {
-        FindAndSetStorage();
-        if (_targetStorage == null)
+        if (_targetResourceNode == null)
         {
-            currentState = UnitState.Idle;
-            unitMovement.StopMovement();
-            Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
-            return;
+            FindAndSetStorage();
+            if (_targetStorage == null)
+            {
+                currentState = UnitState.Idle;
+                unitMovement.StopMovement();
+                Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
+                return;
+            }
         }
         unitMovement.SetNewTarget(_targetStorage.GetPosition());
     }

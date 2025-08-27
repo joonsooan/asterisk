@@ -101,5 +101,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  constructionTime: 3
-  maxStorageAmount: 50
+  maxStorageAmount: 200

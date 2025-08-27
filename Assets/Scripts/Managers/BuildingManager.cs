@@ -176,7 +176,7 @@ public class BuildingManager : MonoBehaviour
 
         switch (comboData.comboType)
         {
-            case Combotype.Storage:
+            case ComboType.Storage:
                 IStorage storage = comboObject.GetComponent<IStorage>();
                 if (storage != null)
                 {

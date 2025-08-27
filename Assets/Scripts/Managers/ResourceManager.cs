@@ -13,7 +13,7 @@ public enum ResourceType
     Solana
 }
 
-[System.Serializable]
+[Serializable]
 public class ResourceStats
 {
     public ResourceType resourceType;
@@ -23,6 +23,13 @@ public class ResourceStats
 
 public class ResourceManager : MonoBehaviour
 {
+    [Header("Resource Start Values")]
+    [SerializeField] private int ferriteInitialAmount;
+    [SerializeField] private int aetherInitialAmount;
+    [SerializeField] private int biomassInitialAmount;
+    [SerializeField] private int cryoCrystalInitialAmount;
+    [SerializeField] private int solanaInitialAmount;
+    
     [Header("Resource Icons")]
     [SerializeField] private List<Sprite> resourceIcons;
     
@@ -129,11 +136,11 @@ public class ResourceManager : MonoBehaviour
 
     private void ResetResourceCount()
     {
-        _resourceCounts[ResourceType.Ferrite] = 0;
-        _resourceCounts[ResourceType.Aether] = 0;
-        _resourceCounts[ResourceType.Biomass] = 0;
-        _resourceCounts[ResourceType.CryoCrystal] = 0;
-        _resourceCounts[ResourceType.Solana] = 0;
+        _resourceCounts[ResourceType.Ferrite] = ferriteInitialAmount;
+        _resourceCounts[ResourceType.Aether] = aetherInitialAmount;
+        _resourceCounts[ResourceType.Biomass] = biomassInitialAmount;
+        _resourceCounts[ResourceType.CryoCrystal] = cryoCrystalInitialAmount;
+        _resourceCounts[ResourceType.Solana] = solanaInitialAmount;
     }
 
     private void FindAndConnectUI()

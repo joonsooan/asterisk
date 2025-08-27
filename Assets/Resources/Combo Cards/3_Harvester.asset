@@ -16,10 +16,12 @@ MonoBehaviour:
   comboName: Harvester
   comboPrefab: {fileID: 1574451153020646121, guid: 27bc39bc03e5d03439ca8d886b903910, type: 3}
   comboTile: {fileID: 11400000, guid: e9261a2af17ff4c4cada78f576673eae, type: 2}
-  comboType: 0
+  comboType: 3
   comboDescription: Produces Solana
   recipe:
   - gadgetType: 3
+    relativePosition: {x: -1, y: 0, z: 0}
+  - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}
   - gadgetType: 3
     relativePosition: {x: 1, y: 0, z: 0}

@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public enum Combotype
+public enum ComboType
 {
     Storage,
-    UnitFactory,
-    UnitCharger,
-    Turret,
+    Generator,
+    ChargeStation,
+    Harvester,
 }
 
 [CreateAssetMenu(fileName = "New Combo Card Data", menuName = "Card System/Combo Card Data")]
@@ -17,7 +17,7 @@ public class ComboCardData : ScriptableObject
     public string comboName;
     public GameObject comboPrefab;
     public TileBase comboTile;
-    public Combotype comboType;
+    public ComboType comboType;
     
     [TextArea] public string comboDescription;
 

@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e7aa4ffe54aa64cb07513ab38fd7c3, type: 3}
   m_Name: 2_Charge Station
   m_EditorClassIdentifier: 
-  comboIcon: {fileID: -7423121267588647039, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
+  comboIcon: {fileID: 1580907503307545026, guid: 5fe7a461299a7bc4fa9a95995e44a6a8, type: 3}
   comboName: Charge Station
   comboPrefab: {fileID: 1574451153020646121, guid: acecfec883c9fa049a4ad70d9025636d, type: 3}
   comboTile: {fileID: 11400000, guid: d1d202dbbd11f64459375f02d13e7cb6, type: 2}
-  comboType: 0
+  comboType: 2
   comboDescription: Charges Units
   recipe:
-  - gadgetType: 2
+  - gadgetType: 1
     relativePosition: {x: -1, y: 0, z: 0}
-  - gadgetType: 5
-    relativePosition: {x: 0, y: 0, z: 0}
   - gadgetType: 2
+    relativePosition: {x: 0, y: 0, z: 0}
+  - gadgetType: 1
     relativePosition: {x: 1, y: 0, z: 0}

@@ -1,41 +1,70 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using System.Collections;
 
 public class Combo_1 : MonoBehaviour, ICombo
 {
-    [Header("Settings")]
-    [SerializeField] private int maxHealth = 100;
-
-    [Header("Production Settings")]
-    [SerializeField] private List<UnitData> producibleUnits;
+    [Header("Values")]
+    [SerializeField] private float generationInterval = 5f;
+    [SerializeField] private int resourceAmount = 1;
+    [SerializeField] private ResourceType resourceType;
     
-    private readonly Queue<UnitData> _productionQueue = new();
+    [Header("VFX")]
+    [SerializeField] private string canvasName = "FloatingText Canvas";
+    [SerializeField] private GameObject floatingNumTextPrefab;
     
+    private Canvas _canvas;
+    private Coroutine _productionCoroutine;
     private int _currentHealth;
-    private bool _isProducing;
 
     private void Awake()
     {
-        _currentHealth = maxHealth;
-    }
-    
-    private void Start()
-    {
-        GameObject unitMakeButtonObj = GameObject.Find("Unit Make Btn");
-
-        if (unitMakeButtonObj != null)
+        GameObject canvasObject = GameObject.Find(canvasName);
+        
+        if (canvasObject != null)
         {
-            Button unitMakeButton = unitMakeButtonObj.GetComponent<Button>();
+            _canvas = canvasObject.GetComponent<Canvas>();
+        }
+        
+        ActivateComboCard();
+    }
 
-            if (unitMakeButton != null)
-            {
-                unitMakeButton.onClick.AddListener(() => AddUnitToQueue(0));
-            }
+    private void ActivateComboCard()
+    {
+        if (_productionCoroutine != null)
+        {
+            StopCoroutine(_productionCoroutine);
+        }
+        _productionCoroutine = StartCoroutine(ProduceResource());
+    }
+
+    private IEnumerator ProduceResource()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(generationInterval);
+            
+            GenerateResource();
         }
     }
 
+    private void GenerateResource()
+    {
+        ResourceManager.Instance.AddResource(resourceType, resourceAmount);
+        ShowFloatingText(resourceAmount);
+    }
+    
+    private void ShowFloatingText(int amount)
+    {
+        if (floatingNumTextPrefab == null || _canvas == null) return;
+
+        GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, _canvas.transform);
+
+        FloatingNumText floatingText = textInstance.GetComponent<FloatingNumText>();
+        if (floatingText != null) {
+            floatingText.SetText($"+{amount}");
+        }
+    }
+    
     public void TakeDamage(int damage)
     {
         _currentHealth -= damage;
@@ -44,57 +73,9 @@ public class Combo_1 : MonoBehaviour, ICombo
             Destroy();
         }
     }
-
+    
     private void Destroy()
     {
         Destroy(gameObject);
-    }
-    
-    public void AddUnitToQueue(int unitIndex)
-    {
-        if (unitIndex < 0 || unitIndex >= producibleUnits.Count)
-        {
-            return;
-        }
-
-        UnitData unitData = producibleUnits[unitIndex];
-
-        if (!CanProduceUnit(unitData))
-        {
-            Debug.Log("Can't produce unit");
-            return;
-        }
-
-        _productionQueue.Enqueue(unitData);
-
-        if (!_isProducing)
-        {
-            StartCoroutine(ProcessProductionQueue());
-        }
-    }
-
-    private IEnumerator ProcessProductionQueue()
-    {
-        _isProducing = true;
-
-        while (_productionQueue.Count > 0)
-        {
-            UnitData unitToProduce = _productionQueue.Dequeue();
-
-            ResourceManager.Instance.SpendResources(unitToProduce.productionCosts);
-
-            yield return new WaitForSeconds(unitToProduce.productionTime);
-
-            Instantiate(unitToProduce.unitPrefab, transform.position, Quaternion.identity, BuildingManager.Instance.grid.transform);
-        }
-        
-        _isProducing = false;
-    }
-    
-    private bool CanProduceUnit(UnitData unitData)
-    {
-        if (unitData.productionCosts == null || unitData.productionCosts.Length == 0) return true;
-        
-        return ResourceManager.Instance.HasEnoughResources(unitData.productionCosts);
     }
 }

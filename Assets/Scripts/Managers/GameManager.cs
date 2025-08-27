@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
         Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
         foreach (Unit_Lifter unit in allUnits)
         {
-            unit.StartUnitActions();
+            unit.TryStartActions();
         }
     }
 

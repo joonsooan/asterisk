@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -35,10 +36,13 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text cryoCrystalNumber;
     [SerializeField] private TMP_Text solanaNumber;
     
+    public static event Action OnNewStorageAdded;
+    
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
+    private readonly List<IStorage> _allStorages = new List<IStorage>();
     private readonly Dictionary<ResourceType, ResourceStats> _resourceStats = new Dictionary<ResourceType, ResourceStats>();
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
-
+    
     public static ResourceManager Instance { get; private set; }
 
     private void Awake()
@@ -74,6 +78,28 @@ public class ResourceManager : MonoBehaviour
         foreach (var stats in resourceStatsList) {
             _resourceStats[stats.resourceType] = stats;
         }
+    }
+    
+    public void AddStorage(IStorage storage)
+    {
+        if (!_allStorages.Contains(storage))
+        {
+            _allStorages.Add(storage);
+            OnNewStorageAdded?.Invoke();
+        }
+    }
+
+    public void RemoveStorage(IStorage storage)
+    {
+        if (_allStorages.Contains(storage))
+        {
+            _allStorages.Remove(storage);
+        }
+    }
+
+    public List<IStorage> GetAllStorages()
+    {
+        return _allStorages;
     }
     
     public ResourceStats GetResourceStats(ResourceType type)

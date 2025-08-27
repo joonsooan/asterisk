@@ -13,6 +13,7 @@ public class ResourceNode : MonoBehaviour
 
     private Color _originalColor;
     private SpriteRenderer _sr;
+    private Unit_Lifter _reservedUnit;
 
     public bool IsReserved { get; private set; }
 
@@ -49,12 +50,13 @@ public class ResourceNode : MonoBehaviour
         }
     }
 
-    public bool Reserve()
+    public bool Reserve(Unit_Lifter unit)
     {
         if (IsReserved) {
             return false;
         }
         IsReserved = true;
+        _reservedUnit = unit;
         if (_sr != null) {
             _sr.color = highlightColor;
         }
@@ -65,9 +67,15 @@ public class ResourceNode : MonoBehaviour
     public void Unreserve()
     {
         IsReserved = false;
+        _reservedUnit = null;
         if (_sr != null) {
             _sr.color = _originalColor;
         }
+    }
+
+    public Unit_Lifter GetReservedUnit()
+    {
+        return  _reservedUnit;
     }
 
     public int Mine(int workAmount)

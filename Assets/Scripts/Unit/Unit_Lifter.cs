@@ -44,6 +44,7 @@ public class Unit_Lifter : UnitBase
     private void Start()
     {
         currentHealth = maxHealth;
+        mineableResourceTypes = (ResourceType[])Enum.GetValues(typeof(ResourceType));
     }
 
     private void Update() => DecideNextAction();
@@ -102,6 +103,7 @@ public class Unit_Lifter : UnitBase
 
     private void InitializeCarryAmounts()
     {
+        
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
             _currentCarryAmounts[type] = 0;
         }
@@ -150,8 +152,6 @@ public class Unit_Lifter : UnitBase
 
     private void HandleNewStorageAdded()
     {
-        int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
-        
         if (currentState is UnitState.Idle or UnitState.ReturningToStorage)
         {
             FindAndSetStorage();

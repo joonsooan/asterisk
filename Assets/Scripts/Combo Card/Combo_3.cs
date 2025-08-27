@@ -28,7 +28,7 @@ public class Combo_3 : MonoBehaviour, ICombo
         ActivateComboCard();
     }
 
-    public void ActivateComboCard()
+    private void ActivateComboCard()
     {
         if (_productionCoroutine != null)
         {
@@ -37,7 +37,7 @@ public class Combo_3 : MonoBehaviour, ICombo
         _productionCoroutine = StartCoroutine(ProduceResource());
     }
 
-    public void DeactivateComboCard()
+    private void DeactivateComboCard()
     {
         if (_productionCoroutine != null)
         {

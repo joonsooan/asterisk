@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 public class BuildingManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Grid grid;
+    public Grid grid;
     [SerializeField] private Tilemap groundTilemap;
     [SerializeField] private Tilemap resourceTilemap;
     [SerializeField] private Tilemap buildingTilemap;

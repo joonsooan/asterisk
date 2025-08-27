@@ -12,7 +12,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Button buyButton;
     
-    private bool _isInfoPanelLockedByClick = false;
+    private bool _isUIPinned  = false;
 
     private void Start()
     {
@@ -44,27 +44,24 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         if (activeCardData == cardData)
         {
-            _isInfoPanelLockedByClick = true;
+            _isUIPinned = true;
         }
         else
         {
-            _isInfoPanelLockedByClick = false;
-        }
-        if (GameManager.Instance.cardDragger.IsDragging)
-        {
+            _isUIPinned = false;
             GameManager.Instance.cardInfoManager.HideCardInfo();
         }
     }
     
     private void OnDragEnd()
     {
-        _isInfoPanelLockedByClick = false;
+        _isUIPinned = false;
         GameManager.Instance.cardInfoManager.HideCardInfo();
     }
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_isInfoPanelLockedByClick)
+        if (!_isUIPinned && !GameManager.Instance.IsDragging())
         {
             GameManager.Instance.cardInfoManager.DisplayCardInfo(cardData);
         }
@@ -72,7 +69,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_isInfoPanelLockedByClick)
+        if (!_isUIPinned)
         {
             GameManager.Instance.cardInfoManager.HideCardInfo();
         }

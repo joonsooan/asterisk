@@ -121,7 +121,6 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
-            GameManager.Instance.uiManager?.HideCardInfoOnPlacement();
             GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
         }
         else

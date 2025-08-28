@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CardDisplay : InfoDisplayTrigger
+public class CardDisplay : InfoDisplayTrigger, IPointerClickHandler
 {
     public CardData cardData;
 
@@ -26,7 +27,12 @@ public class CardDisplay : InfoDisplayTrigger
     protected override void ShowInfo() => GameManager.Instance?.uiManager.DisplayCardInfo(cardData);
     protected override void HideInfo() => GameManager.Instance?.uiManager.HideCardInfo();
 
-    private void OnBuyButtonClick()
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        GameManager.Instance.uiManager?.PinCardInfo(cardData);
+    }
+    
+    public void OnBuyButtonClick()
     {
         if (GameManager.Instance != null && cardData != null)
         {

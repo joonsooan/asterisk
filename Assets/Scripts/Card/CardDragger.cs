@@ -29,7 +29,7 @@ public class CardDragger : MonoBehaviour
         {
             return;
         }
-
+        
         _activeCardData = cardData;
         _isDragging = true;
 
@@ -57,11 +57,6 @@ public class CardDragger : MonoBehaviour
             ghostColor.a = 0.5f;
             sr.color = ghostColor;
         }
-    }
-    
-    public DisplayableData GetActiveData()
-    {
-        return _activeCardData;
     }
     
     private void HandleDragVisuals()
@@ -124,6 +119,7 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
+            GameManager.Instance.uiManager?.HideCardInfoOnPlacement();
         }
         else
         {

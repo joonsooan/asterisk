@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
+    private DisplayableData _activeCardData;
 
     public UnityEvent<DisplayableData> onStartDrag;
     public UnityEvent onEndDrag;
@@ -81,10 +82,10 @@ public class GameManager : MonoBehaviour
     public void StartDrag(DisplayableData data)
     {
         if (cardDragger == null) return;
-        
-        cardDragger.EndDrag();
-        cardDragger.StartDrag(data);
-        onStartDrag?.Invoke(data);
+
+        _activeCardData = data;
+        cardDragger.StartDrag(_activeCardData);
+        onStartDrag?.Invoke(_activeCardData);
     }
     
     public int GetRequiredAmountForCurrentQuota()
@@ -106,8 +107,10 @@ public class GameManager : MonoBehaviour
         if (cardDragger != null)
         {
             cardDragger.EndDrag();
-            onEndDrag?.Invoke();
         }
+
+        _activeCardData = null;
+        onEndDrag?.Invoke();
     }
     
     public bool IsDragging()
@@ -117,11 +120,7 @@ public class GameManager : MonoBehaviour
     
     public DisplayableData GetActiveData()
     {
-        if (cardDragger != null)
-        {
-            return cardDragger.GetActiveData(); 
-        }
-        return null;
+        return _activeCardData;
     }
 
     private void InitializeAllManagers()

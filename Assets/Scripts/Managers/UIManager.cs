@@ -11,19 +11,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject resourceInfoCellPrefab;
     
     [Header("Recipe Info Panel")]
-    [SerializeField] private GameObject recipeInfoPanel;
-    [SerializeField] private RecipeInfo recipeInfoComponent;
-    
+    [SerializeField] private GameObject recipeInfoPanel; 
+    [SerializeField] private RecipeInfo recipeInfoComponent; 
+
+    private CardData _pinnedCardData = null;
     private ComboCardData _pinnedRecipeData = null;
 
     private void Start()
     {
-        if (recipeInfoPanel.activeSelf)
-        {
-            recipeInfoComponent.ClearInfo();
-        }
+        if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
+        if (recipeInfoPanel != null) recipeInfoPanel.SetActive(false);
     }
-
+    
     public void DisplayCardInfo(CardData data)
     {
         if (data == null) return;
@@ -32,7 +31,6 @@ public class UIManager : MonoBehaviour
         cardDescriptionText.text = data.description;
         
         foreach (Transform child in cardResourcePanel.transform) Destroy(child.gameObject);
-        
         foreach (var cost in data.costs)
         {
             var cell = Instantiate(resourceInfoCellPrefab, cardResourcePanel.transform);
@@ -42,28 +40,56 @@ public class UIManager : MonoBehaviour
     
     public void HideCardInfo()
     {
-        cardInfoPanel.SetActive(false);
-    }
-    
-    public void DisplayRecipeInfo(ComboCardData data)
-    {
-        if (data == null || recipeInfoPanel == null) return;
-        
-        recipeInfoPanel.SetActive(true); 
-        recipeInfoComponent.UpdateRecipeInfo(data);
-    }
-
-    public void HideRecipeInfo()
-    {
-        if (recipeInfoPanel == null || !recipeInfoPanel.activeSelf) return;
-
-        if (_pinnedRecipeData != null)
+        if (_pinnedCardData == null)
         {
-            recipeInfoComponent.UpdateRecipeInfo(_pinnedRecipeData);
+            cardInfoPanel.SetActive(false);
         }
         else
         {
-            recipeInfoComponent.ClearInfo();
+            DisplayCardInfo(_pinnedCardData);
+        }
+    }
+
+    public void PinCardInfo(CardData data)
+    {
+        if (_pinnedCardData == data)
+        {
+            _pinnedCardData = null;
+            cardInfoPanel.SetActive(false);
+        }
+        else
+        {
+            _pinnedCardData = data;
+            DisplayCardInfo(data);
+        }
+    }
+
+    public void HideCardInfoOnPlacement()
+    {
+        _pinnedCardData = null;
+        if (cardInfoPanel != null)
+        {
+            cardInfoPanel.SetActive(false);
+        }
+    }
+
+    public void DisplayRecipeInfo(ComboCardData data)
+    {
+        if (data == null || recipeInfoComponent == null) return;
+        recipeInfoComponent.gameObject.SetActive(true);
+        recipeInfoComponent.UpdateRecipeInfo(data);
+    }
+    
+    public void HideRecipeInfo()
+    {
+        if (recipeInfoComponent == null) return;
+        if (_pinnedRecipeData == null)
+        {
+            recipeInfoComponent.gameObject.SetActive(false);
+        }
+        else
+        {
+            recipeInfoComponent.UpdateRecipeInfo(_pinnedRecipeData);
         }
     }
     
@@ -72,7 +98,7 @@ public class UIManager : MonoBehaviour
         if (_pinnedRecipeData == data)
         {
             _pinnedRecipeData = null;
-            recipeInfoComponent.ClearInfo();
+            recipeInfoComponent.gameObject.SetActive(false);
         }
         else
         {
@@ -80,22 +106,22 @@ public class UIManager : MonoBehaviour
             DisplayRecipeInfo(data);
         }
     }
-
     
     public void ToggleRecipePanel()
     {
         if (recipeInfoPanel == null) return;
-
         bool shouldBeActive = !recipeInfoPanel.activeSelf;
         recipeInfoPanel.SetActive(shouldBeActive);
-
         if (!shouldBeActive)
         {
             _pinnedRecipeData = null;
         }
         else
         {
-            recipeInfoComponent.ClearInfo();
+            if (recipeInfoComponent != null)
+            {
+                recipeInfoComponent.gameObject.SetActive(false);
+            }
         }
     }
 }

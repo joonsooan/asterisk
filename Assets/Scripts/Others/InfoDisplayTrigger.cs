@@ -32,11 +32,6 @@ public abstract class InfoDisplayTrigger : MonoBehaviour, IPointerEnterHandler, 
         if (activeData != null && activeData == GetData())
         {
             _isUIPinned = true;
-            ShowInfo(); 
-        }
-        else
-        {
-            _isUIPinned = false;
         }
     }
     
@@ -48,7 +43,7 @@ public abstract class InfoDisplayTrigger : MonoBehaviour, IPointerEnterHandler, 
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_isUIPinned && !GameManager.Instance.IsDragging())
+        if (!GameManager.Instance.IsDragging())
         {
             ShowInfo();
         }

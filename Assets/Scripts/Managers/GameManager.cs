@@ -24,8 +24,8 @@ public class GameManager : MonoBehaviour
     private CardDragger _activeCardDragger;
     private DisplayableData _activeCardData;
 
-    public UnityEvent<DisplayableData> onStartDrag;
-    public UnityEvent onEndDrag;
+    [HideInInspector] public UnityEvent<DisplayableData> onStartDrag;
+    [HideInInspector] public UnityEvent onEndDrag;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -113,6 +113,7 @@ public class GameManager : MonoBehaviour
         }
         _activeCardData = null;
         onEndDrag?.Invoke();
+        uiManager.UnpinAndHideCardPanel();
     }
     
     public bool IsDragging()

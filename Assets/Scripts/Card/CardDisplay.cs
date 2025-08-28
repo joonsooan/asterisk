@@ -15,7 +15,7 @@ public class CardDisplay : InfoDisplayTrigger, IPointerClickHandler
     private void Awake()
     {
         UpdateCardUI();
-        buyButton.onClick.AddListener(OnBuyButtonClick);
+        buyButton.onClick.AddListener(OnClick);
     }
     
     private void Update()
@@ -32,7 +32,7 @@ public class CardDisplay : InfoDisplayTrigger, IPointerClickHandler
         GameManager.Instance.uiManager?.PinCardInfo(cardData);
     }
     
-    private void OnBuyButtonClick()
+    public void OnClick()
     {
         if (GameManager.Instance != null && cardData != null)
         {

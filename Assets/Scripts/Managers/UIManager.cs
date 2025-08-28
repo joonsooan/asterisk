@@ -64,7 +64,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void HideCardInfoOnPlacement()
+    public void UnpinAndHideCardPanel()
     {
         _pinnedCardData = null;
         if (cardInfoPanel != null)

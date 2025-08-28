@@ -44,7 +44,15 @@ public class Unit_Lifter : UnitBase
     private void Start()
     {
         currentHealth = maxHealth;
-        mineableResourceTypes = (ResourceType[])Enum.GetValues(typeof(ResourceType));
+        
+        if (UnitManager.Instance != null)
+        {
+            mineableResourceTypes = UnitManager.Instance.CurrentMineableTypes.ToArray();
+        }
+        else
+        {
+            mineableResourceTypes = (ResourceType[])Enum.GetValues(typeof(ResourceType));
+        }
     }
 
     private void Update() => DecideNextAction();

@@ -68,11 +68,26 @@ public class Unit_Lifter : UnitBase
     private void OnEnable()
     {
         SceneManager.sceneUnloaded += OnSceneUnloaded;
+        UnitManager.OnMineableTypesChanged += HandleMineableTypesChanged;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        UnitManager.OnMineableTypesChanged -= HandleMineableTypesChanged;
+    }
+    
+    private void HandleMineableTypesChanged(ResourceType[] newTypes)
+    {
+        mineableResourceTypes = newTypes;
+
+        if (currentState == UnitState.Mining || currentState == UnitState.Moving)
+        {
+            if (_targetResourceNode != null && !mineableResourceTypes.Contains(_targetResourceNode.resourceType))
+            {
+                HandleTargetLoss();
+            }
+        }
     }
     
     private void OnSceneUnloaded(Scene scene)

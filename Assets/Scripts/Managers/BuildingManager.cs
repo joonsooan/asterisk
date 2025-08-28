@@ -5,15 +5,15 @@ using UnityEngine.Tilemaps;
 public class BuildingManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Grid grid;
+    public Grid grid;
     [SerializeField] private Tilemap groundTilemap;
     [SerializeField] private Tilemap resourceTilemap;
     [SerializeField] private Tilemap buildingTilemap;
-    [SerializeField] private TileBase buildingTile;
+    [SerializeField] private TileBase mainStructureTile;
     [SerializeField] private Transform parentTransform;
     
     [Header("Combo Buildings")]
-    private List<ComboCardData> comboCardDataList;
+    private List<ComboCardData> _comboCardDataList;
     private readonly Dictionary<GadgetType, TileBase> _gadgetTypeToTileCache = new Dictionary<GadgetType, TileBase>();
     private readonly Dictionary<Vector3Int, BuildingPiece> _placedPieces = new Dictionary<Vector3Int, BuildingPiece>();
     
@@ -34,7 +34,7 @@ public class BuildingManager : MonoBehaviour
     
     private void LoadAllComboCards()
     {
-        comboCardDataList = new List<ComboCardData>(
+        _comboCardDataList = new List<ComboCardData>(
             Resources.LoadAll<ComboCardData>("Combo Cards"));
     }
     
@@ -90,20 +90,17 @@ public class BuildingManager : MonoBehaviour
 
             if (cardData.gadgetTile != null) {
                 buildingTilemap.SetTile(cellPosition, cardData.gadgetTile);
-                Debug.Log($"Placed building at {cellPosition}.");
             }
 
             CheckForComboBuildings(cellPosition);
-        } else {
-            Debug.Log($"Cannot place building at {cellPosition}.");
         }
     }
     
     private void CheckForComboBuildings(Vector3Int placedPos)
     {
-        if (comboCardDataList == null || comboCardDataList.Count == 0) return;
+        if (_comboCardDataList == null || _comboCardDataList.Count == 0) return;
 
-        foreach (var comboData in comboCardDataList) {
+        foreach (var comboData in _comboCardDataList) {
             if (CheckPatternAround(placedPos, comboData)) {
                 return;
             }
@@ -145,11 +142,20 @@ public class BuildingManager : MonoBehaviour
             buildingTilemap.SetTile(targetPos, null);
         }
         
-        Vector3 worldPos = grid.GetCellCenterWorld(originPos);
+        GameObject newComboBuilding = null;
         foreach (var piece in comboData.recipe) {
-            Vector3 targetPos = worldPos + piece.relativePosition;
-            Instantiate(comboData.comboPrefab, targetPos, Quaternion.identity, parentTransform);
+            Vector3 worldPos = grid.GetCellCenterWorld(originPos + piece.relativePosition);
+            if (newComboBuilding == null)
+            {
+                newComboBuilding = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+            }
+            else
+            {
+                Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+            }
         }
+        
+        HandleComboBuildingLogic(newComboBuilding, comboData);
 
         if (comboData.comboTile != null) {
             foreach (var piece in comboData.recipe) {
@@ -158,9 +164,28 @@ public class BuildingManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Combo Building '{comboData.comboName}' Created");
+        Debug.Log($"Combo Building '{comboData.displayName}' Created");
     }
-    
+
+    private void HandleComboBuildingLogic(GameObject comboObject, ComboCardData comboData)
+    {
+        if (comboObject == null || ResourceManager.Instance == null)
+        {
+            return;
+        }
+
+        switch (comboData.comboType)
+        {
+            case ComboType.Storage:
+                IStorage storage = comboObject.GetComponent<IStorage>();
+                if (storage != null)
+                {
+                    ResourceManager.Instance.AddStorage(storage);
+                }
+                break;
+        }
+    }
+
     private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)
     {
         if (_placedPieces.Remove(cellPos, out BuildingPiece piece))
@@ -168,7 +193,6 @@ public class BuildingManager : MonoBehaviour
             if (piece != null)
             {
                 Destroy(piece.gameObject);
-                Debug.Log($"Removed BuildingPiece at {cellPos}.");
             }
         }
     }

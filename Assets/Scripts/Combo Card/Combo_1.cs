@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Combo_1 : MonoBehaviour, ICombo
@@ -14,6 +14,7 @@ public class Combo_1 : MonoBehaviour, ICombo
     
     private Canvas _canvas;
     private Coroutine _productionCoroutine;
+    private int _currentHealth;
 
     private void Awake()
     {
@@ -27,21 +28,13 @@ public class Combo_1 : MonoBehaviour, ICombo
         ActivateComboCard();
     }
 
-    public void ActivateComboCard()
+    private void ActivateComboCard()
     {
         if (_productionCoroutine != null)
         {
             StopCoroutine(_productionCoroutine);
         }
         _productionCoroutine = StartCoroutine(ProduceResource());
-    }
-
-    public void DeactivateComboCard()
-    {
-        if (_productionCoroutine != null)
-        {
-            StopCoroutine(_productionCoroutine);
-        }
     }
 
     private IEnumerator ProduceResource()
@@ -70,5 +63,19 @@ public class Combo_1 : MonoBehaviour, ICombo
         if (floatingText != null) {
             floatingText.SetText($"+{amount}");
         }
+    }
+    
+    public void TakeDamage(int damage)
+    {
+        _currentHealth -= damage;
+        if (_currentHealth <= 0)
+        {
+            Destroy();
+        }
+    }
+    
+    private void Destroy()
+    {
+        Destroy(gameObject);
     }
 }

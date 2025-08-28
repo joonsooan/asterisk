@@ -2,17 +2,38 @@ using UnityEngine;
 
 public class Combo_2 : MonoBehaviour, ICombo
 {
+    [Header("Settings")]
+    [SerializeField] private int maxHealth = 100;
+    // [SerializeField] private float constructionTime = 3f;
+
+    private int _currentHealth;
+
     private void Awake()
     {
-        ActivateComboCard();
+        _currentHealth = maxHealth;
+    }
+    
+    private void OnDestroy()
+    {
+        
+    }
+    
+    public Vector3 GetPosition()
+    {
+        return transform.position;
     }
 
-    public void ActivateComboCard()
+    public void TakeDamage(int damage)
     {
-        GameManager.Instance.expansionPanel.TogglePanelVisibility();
+        _currentHealth -= damage;
+        if (_currentHealth <= 0)
+        {
+            Destroy();
+        }
     }
 
-    public void DeactivateComboCard()
+    private void Destroy()
     {
+        Destroy(gameObject);
     }
 }

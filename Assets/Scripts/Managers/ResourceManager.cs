@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,7 +13,7 @@ public enum ResourceType
     Solana
 }
 
-[System.Serializable]
+[Serializable]
 public class ResourceStats
 {
     public ResourceType resourceType;
@@ -22,6 +23,13 @@ public class ResourceStats
 
 public class ResourceManager : MonoBehaviour
 {
+    [Header("Resource Start Values")]
+    [SerializeField] private int ferriteInitialAmount;
+    [SerializeField] private int aetherInitialAmount;
+    [SerializeField] private int biomassInitialAmount;
+    [SerializeField] private int cryoCrystalInitialAmount;
+    [SerializeField] private int solanaInitialAmount;
+    
     [Header("Resource Icons")]
     [SerializeField] private List<Sprite> resourceIcons;
     
@@ -35,10 +43,13 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text cryoCrystalNumber;
     [SerializeField] private TMP_Text solanaNumber;
     
+    public static event Action OnNewStorageAdded;
+    
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
+    private readonly List<IStorage> _allStorages = new List<IStorage>();
     private readonly Dictionary<ResourceType, ResourceStats> _resourceStats = new Dictionary<ResourceType, ResourceStats>();
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
-
+    
     public static ResourceManager Instance { get; private set; }
 
     private void Awake()
@@ -76,6 +87,26 @@ public class ResourceManager : MonoBehaviour
         }
     }
     
+    public void AddStorage(IStorage storage)
+    {
+        if (!_allStorages.Contains(storage))
+        {
+            _allStorages.Add(storage);
+            OnNewStorageAdded?.Invoke();
+        }
+    }
+
+    public void RemoveStorage(IStorage storage)
+    {
+        _allStorages.Remove(storage);
+    }
+
+    public List<IStorage> GetAllStorages()
+    {
+        _allStorages.RemoveAll(s => s == null || ((Component)s).gameObject == null);
+        return _allStorages;
+    }
+    
     public ResourceStats GetResourceStats(ResourceType type)
     {
         if (_resourceStats.TryGetValue(type, out var stats)) {
@@ -105,11 +136,11 @@ public class ResourceManager : MonoBehaviour
 
     private void ResetResourceCount()
     {
-        _resourceCounts[ResourceType.Ferrite] = 0;
-        _resourceCounts[ResourceType.Aether] = 0;
-        _resourceCounts[ResourceType.Biomass] = 0;
-        _resourceCounts[ResourceType.CryoCrystal] = 0;
-        _resourceCounts[ResourceType.Solana] = 0;
+        _resourceCounts[ResourceType.Ferrite] = ferriteInitialAmount;
+        _resourceCounts[ResourceType.Aether] = aetherInitialAmount;
+        _resourceCounts[ResourceType.Biomass] = biomassInitialAmount;
+        _resourceCounts[ResourceType.CryoCrystal] = cryoCrystalInitialAmount;
+        _resourceCounts[ResourceType.Solana] = solanaInitialAmount;
     }
 
     private void FindAndConnectUI()

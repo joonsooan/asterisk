@@ -5,8 +5,8 @@ public class BuildingSpawner : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Tilemap buildingTilemap;
-    [SerializeField] private GameObject buildingPrefab;
-    [SerializeField] private TileBase buildingTile;
+    [SerializeField] private GameObject mainStructurePrefab;
+    [SerializeField] private TileBase mainStructureTile;
     [SerializeField] private Grid grid;
     [SerializeField] private Transform parentTransform;
 
@@ -18,7 +18,7 @@ public class BuildingSpawner : MonoBehaviour
 
     public void SpawnBuildings()
     {
-        if (buildingTilemap == null || buildingPrefab == null || buildingTile == null || grid == null) {
+        if (buildingTilemap == null || mainStructurePrefab == null || mainStructureTile == null || grid == null) {
             Debug.LogError("BuildingSpawner: Missing references.");
             return;
         }
@@ -28,9 +28,16 @@ public class BuildingSpawner : MonoBehaviour
         }
 
         foreach (Vector3Int cellPosition in buildingTilemap.cellBounds.allPositionsWithin) {
-            if (buildingTilemap.HasTile(cellPosition) && buildingTilemap.GetTile(cellPosition) == buildingTile) {
+            if (buildingTilemap.HasTile(cellPosition) && buildingTilemap.GetTile(cellPosition) == mainStructureTile) {
                 Vector3 worldPos = grid.GetCellCenterWorld(cellPosition);
-                Instantiate(buildingPrefab, worldPos, Quaternion.identity, parentTransform);
+                
+                GameObject newBuilding = Instantiate(mainStructurePrefab, worldPos, Quaternion.identity, parentTransform);
+                IStorage storage = newBuilding.GetComponent<IStorage>();
+
+                if (storage != null && ResourceManager.Instance != null)
+                {
+                    ResourceManager.Instance.AddStorage(storage);
+                }
             }
         }
     }

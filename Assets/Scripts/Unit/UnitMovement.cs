@@ -9,8 +9,8 @@ public class UnitMovement : MonoBehaviour
     public float moveSpeed = 5f;
 
     [Header("Pathfinding")]
-    public float waypointTolerance = 0.1f;
-    public Grid grid;
+    public float waypointTolerance = 0.1f; 
+    private Grid _grid;
 
     private Vector3 _currentWaypoint;
     private Queue<Vector3> _path = new Queue<Vector3>();
@@ -21,6 +21,11 @@ public class UnitMovement : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _spriteController = GetComponent<UnitSpriteController>();
+    }
+
+    private void Start()
+    {
+        _grid = BuildingManager.Instance.grid;
     }
 
     private void OnDrawGizmosSelected()
@@ -38,8 +43,8 @@ public class UnitMovement : MonoBehaviour
 
     public void SetNewTarget(Vector2 targetPosition)
     {
-        Vector3Int targetCellPos = grid.WorldToCell(targetPosition);
-        Vector3 finalTargetPos = grid.GetCellCenterWorld(targetCellPos);
+        Vector3Int targetCellPos = _grid.WorldToCell(targetPosition);
+        Vector3 finalTargetPos = _grid.GetCellCenterWorld(targetCellPos);
 
         _path = FindPath(transform.position, finalTargetPos);
 
@@ -77,8 +82,8 @@ public class UnitMovement : MonoBehaviour
 
     private Queue<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
-        Vector3Int startCellPos = grid.WorldToCell(startPos);
-        Vector3Int endCellPos = grid.WorldToCell(endPos);
+        Vector3Int startCellPos = _grid.WorldToCell(startPos);
+        Vector3Int endCellPos = _grid.WorldToCell(endPos);
 
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
         Dictionary<Vector3Int, Node> allNodes = new Dictionary<Vector3Int, Node>();
@@ -139,7 +144,7 @@ public class UnitMovement : MonoBehaviour
         Queue<Vector3> path = new Queue<Vector3>();
         Node currentNode = endNode;
         while (currentNode != null) {
-            path.Enqueue(grid.GetCellCenterWorld(currentNode.Position));
+            path.Enqueue(_grid.GetCellCenterWorld(currentNode.Position));
             currentNode = currentNode.Parent;
         }
 

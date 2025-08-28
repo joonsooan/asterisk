@@ -2,14 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[CreateAssetMenu(fileName = "New Combo Card Data", menuName = "Card System/Combo Card Data")]
-public class ComboCardData : ScriptableObject
+public enum ComboType
 {
-    public Sprite comboIcon;
-    public string comboName;
+    Storage,
+    Generator,
+    ChargeStation,
+    Harvester,
+}
+
+[CreateAssetMenu(fileName = "New Combo Card Data", menuName = "Card System/Combo Card Data")]
+public class ComboCardData : DisplayableData
+{
+    [Header("Combo-Specific Info")]
     public GameObject comboPrefab;
     public TileBase comboTile;
-    [TextArea] public string comboDescription;
+    public ComboType comboType;
+    public List<ComboPiece> recipe;
 
     [System.Serializable]
     public class ComboPiece
@@ -17,6 +25,4 @@ public class ComboCardData : ScriptableObject
         public GadgetType gadgetType;
         public Vector3Int relativePosition;
     }
-
-    public List<ComboPiece> recipe;
 }

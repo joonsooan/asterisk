@@ -16,15 +16,16 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public CardInfoManager cardInfoManager;
+    public UIManager uiManager;
     public CardDragger cardDragger;
-    public RecipeManager recipeManager;
-
+    
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
+    private CardDragger _activeCardDragger;
+    private DisplayableData _activeCardData;
 
-    public UnityEvent<CardData> onStartDrag;
-    public UnityEvent onEndDrag;
+    [HideInInspector] public UnityEvent<DisplayableData> onStartDrag;
+    [HideInInspector] public UnityEvent onEndDrag;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -78,18 +79,16 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public void StartDrag(CardData cardData)
+    public void StartDrag(DisplayableData data)
     {
-        if (cardDragger == null) return;
-        
-        cardDragger.EndDrag();
-        
-        if (cardInfoManager != null)
+        if (cardDragger == null) 
         {
-            cardInfoManager.DisplayCardInfo(cardData);
+            return;
         }
-        cardDragger.StartDrag(cardData);
-        onStartDrag?.Invoke(cardData);
+
+        _activeCardData = data;
+        cardDragger.StartDrag(_activeCardData);
+        onStartDrag?.Invoke(_activeCardData);
     }
     
     public int GetRequiredAmountForCurrentQuota()
@@ -111,22 +110,20 @@ public class GameManager : MonoBehaviour
         if (cardDragger != null)
         {
             cardDragger.EndDrag();
-            onEndDrag?.Invoke();
         }
+        _activeCardData = null;
+        onEndDrag?.Invoke();
+        uiManager.UnpinAndHideCardPanel();
     }
     
     public bool IsDragging()
     {
-        return cardDragger != null && cardDragger.IsDragging;
+        return _activeCardDragger  != null && _activeCardDragger .IsDragging;
     }
     
-    public CardData GetActiveCardData()
+    public DisplayableData GetActiveData()
     {
-        if (cardDragger != null)
-        {
-            return cardDragger.GetActiveCardData();
-        }
-        return null;
+        return _activeCardData;
     }
 
     private void InitializeAllManagers()
@@ -134,9 +131,8 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cardInfoManager = FindFirstObjectByType<CardInfoManager>();
+        uiManager = FindFirstObjectByType<UIManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
-        recipeManager = FindFirstObjectByType<RecipeManager>(FindObjectsInactive.Include);
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();
@@ -169,7 +165,7 @@ public class GameManager : MonoBehaviour
         Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
         foreach (Unit_Lifter unit in allUnits)
         {
-            unit.StartUnitActions();
+            unit.TryStartActions();
         }
     }
 

@@ -137,6 +137,13 @@ public class GameManager : MonoBehaviour
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();
 
+        StartCoroutine(DelayedInitialization());
+    }
+
+    private IEnumerator DelayedInitialization()
+    {
+        yield return null;
+
         InitializeSpawnersAndUnits();
 
         if (_quotaCoroutine != null)
@@ -215,6 +222,7 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         SceneManager.LoadScene("TitleScene");
+        _currentQuotaIndex = 0;
         Time.timeScale = 1;
     }
 

@@ -24,6 +24,8 @@ public class CardDragger : MonoBehaviour
 
     public void StartDrag(DisplayableData data)
     {
+        if (_isDragging) return;
+        
         CardData cardData = data as CardData;
         if (cardData == null || cardData.buildingPrefab == null || _isDragging)
         {

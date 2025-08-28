@@ -32,7 +32,7 @@ public class CardDisplay : InfoDisplayTrigger, IPointerClickHandler
         GameManager.Instance.uiManager?.PinCardInfo(cardData);
     }
     
-    public void OnBuyButtonClick()
+    private void OnBuyButtonClick()
     {
         if (GameManager.Instance != null && cardData != null)
         {

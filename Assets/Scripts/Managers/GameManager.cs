@@ -16,12 +16,12 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public UIManager uiManager; 
+    public UIManager uiManager;
     public CardDragger cardDragger;
-    public RecipeManager recipeManager;
-
+    
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
+    private CardDragger _activeCardDragger;
     private DisplayableData _activeCardData;
 
     public UnityEvent<DisplayableData> onStartDrag;
@@ -81,7 +81,10 @@ public class GameManager : MonoBehaviour
     
     public void StartDrag(DisplayableData data)
     {
-        if (cardDragger == null) return;
+        if (cardDragger == null) 
+        {
+            return;
+        }
 
         _activeCardData = data;
         cardDragger.StartDrag(_activeCardData);
@@ -108,14 +111,13 @@ public class GameManager : MonoBehaviour
         {
             cardDragger.EndDrag();
         }
-
         _activeCardData = null;
         onEndDrag?.Invoke();
     }
     
     public bool IsDragging()
     {
-        return cardDragger != null && cardDragger.IsDragging;
+        return _activeCardDragger  != null && _activeCardDragger .IsDragging;
     }
     
     public DisplayableData GetActiveData()
@@ -128,9 +130,8 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        uiManager = FindFirstObjectByType<UIManager>(); 
+        uiManager = FindFirstObjectByType<UIManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
-        recipeManager = FindFirstObjectByType<RecipeManager>(FindObjectsInactive.Include);
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();

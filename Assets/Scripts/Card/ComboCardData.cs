@@ -11,15 +11,13 @@ public enum ComboType
 }
 
 [CreateAssetMenu(fileName = "New Combo Card Data", menuName = "Card System/Combo Card Data")]
-public class ComboCardData : ScriptableObject
+public class ComboCardData : DisplayableData
 {
-    public Sprite comboIcon;
-    public string comboName;
+    [Header("Combo-Specific Info")]
     public GameObject comboPrefab;
     public TileBase comboTile;
     public ComboType comboType;
-    
-    [TextArea] public string comboDescription;
+    public List<ComboPiece> recipe;
 
     [System.Serializable]
     public class ComboPiece
@@ -27,6 +25,4 @@ public class ComboCardData : ScriptableObject
         public GadgetType gadgetType;
         public Vector3Int relativePosition;
     }
-
-    public List<ComboPiece> recipe;
 }

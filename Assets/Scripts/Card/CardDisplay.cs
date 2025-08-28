@@ -1,9 +1,8 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
-public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class CardDisplay : InfoDisplayTrigger
 {
     public CardData cardData;
 
@@ -11,74 +10,27 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     [SerializeField] private Image cardIcon;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Button buyButton;
-    
-    private bool _isUIPinned  = false;
 
-    private void Start()
+    private void Awake()
     {
         UpdateCardUI();
         buyButton.onClick.AddListener(OnBuyButtonClick);
-        
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.onStartDrag.AddListener(OnDragStart);
-            GameManager.Instance.onEndDrag.AddListener(OnDragEnd);
-        }
     }
     
-    private void OnDestroy()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.onStartDrag.RemoveListener(OnDragStart);
-            GameManager.Instance.onEndDrag.RemoveListener(OnDragEnd);
-        }
-    }
-
     private void Update()
     {
         UpdateButtonState();
     }
-    
-    private void OnDragStart(CardData activeCardData)
-    {
-        if (activeCardData == cardData)
-        {
-            _isUIPinned = true;
-        }
-        else
-        {
-            _isUIPinned = false;
-        }
-    }
-    
-    private void OnDragEnd()
-    {
-        _isUIPinned = false;
-        GameManager.Instance.cardInfoManager.HideCardInfo();
-    }
-    
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (!_isUIPinned && !GameManager.Instance.IsDragging())
-        {
-            GameManager.Instance.cardInfoManager.DisplayCardInfo(cardData);
-        }
-    }
-    
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (!_isUIPinned)
-        {
-            GameManager.Instance.cardInfoManager.HideCardInfo();
-        }
-    }
+
+    protected override DisplayableData GetData() => cardData;
+    protected override void ShowInfo() => GameManager.Instance?.uiManager.DisplayCardInfo(cardData);
+    protected override void HideInfo() => GameManager.Instance?.uiManager.HideCardInfo();
 
     private void OnBuyButtonClick()
     {
         if (GameManager.Instance != null && cardData != null)
         {
-            if (GameManager.Instance.IsDragging() && GameManager.Instance.GetActiveCardData() == cardData)
+            if (GameManager.Instance.IsDragging() && GameManager.Instance.GetActiveData() == cardData)
             {
                 GameManager.Instance.EndDrag();
             }
@@ -100,7 +52,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void UpdateCardUI()
     {
-        nameText.text = cardData.cardName;
-        cardIcon.sprite = cardData.cardIcon;
+        nameText.text = cardData.displayName;
+        cardIcon.sprite = cardData.icon;
     }
 }

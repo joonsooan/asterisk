@@ -1,13 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[System.Serializable]
-public class CardCost
-{
-    public ResourceType resourceType;
-    public int amount;
-}
-
 public enum GadgetType
 {
     None,
@@ -22,15 +15,19 @@ public enum GadgetType
     AetherCondenser
 }
 
-[CreateAssetMenu(fileName = "New Card", menuName = "Card System/Card Data")]
-public class CardData : ScriptableObject
+[System.Serializable]
+public class CardCost
 {
-    public Sprite cardIcon;
-    public string cardName;
+    public ResourceType resourceType;
+    public int amount;
+}
+
+[CreateAssetMenu(fileName = "New Card", menuName = "Card System/Card Data")]
+public class CardData : DisplayableData
+{
+    [Header("Card-Specific Info")]
     public GameObject buildingPrefab;
     public GadgetType gadgetType;
     public TileBase gadgetTile;
-    [TextArea] public string cardDescription; 
-    
     public CardCost[] costs;
 }

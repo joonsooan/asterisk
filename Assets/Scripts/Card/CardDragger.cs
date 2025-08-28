@@ -7,7 +7,8 @@ public class CardDragger : MonoBehaviour
     [SerializeField] private Grid grid;
 
     private GameObject _ghostBuildingInstance;
-    private CardData _activeCardData;
+    
+    private CardData _activeCardData; 
     private bool _isDragging;
     
     public bool IsDragging => _isDragging;
@@ -21,21 +22,18 @@ public class CardDragger : MonoBehaviour
         }
     }
 
-    public void StartDrag(CardData cardData)
+    public void StartDrag(DisplayableData data)
     {
-        if (cardData == null || _isDragging) return;
+        CardData cardData = data as CardData;
+        if (cardData == null || cardData.buildingPrefab == null || _isDragging)
+        {
+            return;
+        }
 
         _activeCardData = cardData;
         _isDragging = true;
 
-        if (_activeCardData.buildingPrefab != null)
-        {
-            CreateGhostBuilding();
-        }
-        else
-        {
-            EndDrag();
-        }
+        CreateGhostBuilding();
     }
 
     public void EndDrag()
@@ -61,7 +59,7 @@ public class CardDragger : MonoBehaviour
         }
     }
     
-    public CardData GetActiveCardData()
+    public DisplayableData GetActiveData()
     {
         return _activeCardData;
     }
@@ -73,7 +71,11 @@ public class CardDragger : MonoBehaviour
 
         Vector3Int cellPosition = grid.WorldToCell(mouseWorldPos);
         Vector3 cellCenterWorld = grid.GetCellCenterWorld(cellPosition);
-        _ghostBuildingInstance.transform.position = cellCenterWorld;
+        
+        if (_ghostBuildingInstance != null)
+        {
+            _ghostBuildingInstance.transform.position = cellCenterWorld;
+        }
         
         bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
         UpdateGhostColor(canPlace);
@@ -81,6 +83,8 @@ public class CardDragger : MonoBehaviour
     
     private void UpdateGhostColor(bool canPlace)
     {
+        if (_ghostBuildingInstance == null) return;
+        
         SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
         if (sr != null)
         {

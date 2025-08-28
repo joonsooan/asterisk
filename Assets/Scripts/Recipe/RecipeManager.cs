@@ -46,7 +46,7 @@ public class RecipeManager : MonoBehaviour
 
     public ComboCardData GetRecipeByName(string comboName)
     {
-        return _allRecipes.Find(recipe => recipe.comboName == comboName);
+        return _allRecipes.Find(recipe => recipe.displayName == comboName);
     }
 
     public List<ComboCardData> GetAllRecipes()

@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        HandleCameraMovement();
+        // HandleCameraMovement();
     }
 
     private void HandleCameraMovement()
@@ -49,7 +49,7 @@ public class CameraController : MonoBehaviour
         {
             mousePanDirection += Vector3.up;
         }
-        if (Input.mousePosition.y <= panBorderThickness)
+        if (Input.mousePosition.y <= panBorderThickness * 0.05f)
         {
             mousePanDirection += Vector3.down;
         }

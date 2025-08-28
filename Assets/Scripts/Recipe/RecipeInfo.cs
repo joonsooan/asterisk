@@ -34,8 +34,8 @@ public class RecipeInfo : MonoBehaviour
     
     public void UpdateRecipeInfo(ComboCardData data)
     {
-        recipeNameText.text = data.comboName;
-        recipeDescriptionText.text = data.comboDescription;
+        recipeNameText.text = data.displayName;
+        recipeDescriptionText.text = data.description;
 
         ClearRecipeGrid();
 
@@ -76,6 +76,13 @@ public class RecipeInfo : MonoBehaviour
             return prefab;
         }
         return null;
+    }
+    
+    public void ClearInfo()
+    {
+        recipeNameText.text = "";
+        recipeDescriptionText.text = "";
+        ClearRecipeGrid();
     }
 
     private void ClearRecipeGrid()

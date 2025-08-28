@@ -16,14 +16,14 @@ public class GameManager : MonoBehaviour
     public Slider slider;
     public ExpansionPanel expansionPanel;
     public MapGenerator mapGenerator;
-    public CardInfoManager cardInfoManager;
+    public UIManager uiManager; 
     public CardDragger cardDragger;
     public RecipeManager recipeManager;
 
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
 
-    public UnityEvent<CardData> onStartDrag;
+    public UnityEvent<DisplayableData> onStartDrag;
     public UnityEvent onEndDrag;
     public static GameManager Instance { get; private set; }
 
@@ -78,18 +78,13 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public void StartDrag(CardData cardData)
+    public void StartDrag(DisplayableData data)
     {
         if (cardDragger == null) return;
         
         cardDragger.EndDrag();
-        
-        if (cardInfoManager != null)
-        {
-            cardInfoManager.DisplayCardInfo(cardData);
-        }
-        cardDragger.StartDrag(cardData);
-        onStartDrag?.Invoke(cardData);
+        cardDragger.StartDrag(data);
+        onStartDrag?.Invoke(data);
     }
     
     public int GetRequiredAmountForCurrentQuota()
@@ -120,11 +115,11 @@ public class GameManager : MonoBehaviour
         return cardDragger != null && cardDragger.IsDragging;
     }
     
-    public CardData GetActiveCardData()
+    public DisplayableData GetActiveData()
     {
         if (cardDragger != null)
         {
-            return cardDragger.GetActiveCardData();
+            return cardDragger.GetActiveData(); 
         }
         return null;
     }
@@ -134,7 +129,7 @@ public class GameManager : MonoBehaviour
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
-        cardInfoManager = FindFirstObjectByType<CardInfoManager>();
+        uiManager = FindFirstObjectByType<UIManager>(); 
         cardDragger = FindFirstObjectByType<CardDragger>();
         recipeManager = FindFirstObjectByType<RecipeManager>(FindObjectsInactive.Include);
 

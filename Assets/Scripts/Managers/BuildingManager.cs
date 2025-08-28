@@ -164,7 +164,7 @@ public class BuildingManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Combo Building '{comboData.comboName}' Created");
+        Debug.Log($"Combo Building '{comboData.displayName}' Created");
     }
 
     private void HandleComboBuildingLogic(GameObject comboObject, ComboCardData comboData)

@@ -7,7 +7,7 @@ public class CardUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!GameManager.Instance.IsDragging() || GameManager.Instance.GetActiveCardData() != cardData)
+        if (!GameManager.Instance.IsDragging() || GameManager.Instance.GetActiveData() != cardData)
         {
             GameManager.Instance.StartDrag(cardData);
         }

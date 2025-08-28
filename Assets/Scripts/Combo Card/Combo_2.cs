@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Combo_2 : MonoBehaviour, ICombo
+public class Combo_2 : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private int maxHealth = 100;

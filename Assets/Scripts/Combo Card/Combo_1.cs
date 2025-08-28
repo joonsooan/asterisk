@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Combo_1 : MonoBehaviour, ICombo
+public class Combo_1 : Damageable 
 {
     [Header("Values")]
     [SerializeField] private float generationInterval = 5f;
@@ -14,10 +14,11 @@ public class Combo_1 : MonoBehaviour, ICombo
     
     private Canvas _canvas;
     private Coroutine _productionCoroutine;
-    private int _currentHealth;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         GameObject canvasObject = GameObject.Find(canvasName);
         
         if (canvasObject != null)
@@ -63,19 +64,5 @@ public class Combo_1 : MonoBehaviour, ICombo
         if (floatingText != null) {
             floatingText.SetText($"+{amount}");
         }
-    }
-    
-    public void TakeDamage(int damage)
-    {
-        _currentHealth -= damage;
-        if (_currentHealth <= 0)
-        {
-            Destroy();
-        }
-    }
-    
-    private void Destroy()
-    {
-        Destroy(gameObject);
     }
 }

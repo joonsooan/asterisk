@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class MainStructure : MonoBehaviour, IStorage, ICombo
+public class MainStructure : MonoBehaviour, IStorage
 {
     [Header("Basic Settings")]
     [SerializeField] private int maxHealth = 100;

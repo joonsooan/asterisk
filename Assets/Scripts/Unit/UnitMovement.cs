@@ -9,10 +9,10 @@ public class UnitMovement : MonoBehaviour
     public float moveSpeed = 5f;
 
     [Header("Pathfinding")]
-    public float waypointTolerance = 0.1f; 
-    private Grid _grid;
+    public float waypointTolerance = 0.1f;
 
     private Vector3 _currentWaypoint;
+    private Grid _grid;
     private Queue<Vector3> _path = new Queue<Vector3>();
     private Rigidbody2D _rb;
     private UnitSpriteController _spriteController;
@@ -41,7 +41,7 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void SetNewTarget(Vector2 targetPosition)
+    public bool SetNewTarget(Vector2 targetPosition)
     {
         Vector3Int targetCellPos = _grid.WorldToCell(targetPosition);
         Vector3 finalTargetPos = _grid.GetCellCenterWorld(targetCellPos);
@@ -50,7 +50,9 @@ public class UnitMovement : MonoBehaviour
 
         if (_path.Count > 0) {
             _currentWaypoint = _path.Dequeue();
+            return true;
         }
+        return false;
     }
 
     public void StopMovement()
@@ -88,11 +90,16 @@ public class UnitMovement : MonoBehaviour
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
         Dictionary<Vector3Int, Node> allNodes = new Dictionary<Vector3Int, Node>();
 
+        int iterations = 0;
+        const int maxIterations = 40000;
+
         Node startNode = new Node { Position = startCellPos, GCost = 0, HCost = GetDistance(startCellPos, endCellPos) };
         allNodes.Add(startCellPos, startNode);
         openList.Enqueue(startNode, startNode.FCost);
 
-        while (openList.Count > 0) {
+        while (openList.Count > 0 && iterations < maxIterations) {
+            iterations++;
+
             Node currentNode = openList.Dequeue();
 
             if (currentNode.Position == endCellPos) {
@@ -100,8 +107,7 @@ public class UnitMovement : MonoBehaviour
             }
 
             foreach (Vector3Int neighborPos in GetNeighbors(currentNode.Position)) {
-                if (BuildingManager.Instance.IsResourceTile(neighborPos) && neighborPos != endCellPos)
-                {
+                if (BuildingManager.Instance.IsResourceTile(neighborPos) && neighborPos != endCellPos) {
                     continue;
                 }
 
@@ -129,7 +135,8 @@ public class UnitMovement : MonoBehaviour
                 }
             }
         }
-
+        
+        Debug.LogWarning("Path not found or search limit exceeded.");
         return new Queue<Vector3>();
     }
 

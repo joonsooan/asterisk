@@ -96,6 +96,10 @@ public class Unit_Lifter : UnitBase
                 HandleTargetLoss();
             }
         }
+        else if (currentState == UnitState.Idle)
+        {
+            FindAndSetTarget();
+        }
     }
     
     private void OnSceneUnloaded(Scene scene)
@@ -367,8 +371,19 @@ public class Unit_Lifter : UnitBase
                 }
                 
                 _targetResourceNode = newTarget;
-                unitMovement.SetNewTarget(_targetResourceNode.transform.position);
-                currentState = UnitState.Moving;
+                
+                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position);
+
+                if (pathFound)
+                {
+                    currentState = UnitState.Moving;
+                }
+                else
+                {
+                    _targetResourceNode.Unreserve();
+                    _targetResourceNode = null;
+                    currentState = UnitState.Idle;
+                }
             }
         }
         else

@@ -100,8 +100,10 @@ public class UnitMovement : MonoBehaviour
             }
 
             foreach (Vector3Int neighborPos in GetNeighbors(currentNode.Position)) {
-                // 인접 노드가 장애물인지 확인하는 로직 추가 필요 (예: grid.HasTile(neighborPos) 등)
-                // if (isObstacle(neighborPos)) continue; 
+                if (BuildingManager.Instance.IsResourceTile(neighborPos) && neighborPos != endCellPos)
+                {
+                    continue;
+                }
 
                 Node neighborNode;
                 float newGCost = currentNode.GCost + GetDistance(currentNode.Position, neighborPos);

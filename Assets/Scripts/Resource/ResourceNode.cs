@@ -40,6 +40,14 @@ public class ResourceNode : MonoBehaviour
         }
     }
     
+    private void Start()
+    {
+        if (BuildingManager.Instance != null && BuildingManager.Instance.grid != null)
+        {
+            cellPosition = BuildingManager.Instance.grid.WorldToCell(transform.position);
+        }
+    }
+    
     private void OnDestroy()
     {
         if (ResourceManager.Instance != null) {

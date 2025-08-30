@@ -226,6 +226,8 @@ public class Unit_Lifter : UnitBase
 
     private void HandleResourceMined(ResourceType type, int amount)
     {
+        if (currentState != UnitState.Mining) return;
+        
         _currentCarryAmounts[type] = _currentCarryAmounts.GetValueOrDefault(type) + amount;
         ShowFloatingText(amount);
 
@@ -279,6 +281,8 @@ public class Unit_Lifter : UnitBase
     
     private void HandleTargetLoss()
     {
+        unitMining?.StopMining(); 
+        
         _targetResourceNode?.Unreserve();
         currentState = UnitState.Idle;
         unitMovement.StopMovement();

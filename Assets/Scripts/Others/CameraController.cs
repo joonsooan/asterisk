@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        HandleCameraMovement();
+        // HandleCameraMovement();
     }
 
     private void HandleCameraMovement()

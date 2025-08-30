@@ -274,11 +274,6 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void RemoveResourceNodeTile(Vector3Int cellPosition)
-    {
-        BuildingManager.Instance.RemoveResourceTile(cellPosition);
-    }
-
     public List<ResourceNode> GetAllResources()
     {
         return _allResources;

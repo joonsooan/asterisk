@@ -15,9 +15,9 @@ public class Combo_1 : Damageable
     private Canvas _canvas;
     private Coroutine _productionCoroutine;
 
-    protected override void Awake()
+    protected override void OnEnable()
     {
-        base.Awake();
+        base.OnEnable();
         
         GameObject canvasObject = GameObject.Find(canvasName);
         

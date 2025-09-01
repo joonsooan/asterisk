@@ -41,15 +41,13 @@ public class CameraController : MonoBehaviour
 
     private void HandleCameraMovement()
     {
-        // if (!GameManager.Instance.isCameraActive) return;
-
         Vector3 mousePanDirection = Vector3.zero;
 
         if (Input.mousePosition.y >= Screen.height - panBorderThickness)
         {
             mousePanDirection += Vector3.up;
         }
-        if (Input.mousePosition.y <= panBorderThickness * 0.05f)
+        if (Input.mousePosition.y <= panBorderThickness * 0.01f)
         {
             mousePanDirection += Vector3.down;
         }

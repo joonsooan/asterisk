@@ -53,6 +53,12 @@ public class BuildingManager : MonoBehaviour
             }
         }
     }
+    
+    public bool IsResourceTile(Vector3Int cellPosition)
+    {
+        if (resourceTilemap == null) return false;
+        return resourceTilemap.HasTile(cellPosition);
+    }
 
     public bool CanPlaceBuilding(Vector3Int cellPosition)
     {

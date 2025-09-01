@@ -15,7 +15,7 @@ public class Unit_Lifter : UnitBase
     private ResourceNode _targetResourceNode;
 
     [Header("VFX")]
-    [SerializeField] private string canvasName = "FloatingText Canvas";
+    [SerializeField] private string canvasName = "ObejectUI Canvas";
     [SerializeField] private GameObject floatingNumTextPrefab;
     [SerializeField] private bool showFloatingText;
     private Canvas _canvas;
@@ -95,6 +95,10 @@ public class Unit_Lifter : UnitBase
             {
                 HandleTargetLoss();
             }
+        }
+        else if (currentState == UnitState.Idle)
+        {
+            FindAndSetTarget();
         }
     }
     
@@ -211,7 +215,7 @@ public class Unit_Lifter : UnitBase
     
     private void OnReturnToStorage()
     {
-        if (_targetStorage == null || _targetStorage.StorageIsFull())
+        if (_targetStorage == null || _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
         {
             HandleStorageLoss();
             return;
@@ -226,6 +230,8 @@ public class Unit_Lifter : UnitBase
 
     private void HandleResourceMined(ResourceType type, int amount)
     {
+        if (currentState != UnitState.Mining) return;
+        
         _currentCarryAmounts[type] = _currentCarryAmounts.GetValueOrDefault(type) + amount;
         ShowFloatingText(amount);
 
@@ -265,7 +271,7 @@ public class Unit_Lifter : UnitBase
         {
             foreach (var pair in _currentCarryAmounts.Where(p => p.Value > 0))
             {
-                _targetStorage.AddResource(pair.Key, pair.Value);
+                _targetStorage.TryAddResource(pair.Key, pair.Value);
             }
         }
 
@@ -279,6 +285,8 @@ public class Unit_Lifter : UnitBase
     
     private void HandleTargetLoss()
     {
+        unitMining?.StopMining(); 
+        
         _targetResourceNode?.Unreserve();
         currentState = UnitState.Idle;
         unitMovement.StopMovement();
@@ -312,7 +320,7 @@ public class Unit_Lifter : UnitBase
     {
         var storages = ResourceManager.Instance.GetAllStorages();
         
-        var availableStorages = storages.Where(s => s != null && !s.StorageIsFull());
+        var availableStorages = storages.Where(s => s != null && s.GetTotalCurrentAmount() < s.GetMaxCapacity());
 
         _targetStorage = availableStorages
             .OrderBy(s => Vector2.Distance(transform.position, s.GetPosition()))
@@ -363,8 +371,19 @@ public class Unit_Lifter : UnitBase
                 }
                 
                 _targetResourceNode = newTarget;
-                unitMovement.SetNewTarget(_targetResourceNode.transform.position);
-                currentState = UnitState.Moving;
+                
+                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position);
+
+                if (pathFound)
+                {
+                    currentState = UnitState.Moving;
+                }
+                else
+                {
+                    _targetResourceNode.Unreserve();
+                    _targetResourceNode = null;
+                    currentState = UnitState.Idle;
+                }
             }
         }
         else

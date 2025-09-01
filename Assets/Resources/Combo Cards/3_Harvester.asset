@@ -19,9 +19,9 @@ MonoBehaviour:
   comboTile: {fileID: 11400000, guid: e9261a2af17ff4c4cada78f576673eae, type: 2}
   comboType: 3
   recipe:
-  - gadgetType: 3
-    relativePosition: {x: -1, y: 0, z: 0}
   - gadgetType: 1
-    relativePosition: {x: 0, y: 0, z: 0}
+    relativePosition: {x: -1, y: 0, z: 0}
   - gadgetType: 3
+    relativePosition: {x: 0, y: 0, z: 0}
+  - gadgetType: 1
     relativePosition: {x: 1, y: 0, z: 0}

@@ -5,6 +5,14 @@ using UnityEngine.UI;
 
 public class MainStructure : Damageable, IStorage
 {
+    public event System.Action<int, int> OnStorageChanged;
+    
+    [Header("UI Settings")]
+    [SerializeField] private GameObject storageSliderPrefab;
+    [SerializeField] private string canvasName = "ObjectUI_Canvas";
+    [SerializeField] private Vector3 sliderOffset = new Vector3(0, 1.5f, 0);
+    private GameObject _sliderInstance;
+    
     [Header("Storage Settings")]
     [SerializeField] private int maxStorageAmount = 1000;
     private int _currentStorageAmount = 0;
@@ -39,6 +47,19 @@ public class MainStructure : Damageable, IStorage
                 unitMakeButton.onClick.AddListener(() => AddUnitToQueue(0));
             }
         }
+        
+        if (storageSliderPrefab != null)
+        {
+            Canvas canvas = GameObject.Find(canvasName)?.GetComponent<Canvas>();
+            if (canvas != null)
+            {
+                _sliderInstance = Instantiate(storageSliderPrefab, canvas.transform);
+                var controller = _sliderInstance.GetComponent<StorageSlider>();
+                controller?.Initialize(this, sliderOffset);
+            }
+        }
+        
+        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
     }
     
     private void OnDestroy()
@@ -47,6 +68,11 @@ public class MainStructure : Damageable, IStorage
         {
             ResourceManager.Instance.RemoveStorage(this);
             GameManager.Instance.GameOver();
+        }
+        
+        if (_sliderInstance != null)
+        {
+            Destroy(_sliderInstance);
         }
     }
 
@@ -62,6 +88,8 @@ public class MainStructure : Damageable, IStorage
         {
             _currentStorageAmount = maxStorageAmount;
         }
+        
+        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
         ResourceManager.Instance.AddResource(type, amount);
     }
 

@@ -101,4 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  maxStorageAmount: 200
+  storageSliderPrefab: {fileID: 2354038024701718824, guid: 6bd2b307424729b46bc663a2af90c671, type: 3}
+  canvasName: ObejectUI Canvas
+  sliderOffset: {x: 0, y: 0.8, z: 0}
+  maxStorageAmount: 100

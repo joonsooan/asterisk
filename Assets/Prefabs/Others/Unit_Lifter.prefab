@@ -134,15 +134,16 @@ MonoBehaviour:
   maxHealth: 50
   currentHealth: 0
   currentState: 0
-  maxCarryAmount: 10
-  unloadDistance: 1.5
-  resourceSearchInterval: 1
-  canvasName: FloatingText Canvas
+  canvasName: ObejectUI Canvas
   floatingNumTextPrefab: {fileID: 176529985360585926, guid: c122ec1d854b9a04994f510c553243e5, type: 3}
   showFloatingText: 1
   unitMovement: {fileID: 4483249089817793867}
   unitMining: {fileID: 8882647708804449670}
   unitSpriteController: {fileID: 7616754858952366261}
+  maxCarryAmount: 10
+  unloadDistance: 1.5
+  resourceSearchInterval: 1
+  mineableResourceTypes: 
 --- !u!114 &8882647708804449670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,7 +172,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 4
   waypointTolerance: 0.1
-  grid: {fileID: 0}
 --- !u!114 &7616754858952366261
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ public class Unit_Lifter : UnitBase
     private ResourceNode _targetResourceNode;
 
     [Header("VFX")]
-    [SerializeField] private string canvasName = "FloatingText Canvas";
+    [SerializeField] private string canvasName = "ObejectUI Canvas";
     [SerializeField] private GameObject floatingNumTextPrefab;
     [SerializeField] private bool showFloatingText;
     private Canvas _canvas;

@@ -46,7 +46,7 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < spawnCount; i++)
         {
             Vector2Int randomEdgeRoomCoords = edgeRooms[Random.Range(0, edgeRooms.Count)];
-            Vector3 spawnPosition = GetRandomPositionInRoom(randomEdgeRoomCoords);
+            Vector3 spawnPosition = GetRandomEdgeTilePosition(randomEdgeRoomCoords);
             
             Instantiate(enemyPrefab, spawnPosition, Quaternion.identity, BuildingManager.Instance.grid.transform);
         }
@@ -76,22 +76,70 @@ public class EnemySpawner : MonoBehaviour
         return edgeRooms;
     }
 
-    private Vector3 GetRandomPositionInRoom(Vector2Int roomCoords)
+    // private Vector3 GetRandomPositionInRoom(Vector2Int roomCoords)
+    // {
+    //     Vector2Int roomSize = GameManager.Instance.mapGenerator.roomSize;
+    //     Vector2Int mapGridSize = GameManager.Instance.mapGenerator.mapGridSize;
+    //     
+    //     float totalMapWidth = roomSize.x * mapGridSize.x;
+    //     float totalMapHeight = roomSize.y * mapGridSize.y;
+    //     float mapCenterXOffset = totalMapWidth / 2f;
+    //     float mapCenterYOffset = totalMapHeight / 2f;
+    //
+    //     float roomStartX = roomCoords.x * roomSize.x - mapCenterXOffset;
+    //     float roomStartY = roomCoords.y * roomSize.y - mapCenterYOffset;
+    //     
+    //     float randomX = Random.Range(roomStartX + 1, roomStartX + roomSize.x - 1);
+    //     float randomY = Random.Range(roomStartY + 1, roomStartY + roomSize.y - 1);
+    //     
+    //     return GameManager.Instance.mapGenerator.tilemap.transform.TransformPoint(new Vector3(randomX, randomY, 0));
+    // }
+    
+    private Vector3 GetRandomEdgeTilePosition(Vector2Int roomCoords)
     {
-        Vector2Int roomSize = GameManager.Instance.mapGenerator.roomSize;
-        Vector2Int mapGridSize = GameManager.Instance.mapGenerator.mapGridSize;
+        var mapGenerator = GameManager.Instance.mapGenerator;
+        Vector2Int roomSize = mapGenerator.roomSize;
+        Vector2Int mapGridSize = mapGenerator.mapGridSize;
         
+        List<Vector2Int> validDirections = new List<Vector2Int>();
+        if (!mapGenerator.IsRoomUnlocked(roomCoords.x + 1, roomCoords.y)) validDirections.Add(Vector2Int.right);
+        if (!mapGenerator.IsRoomUnlocked(roomCoords.x - 1, roomCoords.y)) validDirections.Add(Vector2Int.left);
+        if (!mapGenerator.IsRoomUnlocked(roomCoords.x, roomCoords.y + 1)) validDirections.Add(Vector2Int.up);
+        if (!mapGenerator.IsRoomUnlocked(roomCoords.x, roomCoords.y - 1)) validDirections.Add(Vector2Int.down);
+
+        Vector2Int chosenDirection = validDirections[Random.Range(0, validDirections.Count)];
+
         float totalMapWidth = roomSize.x * mapGridSize.x;
         float totalMapHeight = roomSize.y * mapGridSize.y;
         float mapCenterXOffset = totalMapWidth / 2f;
         float mapCenterYOffset = totalMapHeight / 2f;
-
+        
         float roomStartX = roomCoords.x * roomSize.x - mapCenterXOffset;
         float roomStartY = roomCoords.y * roomSize.y - mapCenterYOffset;
+
+        float spawnX = 0, spawnY = 0;
+
+        if (chosenDirection == Vector2Int.right) // 오른쪽 경계
+        {
+            spawnX = roomStartX + roomSize.x - 1;
+            spawnY = Random.Range(roomStartY, roomStartY + roomSize.y -1);
+        }
+        else if (chosenDirection == Vector2Int.left) // 왼쪽 경계
+        {
+            spawnX = roomStartX;
+            spawnY = Random.Range(roomStartY, roomStartY + roomSize.y - 1);
+        }
+        else if (chosenDirection == Vector2Int.up) // 위쪽 경계
+        {
+            spawnX = Random.Range(roomStartX, roomStartX + roomSize.x - 1);
+            spawnY = roomStartY + roomSize.y - 1;
+        }
+        else if (chosenDirection == Vector2Int.down) // 아래쪽 경계
+        {
+            spawnX = Random.Range(roomStartX, roomStartX + roomSize.x - 1);
+            spawnY = roomStartY;
+        }
         
-        float randomX = Random.Range(roomStartX + 1, roomStartX + roomSize.x - 1);
-        float randomY = Random.Range(roomStartY + 1, roomStartY + roomSize.y - 1);
-        
-        return GameManager.Instance.mapGenerator.tilemap.transform.TransformPoint(new Vector3(randomX, randomY, 0));
+        return mapGenerator.tilemap.transform.TransformPoint(new Vector3(spawnX + 0.5f, spawnY + 0.5f, 0));
     }
 }

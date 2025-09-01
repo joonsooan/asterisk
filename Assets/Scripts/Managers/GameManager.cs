@@ -19,10 +19,16 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
     public CardDragger cardDragger;
     
+    [Header("UI Elements")]
+    [SerializeField] private GameObject pausePanel;
+    
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
     private CardDragger _activeCardDragger;
     private DisplayableData _activeCardData;
+    
+    private bool _isPaused = false;
+    private float _timeScaleBeforePause = 1f;
 
     [HideInInspector] public UnityEvent<DisplayableData> onStartDrag;
     [HideInInspector] public UnityEvent onEndDrag;
@@ -62,12 +68,49 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        HandlePauseInput();
+        
+        if (_isPaused) return;
+        
         SetTimeScale();
         ToggleExpansionPanel();
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
+        }
+    }
+    
+    private void HandlePauseInput()
+    {
+        if (SceneManager.GetActiveScene().name == "GameScene" && Input.GetKeyDown(KeyCode.Space))
+        {
+            TogglePause();
+        }
+    }
+    
+    public void TogglePause()
+    {
+        _isPaused = !_isPaused;
+
+        if (_isPaused)
+        {
+            _timeScaleBeforePause = Time.timeScale;
+            Time.timeScale = 0f;
+            
+            if (pausePanel != null)
+            {
+                pausePanel.SetActive(true);
+            }
+        }
+        else
+        {
+            Time.timeScale = _timeScaleBeforePause;
+            
+            if (pausePanel != null)
+            {
+                pausePanel.SetActive(false);
+            }
         }
     }
 
@@ -102,6 +145,7 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        _isPaused = false;
         InitializeGameScene();
     }
     
@@ -133,6 +177,13 @@ public class GameManager : MonoBehaviour
         expansionPanel = FindFirstObjectByType<ExpansionPanel>();
         uiManager = FindFirstObjectByType<UIManager>();
         cardDragger = FindFirstObjectByType<CardDragger>();
+        
+        GameObject pausePanelObject = GameObject.Find("PausePanel");
+        if (pausePanelObject != null)
+        {
+            pausePanel = pausePanelObject;
+            pausePanel.SetActive(false);
+        }
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();
@@ -228,7 +279,7 @@ public class GameManager : MonoBehaviour
 
     private void SetTimeScale()
     {
-        if (SceneManager.GetActiveScene().name != "GameScene") return;
+        if (SceneManager.GetActiveScene().name != "GameScene" || _isPaused) return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) Time.timeScale = 1;
         else if (Input.GetKeyDown(KeyCode.Alpha2)) Time.timeScale = 2;

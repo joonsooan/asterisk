@@ -44,6 +44,9 @@ public class CardDragger : MonoBehaviour
         {
             Destroy(_ghostBuildingInstance);
         }
+        
+        GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
+        
         _isDragging = false;
         _activeCardData = null;
     }
@@ -74,7 +77,10 @@ public class CardDragger : MonoBehaviour
             _ghostBuildingInstance.transform.position = cellCenterWorld;
         }
         
-        bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
+        bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) 
+                        && IsRoomUnlockedForPlacement(cellPosition)
+                        && ResourceManager.Instance.HasEnoughResources(_activeCardData.costs);
+        
         UpdateGhostColor(canPlace);
     }
     
@@ -106,7 +112,7 @@ public class CardDragger : MonoBehaviour
             if (canPlace)
             {
                 AttemptPlacement(cellPosition);
-                GameManager.Instance.EndDrag();
+                // GameManager.Instance.EndDrag();
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -121,7 +127,7 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
-            GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
+            // GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
         }
         else
         {

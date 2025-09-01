@@ -85,6 +85,7 @@ public class MainStructure : Damageable, IStorage
             return;
         }
 
+        ResourceManager.Instance.SpendResources(unitData.productionCosts);
         _productionQueue.Enqueue(unitData);
 
         if (!_isProducing)
@@ -100,8 +101,6 @@ public class MainStructure : Damageable, IStorage
         while (_productionQueue.Count > 0)
         {
             UnitData unitToProduce = _productionQueue.Dequeue();
-
-            ResourceManager.Instance.SpendResources(unitToProduce.productionCosts);
 
             yield return new WaitForSeconds(unitToProduce.productionTime);
 

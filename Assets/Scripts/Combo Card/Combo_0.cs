@@ -1,28 +1,44 @@
+using System;
+using System.Linq;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Combo_0 : Damageable, IStorage
 {
-    public event System.Action<int, int> OnStorageChanged;
+    public event Action<ResourceType, int, int> OnResourceChanged;
+
+    [Header("Storage Settings")]
+    [SerializeField] private int maxStorageAmount;
     
+    private readonly Dictionary<ResourceType, int> _currentResources = new();
+
     [Header("UI Settings")]
     [SerializeField] private GameObject storageSliderPrefab;
     [SerializeField] private string canvasName = "ObjectUI_Canvas";
-    [SerializeField] private Vector3 sliderOffset = new Vector3(0, 1.5f, 0);
+    [SerializeField] private Vector3 sliderOffset = new Vector3(0, 1.0f, 0);
     private GameObject _sliderInstance;
-    
-    [Header("Values")]
-    [SerializeField] private int maxStorageAmount;
-    
-    private int _currentStorageAmount;
 
-    protected override void OnEnable()
+    private void Awake()
+    {
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            _currentResources[type] = 0;
+        }
+    }
+    
+    protected new void OnEnable()
     {
         base.OnEnable();
-        _currentStorageAmount = 0;
-        
+    }
+
+    private void Start()
+    {
+        currentHealth = maxHealth;
+
         if (storageSliderPrefab != null)
         {
             Canvas canvas = GameObject.Find(canvasName)?.GetComponent<Canvas>();
+            
             if (canvas != null)
             {
                 _sliderInstance = Instantiate(storageSliderPrefab, canvas.transform);
@@ -31,7 +47,10 @@ public class Combo_0 : Damageable, IStorage
             }
         }
         
-        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            OnResourceChanged?.Invoke(type, GetCurrentResourceAmount(type), GetMaxCapacity());
+        }
     }
     
     private void OnDestroy()
@@ -40,28 +59,89 @@ public class Combo_0 : Damageable, IStorage
         {
             ResourceManager.Instance.RemoveStorage(this);
         }
-        
+
         if (_sliderInstance != null)
         {
             Destroy(_sliderInstance);
         }
     }
 
-    public bool StorageIsFull()
+    public bool TryAddResource(ResourceType type, int amount)
     {
-        return  _currentStorageAmount >= maxStorageAmount;
+        int totalAmount = GetTotalCurrentAmount();
+        if (totalAmount >= maxStorageAmount)
+        {
+            return false;
+        }
+
+        int canAddAmount = Mathf.Min(amount, maxStorageAmount - totalAmount);
+        
+        _currentResources[type] += canAddAmount;
+        
+        OnResourceChanged?.Invoke(type, _currentResources[type], maxStorageAmount);
+        ResourceManager.Instance.AddResource(type, canAddAmount); 
+        
+        return canAddAmount > 0;
     }
     
-    public void AddResource(ResourceType type, int amount)
+    public bool TryUseResources(CardCost[] costs)
     {
-        _currentStorageAmount += amount;
-        if (_currentStorageAmount > maxStorageAmount)
+        if (!HasEnoughResources(costs))
         {
-            _currentStorageAmount = maxStorageAmount;
+            return false;
         }
+
+        foreach (var cost in costs)
+        {
+            _currentResources[cost.resourceType] -= cost.amount;
+            OnResourceChanged?.Invoke(cost.resourceType, _currentResources[cost.resourceType], maxStorageAmount);
+        }
+
+        return true;
+    }
+    
+    public bool TryWithdrawResource(ResourceType type, int amountToWithdraw, out int amountWithdrawn)
+    {
+        int availableAmount = GetCurrentResourceAmount(type);
+        if (availableAmount <= 0)
+        {
+            amountWithdrawn = 0;
+            return false;
+        }
+
+        amountWithdrawn = Mathf.Min(availableAmount, amountToWithdraw);
+        _currentResources[type] -= amountWithdrawn;
         
-        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
-        ResourceManager.Instance.AddResource(type, amount);
+        OnResourceChanged?.Invoke(type, _currentResources[type], maxStorageAmount);
+        
+        return true;
+    }
+    
+    public bool HasEnoughResources(CardCost[] costs)
+    {
+        foreach (var cost in costs)
+        {
+            if (_currentResources[cost.resourceType] < cost.amount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public int GetCurrentResourceAmount(ResourceType type)
+    {
+        return _currentResources[type];
+    }
+    
+    public int GetMaxCapacity()
+    {
+        return maxStorageAmount;
+    }
+
+    public int GetTotalCurrentAmount()
+    {
+        return _currentResources.Values.Sum();
     }
     
     public Vector3 GetPosition()

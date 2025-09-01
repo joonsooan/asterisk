@@ -1,11 +1,13 @@
+using System;
 using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class MainStructure : Damageable, IStorage
 {
-    public event System.Action<int, int> OnStorageChanged;
+    public event Action<ResourceType, int, int> OnResourceChanged;
     
     [Header("UI Settings")]
     [SerializeField] private GameObject storageSliderPrefab;
@@ -15,11 +17,11 @@ public class MainStructure : Damageable, IStorage
     
     [Header("Storage Settings")]
     [SerializeField] private int maxStorageAmount = 1000;
-    private int _currentStorageAmount = 0;
 
     [Header("Production Settings")]
     [SerializeField] private List<UnitData> producibleUnits;
 
+    private readonly Dictionary<ResourceType, int> _currentResources = new();
     private readonly Queue<UnitData> _productionQueue = new();
     
     private bool _isProducing;
@@ -27,6 +29,10 @@ public class MainStructure : Damageable, IStorage
     private void Awake()
     {
         currentHealth = maxHealth;
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            _currentResources[type] = 0;
+        }
     }
     
     protected new void OnEnable()
@@ -59,7 +65,26 @@ public class MainStructure : Damageable, IStorage
             }
         }
         
-        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            OnResourceChanged?.Invoke(type, GetCurrentResourceAmount(type), GetMaxCapacity());
+        }
+    }
+    
+    public void InitializeStorage(ResourceType type, int amount)
+    {
+        if (_currentResources.ContainsKey(type))
+        {
+            _currentResources[type] = Mathf.Min(amount, maxStorageAmount);
+        }
+    }
+    
+    public void UpdateStorageUI()
+    {
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            OnResourceChanged?.Invoke(type, GetCurrentResourceAmount(type), GetMaxCapacity());
+        }
     }
     
     private void OnDestroy()
@@ -78,21 +103,87 @@ public class MainStructure : Damageable, IStorage
 
     public bool StorageIsFull()
     {
-        return _currentStorageAmount >= maxStorageAmount;
+        return GetTotalCurrentAmount() >= maxStorageAmount;
     }
 
-    public void AddResource(ResourceType type, int amount)
+    public bool TryAddResource(ResourceType type, int amount)
     {
-        _currentStorageAmount += amount;
-        if (_currentStorageAmount > maxStorageAmount)
+        int totalAmount = GetTotalCurrentAmount();
+        if (totalAmount >= maxStorageAmount)
         {
-            _currentStorageAmount = maxStorageAmount;
+            return false;
         }
+
+        int canAddAmount = Mathf.Min(amount, maxStorageAmount - totalAmount);
         
-        OnStorageChanged?.Invoke(_currentStorageAmount, maxStorageAmount);
-        ResourceManager.Instance.AddResource(type, amount);
+        _currentResources[type] += canAddAmount;
+        
+        OnResourceChanged?.Invoke(type, _currentResources[type], maxStorageAmount);
+        ResourceManager.Instance.AddResource(type, canAddAmount); 
+        
+        return canAddAmount > 0;
+    }
+    
+    public bool TryUseResources(CardCost[] costs)
+    {
+        if (!HasEnoughResources(costs))
+        {
+            return false;
+        }
+
+        foreach (var cost in costs)
+        {
+            _currentResources[cost.resourceType] -= cost.amount;
+            OnResourceChanged?.Invoke(cost.resourceType, _currentResources[cost.resourceType], maxStorageAmount);
+        }
+
+        return true;
+    } 
+    
+    public bool TryWithdrawResource(ResourceType type, int amountToWithdraw, out int amountWithdrawn)
+    {
+        int availableAmount = GetCurrentResourceAmount(type);
+        if (availableAmount <= 0)
+        {
+            amountWithdrawn = 0;
+            return false;
+        }
+
+        amountWithdrawn = Mathf.Min(availableAmount, amountToWithdraw);
+        _currentResources[type] -= amountWithdrawn;
+        
+        OnResourceChanged?.Invoke(type, _currentResources[type], maxStorageAmount);
+        
+        return true;
+    }
+    
+    public bool HasEnoughResources(CardCost[] costs)
+    {
+        foreach (var cost in costs)
+        {
+            if (_currentResources[cost.resourceType] < cost.amount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public int GetCurrentResourceAmount(ResourceType type)
+    {
+        return _currentResources[type];
+    }
+    
+    public int GetMaxCapacity()
+    {
+        return maxStorageAmount;
     }
 
+    public int GetTotalCurrentAmount()
+    {
+        return _currentResources.Values.Sum();
+    }
+    
     public Vector3 GetPosition()
     {
         return transform.position;
@@ -107,13 +198,12 @@ public class MainStructure : Damageable, IStorage
 
         UnitData unitData = producibleUnits[unitIndex];
 
-        if (!CanProduceUnit(unitData))
+        if (!ResourceManager.Instance.SpendResources(unitData.productionCosts))
         {
             Debug.Log("Can't produce unit");
             return;
         }
 
-        ResourceManager.Instance.SpendResources(unitData.productionCosts);
         _productionQueue.Enqueue(unitData);
 
         if (!_isProducing)
@@ -136,12 +226,5 @@ public class MainStructure : Damageable, IStorage
         }
         
         _isProducing = false;
-    }
-    
-    private bool CanProduceUnit(UnitData unitData)
-    {
-        if (unitData.productionCosts == null || unitData.productionCosts.Length == 0) return true;
-        
-        return ResourceManager.Instance.HasEnoughResources(unitData.productionCosts);
     }
 }

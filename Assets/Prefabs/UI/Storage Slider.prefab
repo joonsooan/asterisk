@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0444c026faeeec4418cecba9b9067622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slider: {fileID: 7710768349146728524}
+  storageSlider: {fileID: 7710768349146728524}
   fillImage: {fileID: 4216518047513299478}
   fullColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &6480069886345262066

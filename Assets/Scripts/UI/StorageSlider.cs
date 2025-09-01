@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class StorageSlider : MonoBehaviour
 {
-    [SerializeField] private Slider slider;
+    [SerializeField] private Slider storageSlider;
     [SerializeField] private Image fillImage;
     [SerializeField] private Color fullColor = Color.red;
 
@@ -12,38 +13,63 @@ public class StorageSlider : MonoBehaviour
 
     private void Awake()
     {
-        if (fillImage != null)
-        {
-            _defaultFillColor = fillImage.color;
-        }
+        _defaultFillColor = fillImage.color;
     }
-
-    public void Initialize(IStorage storage, Vector3 uiOffset)
+    
+    public void Initialize(IStorage storage, Vector3 offset)
     {
         _targetStorage = storage;
-        _targetStorage.OnStorageChanged += UpdateUI;
 
-        Transform targetTransform = (storage as Component).transform;
-
-        if (targetTransform != null)
+        if (_targetStorage != null)
         {
-            transform.position = targetTransform.position + uiOffset;
+            _targetStorage.OnResourceChanged -= HandleResourceChanged;
+            _targetStorage.OnResourceChanged += HandleResourceChanged;
+            
+            Transform targetTransform = (storage as Component)?.transform;
+            if (targetTransform != null)
+            {
+                transform.position = targetTransform.position + offset;
+            }
+            
+            UpdateTotalStorageUI();
         }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
         if (_targetStorage != null)
         {
-            _targetStorage.OnStorageChanged -= UpdateUI;
+            _targetStorage.OnResourceChanged += HandleResourceChanged;
+            UpdateTotalStorageUI();
         }
     }
 
-    private void UpdateUI(int currentAmount, int maxAmount)
+    private void OnDisable()
     {
-        if (maxAmount == 0) return;
+        if (_targetStorage != null)
+        {
+            _targetStorage.OnResourceChanged -= HandleResourceChanged;
+        }
+    }
+    
+    private void HandleResourceChanged(ResourceType type, int current, int max)
+    {
+        UpdateTotalStorageUI();
+    }
+
+    private void UpdateTotalStorageUI()
+    {
+        if (_targetStorage == null) return;
         
-        slider.value = (float)currentAmount / maxAmount;
-        fillImage.color = (currentAmount >= maxAmount) ? fullColor : _defaultFillColor;
+        int totalAmount = _targetStorage.GetTotalCurrentAmount();
+        int maxCapacity = _targetStorage.GetMaxCapacity();
+
+        float sliderValue = (maxCapacity == 0) ? 0 : (float)totalAmount / maxCapacity;
+        storageSlider.value = sliderValue;
+
+        if (fillImage != null)
+        {
+            fillImage.color = (totalAmount >= maxCapacity) ? fullColor : _defaultFillColor;
+        }
     }
 }

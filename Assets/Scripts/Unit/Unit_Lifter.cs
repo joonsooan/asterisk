@@ -215,7 +215,7 @@ public class Unit_Lifter : UnitBase
     
     private void OnReturnToStorage()
     {
-        if (_targetStorage == null || _targetStorage.StorageIsFull())
+        if (_targetStorage == null || _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
         {
             HandleStorageLoss();
             return;
@@ -271,7 +271,7 @@ public class Unit_Lifter : UnitBase
         {
             foreach (var pair in _currentCarryAmounts.Where(p => p.Value > 0))
             {
-                _targetStorage.AddResource(pair.Key, pair.Value);
+                _targetStorage.TryAddResource(pair.Key, pair.Value);
             }
         }
 
@@ -320,7 +320,7 @@ public class Unit_Lifter : UnitBase
     {
         var storages = ResourceManager.Instance.GetAllStorages();
         
-        var availableStorages = storages.Where(s => s != null && !s.StorageIsFull());
+        var availableStorages = storages.Where(s => s != null && s.GetTotalCurrentAmount() < s.GetMaxCapacity());
 
         _targetStorage = availableStorages
             .OrderBy(s => Vector2.Distance(transform.position, s.GetPosition()))

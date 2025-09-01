@@ -32,11 +32,12 @@ public class BuildingSpawner : MonoBehaviour
                 Vector3 worldPos = grid.GetCellCenterWorld(cellPosition);
                 
                 GameObject newBuilding = Instantiate(mainStructurePrefab, worldPos, Quaternion.identity, parentTransform);
-                IStorage storage = newBuilding.GetComponent<IStorage>();
-
-                if (storage != null && ResourceManager.Instance != null)
+                MainStructure mainStructure = newBuilding.GetComponent<MainStructure>();
+                
+                if (mainStructure != null && ResourceManager.Instance != null)
                 {
-                    ResourceManager.Instance.AddStorage(storage);
+                    ResourceManager.Instance.RegisterMainStructure(mainStructure);
+                    ResourceManager.Instance.AddStorage(mainStructure);
                 }
             }
         }

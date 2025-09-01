@@ -50,6 +50,8 @@ public class ResourceManager : MonoBehaviour
     private readonly Dictionary<ResourceType, ResourceStats> _resourceStats = new Dictionary<ResourceType, ResourceStats>();
     private readonly Dictionary<ResourceType, int> _resourceCounts = new Dictionary<ResourceType, int>();
     
+    private MainStructure _mainStructure;
+    
     public static ResourceManager Instance { get; private set; }
 
     private void Awake()
@@ -127,10 +129,32 @@ public class ResourceManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "GameScene") {
+        if (scene.name == "GameScene")
+        {
+            _mainStructure = null;
             FindAndConnectUI();
             ResetResourceCount();
             UpdateAllResourceUI();
+        }
+    }
+    
+    public void RegisterMainStructure(MainStructure mainStructure)
+    {
+        _mainStructure = mainStructure;
+        InitializeMainStructureStorage();
+    }
+    
+    private void InitializeMainStructureStorage()
+    {
+        if (_mainStructure != null)
+        {
+            _mainStructure.InitializeStorage(ResourceType.Ferrite, ferriteInitialAmount);
+            _mainStructure.InitializeStorage(ResourceType.Aether, aetherInitialAmount);
+            _mainStructure.InitializeStorage(ResourceType.Biomass, biomassInitialAmount);
+            _mainStructure.InitializeStorage(ResourceType.CryoCrystal, cryoCrystalInitialAmount);
+            _mainStructure.InitializeStorage(ResourceType.Solana, solanaInitialAmount);
+
+            _mainStructure.UpdateStorageUI();
         }
     }
 
@@ -160,39 +184,54 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    private bool HasEnoughResources(ResourceType type, int amount)
+    public bool SpendResources(CardCost[] costs)
     {
-        if (_resourceCounts.ContainsKey(type)) {
-            return _resourceCounts[type] >= amount;
+        if (!HasEnoughResources(costs)) {
+            Debug.Log("Not Enough Resources");
+            return false;
         }
-        return false;
-    }
 
-    public void SpendResources(ResourceType type, int amount)
-    {
-        if (HasEnoughResources(type, amount)) {
-            _resourceCounts[type] -= amount;
-            UpdateResourceUI(type);
+        foreach (var cost in costs)
+        {
+            int remainingToWithdraw = cost.amount;
+            
+            foreach (var storage in GetAllStorages())
+            {
+                if (storage.TryWithdrawResource(cost.resourceType, remainingToWithdraw, out int amountWithdrawn))
+                {
+                    remainingToWithdraw -= amountWithdrawn;
+                    if (remainingToWithdraw <= 0)
+                    {
+                        break;
+                    }
+                }
+            }
         }
+        
+        foreach (var cost in costs)
+        {
+            _resourceCounts[cost.resourceType] -= cost.amount;
+            UpdateResourceUI(cost.resourceType);
+        }
+
+        return true;
+    }
+    
+    public bool SpendResources(ResourceType type, int amount)
+    {
+        return SpendResources(new CardCost[] { new CardCost { resourceType = type, amount = amount } });
     }
 
     public bool HasEnoughResources(CardCost[] costs)
     {
-        foreach (CardCost cost in costs) {
-            if (!HasEnoughResources(cost.resourceType, cost.amount)) {
+        foreach (var cost in costs)
+        {
+            if (_resourceCounts.GetValueOrDefault(cost.resourceType) < cost.amount)
+            {
                 return false;
             }
         }
         return true;
-    }
-
-    public void SpendResources(CardCost[] costs)
-    {
-        if (HasEnoughResources(costs)) {
-            foreach (CardCost cost in costs) {
-                SpendResources(cost.resourceType, cost.amount);
-            }
-        }
     }
     
     public Sprite GetResourceIcon(ResourceType type)

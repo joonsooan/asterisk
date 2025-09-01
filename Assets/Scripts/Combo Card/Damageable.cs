@@ -6,18 +6,19 @@ public abstract class Damageable : MonoBehaviour, ICombo
     [SerializeField] protected int maxHealth = 100;
 
     public int MaxHealth => maxHealth;
-
-    private int _currentHealth;
+    public int CurrentHealth => currentHealth;
+    
+    private int currentHealth;
 
     protected virtual void Awake()
     {
-        _currentHealth = maxHealth;
+        currentHealth = maxHealth;
     }
 
     public virtual void TakeDamage(int damage)
     {
-        _currentHealth -= damage;
-        if (_currentHealth <= 0)
+        currentHealth -= damage;
+        if (currentHealth <= 0)
         {
             Destroy(gameObject);
         }

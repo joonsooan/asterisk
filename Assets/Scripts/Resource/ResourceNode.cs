@@ -10,6 +10,9 @@ public class ResourceNode : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private Color highlightColor = Color.red;
     [HideInInspector] public Vector3Int cellPosition;
+    
+    [HideInInspector] public ResourceSpawner spawner;
+    [HideInInspector] public Vector2Int roomCoords;
 
     private Color _originalColor;
     private SpriteRenderer _sr;
@@ -50,9 +53,15 @@ public class ResourceNode : MonoBehaviour
     
     private void OnDestroy()
     {
+        if (spawner != null)
+        {
+            spawner.NotifyResourceDestroyed(this);
+        }
+        
         if (ResourceManager.Instance != null) {
             ResourceManager.Instance.RemoveResourceNode(this);
         }
+        
         if (BuildingManager.Instance != null) {
             BuildingManager.Instance.RemoveResourceTile(cellPosition);
         }

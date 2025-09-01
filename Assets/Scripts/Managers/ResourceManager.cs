@@ -298,18 +298,11 @@ public class ResourceManager : MonoBehaviour
             _allResources.Add(node);
         }
     }
-
+    
     public void RemoveResourceNode(ResourceNode node)
     {
         if (_allResources.Contains(node)) {
             _allResources.Remove(node);
-        }
-
-        ResourceSpawner[] spawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
-        foreach (ResourceSpawner spawner in spawners) {
-            if (spawner != null) {
-                spawner.NotifyResourceDestroyed(node);
-            }
         }
     }
 

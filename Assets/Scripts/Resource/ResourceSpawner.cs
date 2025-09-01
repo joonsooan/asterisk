@@ -48,6 +48,8 @@ public class ResourceSpawner : MonoBehaviour
 
                 if (nodeComponent != null) {
                     nodeComponent.cellPosition = pos;
+                    nodeComponent.spawner = this;
+                    nodeComponent.roomCoords = roomCoords;
                 }
 
                 _roomResources[roomCoords].Add(resourceNodeObj);
@@ -76,11 +78,10 @@ public class ResourceSpawner : MonoBehaviour
     public void NotifyResourceDestroyed(ResourceNode node)
     {
         if (node == null) return;
-        GameObject target = node.gameObject;
-        foreach (KeyValuePair<Vector2Int, List<GameObject>> kv in _roomResources) {
-            if (kv.Value != null) {
-                kv.Value.RemoveAll(go => go == null || go == target);
-            }
+        
+        if (_roomResources.TryGetValue(node.roomCoords, out List<GameObject> roomResource))
+        {
+            roomResource.Remove(node.gameObject);
         }
     }
 

@@ -3,11 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class MainStructure : MonoBehaviour, IStorage
+public class MainStructure : Damageable, IStorage
 {
-    [Header("Basic Settings")]
-    [SerializeField] private int maxHealth = 100;
-    
     [Header("Storage Settings")]
     [SerializeField] private int maxStorageAmount = 1000;
     private int _currentStorageAmount = 0;
@@ -17,12 +14,16 @@ public class MainStructure : MonoBehaviour, IStorage
 
     private readonly Queue<UnitData> _productionQueue = new();
     
-    private int _currentHealth;
     private bool _isProducing;
 
     private void Awake()
     {
-        _currentHealth = maxHealth;
+        currentHealth = maxHealth;
+    }
+    
+    protected new void OnEnable()
+    {
+        base.OnEnable();
     }
 
     private void Start()
@@ -45,6 +46,7 @@ public class MainStructure : MonoBehaviour, IStorage
         if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.RemoveStorage(this);
+            GameManager.Instance.GameOver();
         }
     }
 
@@ -68,21 +70,7 @@ public class MainStructure : MonoBehaviour, IStorage
         return transform.position;
     }
 
-    public void TakeDamage(int damage)
-    {
-        _currentHealth -= damage;
-        if (_currentHealth <= 0)
-        {
-            Destroy();
-        }
-    }
-
-    private void Destroy()
-    {
-        Destroy(gameObject);
-    }
-    
-    public void AddUnitToQueue(int unitIndex)
+    private void AddUnitToQueue(int unitIndex)
     {
         if (unitIndex < 0 || unitIndex >= producibleUnits.Count)
         {

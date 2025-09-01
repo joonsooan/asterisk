@@ -1,8 +1,8 @@
 public class Combo_7 : Damageable
 {
-    protected override void Awake()
+    protected override void OnEnable()
     {
-        base.Awake();
+        base.OnEnable();
         ActivateComboCard();
     }
 

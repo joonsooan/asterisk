@@ -14,10 +14,8 @@ public class Unit_Enemy_0 : UnitBase
     [SerializeField] private UnitMovement unitMovement;
 
     private Damageable _target;
-    private Coroutine _findTargetCoroutine;
     private Coroutine _attackCoroutine;
     private WaitForSeconds _searchWait;
-    private bool _isAttacking = false;
 
     private void Awake()
     {
@@ -25,11 +23,14 @@ public class Unit_Enemy_0 : UnitBase
         _searchWait = new WaitForSeconds(targetSearchInterval);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         currentHealth = maxHealth;
         currentState = UnitState.Idle;
-        _findTargetCoroutine = StartCoroutine(FindTargetCoroutine());
+
+        yield return null;
+        
+        StartCoroutine(FindTargetCoroutine());
     }
 
     private void Update()
@@ -84,18 +85,20 @@ public class Unit_Enemy_0 : UnitBase
         {
             if (currentState == UnitState.Idle)
             {
-                var potentialTargets = FindObjectsOfType<Damageable>()
-                    .Where(u => u.CurrentHealth > 0)
-                    .OrderBy(u => Vector2.Distance(transform.position, u.transform.position));
-
-                Damageable  closestTarget = potentialTargets.FirstOrDefault();
-
-                if (closestTarget != null)
+                if (TargetManager.Instance != null && TargetManager.Instance.AllTargets.Count > 0)
                 {
-                    _target = closestTarget;
-                    if (unitMovement.SetNewTarget(_target.transform.position))
+                    var potentialTargets = TargetManager.Instance.AllTargets
+                        .OrderBy(u => Vector2.Distance(transform.position, u.transform.position));
+
+                    Damageable closestTarget = potentialTargets.FirstOrDefault();
+
+                    if (closestTarget != null)
                     {
-                        currentState = UnitState.Moving;
+                        _target = closestTarget;
+                        if (unitMovement.SetNewTarget(_target.transform.position))
+                        {
+                            currentState = UnitState.Moving;
+                        }
                     }
                 }
             }

@@ -8,11 +8,17 @@ public abstract class Damageable : MonoBehaviour, ICombo
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
     
-    private int currentHealth;
+    protected int currentHealth;
 
-    protected virtual void Awake()
+    protected virtual void OnEnable()
     {
         currentHealth = maxHealth;
+        TargetManager.Instance?.RegisterTarget(this);
+    }
+    
+    protected virtual void OnDisable()
+    {
+        TargetManager.Instance?.UnregisterTarget(this);
     }
 
     public virtual void TakeDamage(int damage)

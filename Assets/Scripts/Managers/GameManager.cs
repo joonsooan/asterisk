@@ -219,7 +219,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void GameOver()
+    public void GameOver()
     {
         SceneManager.LoadScene("TitleScene");
         _currentQuotaIndex = 0;

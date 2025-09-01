@@ -7,9 +7,9 @@ public class Combo_0 : Damageable, IStorage
     
     private int _currentStorageAmount;
 
-    protected override void Awake()
+    protected override void OnEnable()
     {
-        base.Awake();
+        base.OnEnable();
         _currentStorageAmount = 0;
     }
     

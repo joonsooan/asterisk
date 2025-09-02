@@ -12,7 +12,10 @@ public class UIManager : MonoBehaviour
     
     [Header("Recipe Info Panel")]
     [SerializeField] private GameObject recipeInfoPanel; 
-    [SerializeField] private RecipeInfo recipeInfoComponent; 
+    [SerializeField] private RecipeInfo recipeInfoComponent;
+    
+    [Header("Tips Panel")]
+    [SerializeField] private GameObject tipPanel;
 
     private CardData _pinnedCardData = null;
     private ComboCardData _pinnedRecipeData = null;
@@ -110,9 +113,9 @@ public class UIManager : MonoBehaviour
     public void ToggleRecipePanel()
     {
         if (recipeInfoPanel == null) return;
-        bool shouldBeActive = !recipeInfoPanel.activeSelf;
-        recipeInfoPanel.SetActive(shouldBeActive);
-        if (!shouldBeActive)
+        bool isActive = !recipeInfoPanel.activeSelf;
+        recipeInfoPanel.SetActive(isActive);
+        if (!isActive)
         {
             _pinnedRecipeData = null;
         }
@@ -123,5 +126,12 @@ public class UIManager : MonoBehaviour
                 recipeInfoComponent.gameObject.SetActive(false);
             }
         }
+    }
+    
+    public void ToggleTipPanel()
+    {
+        if (tipPanel == null) return;
+        bool isActive = !tipPanel.activeSelf;
+        tipPanel.SetActive(isActive);
     }
 }

@@ -102,4 +102,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceType: 0
   amountToMine: 30
-  highlightColor: {r: 1, g: 0, b: 0, a: 1}
+  timeToMinePerUnit: 0
+  highlightColor: {r: 0.49803922, g: 0.49803922, b: 0.49803922, a: 1}
+  cellPosition: {x: 0, y: 0, z: 0}
+  spawner: {fileID: 0}
+  roomCoords: {x: 0, y: 0}

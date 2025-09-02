@@ -31,8 +31,10 @@ public class Unit_Lifter : UnitBase
     [SerializeField] private float resourceSearchInterval = 2.0f;
     public ResourceType[] mineableResourceTypes;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         _canvas = GameObject.Find(canvasName)?.GetComponent<Canvas>();
 
         SubscribeEvents();
@@ -43,8 +45,6 @@ public class Unit_Lifter : UnitBase
     
     private void Start()
     {
-        currentHealth = maxHealth;
-        
         if (UnitManager.Instance != null)
         {
             mineableResourceTypes = UnitManager.Instance.CurrentMineableTypes.ToArray();
@@ -73,15 +73,19 @@ public class Unit_Lifter : UnitBase
         }
     }
     
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
+        
         SceneManager.sceneUnloaded += OnSceneUnloaded;
         ResourceManager.OnStorageRemoved += HandleStorageRemoved;
         UnitManager.OnMineableTypesChanged += HandleMineableTypesChanged;
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
+        
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
         ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
         UnitManager.OnMineableTypesChanged -= HandleMineableTypesChanged;

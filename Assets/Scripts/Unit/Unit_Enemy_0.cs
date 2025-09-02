@@ -17,15 +17,16 @@ public class Unit_Enemy_0 : UnitBase
     private Coroutine _attackCoroutine;
     private WaitForSeconds _searchWait;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         unitMovement = GetComponent<UnitMovement>();
         _searchWait = new WaitForSeconds(targetSearchInterval);
     }
 
     private IEnumerator Start()
     {
-        currentHealth = maxHealth;
         currentState = UnitState.Idle;
 
         yield return null;

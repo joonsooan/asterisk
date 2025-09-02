@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
     {
         if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
         if (recipeInfoPanel != null) recipeInfoPanel.SetActive(false);
+        if (tipPanel != null) tipPanel.SetActive(false);
     }
     
     public void DisplayCardInfo(CardData data)

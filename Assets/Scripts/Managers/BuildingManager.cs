@@ -78,7 +78,7 @@ public class BuildingManager : MonoBehaviour
     public void PlaceBuilding(CardData cardData, Vector3Int cellPosition)
     {
         if (parentTransform == null) {
-            parentTransform = this.transform;
+            parentTransform = transform;
         }
         
         if (CanPlaceBuilding(cellPosition)) {
@@ -145,23 +145,26 @@ public class BuildingManager : MonoBehaviour
         foreach (var piece in comboData.recipe) {
             Vector3Int targetPos = originPos + piece.relativePosition;
             RemoveBuildingPieceAtPosition(targetPos);
-            buildingTilemap.SetTile(targetPos, null);
         }
         
-        GameObject newComboBuilding = null;
+        // 현재는 기존 건물조각이 있던 모든 타일에 콤보 건물 생성
         foreach (var piece in comboData.recipe) {
-            Vector3 worldPos = grid.GetCellCenterWorld(originPos + piece.relativePosition);
-            if (newComboBuilding == null)
+            Vector3Int targetPos = originPos + piece.relativePosition;
+            Vector3 worldPos = grid.GetCellCenterWorld(targetPos);
+
+            GameObject newComboPieceObject = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+            BuildingPiece markerPiece = newComboPieceObject.AddComponent<BuildingPiece>();
+
+            markerPiece.cellPosition = targetPos;
+            _placedPieces[targetPos] = markerPiece;
+            
+            if (comboData.comboTile != null)
             {
-                newComboBuilding = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+                buildingTilemap.SetTile(targetPos, comboData.comboTile);
             }
-            else
-            {
-                Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
-            }
+
+            HandleComboBuildingLogic(newComboPieceObject, comboData);
         }
-        
-        HandleComboBuildingLogic(newComboBuilding, comboData);
 
         if (comboData.comboTile != null) {
             foreach (var piece in comboData.recipe) {
@@ -190,6 +193,15 @@ public class BuildingManager : MonoBehaviour
                 }
                 break;
         }
+    }
+    
+    public void ClearBuildingDataAt(Vector3Int cellPosition)
+    {
+        if (buildingTilemap.HasTile(cellPosition))
+        {
+            buildingTilemap.SetTile(cellPosition, null);
+        }
+        _placedPieces.Remove(cellPosition);
     }
 
     private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)

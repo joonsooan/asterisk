@@ -141,7 +141,6 @@ public class Unit_Enemy_0 : UnitBase
         while (currentState == UnitState.Attacking && _target != null)
         {
             _target.TakeDamage(attackDamage);
-            Debug.Log($"{gameObject.name} attacks {_target.name} for {attackDamage} damage.");
             
             yield return new WaitForSeconds(1f / attackSpeed);
         }

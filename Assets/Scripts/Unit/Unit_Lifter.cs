@@ -76,12 +76,14 @@ public class Unit_Lifter : UnitBase
     private void OnEnable()
     {
         SceneManager.sceneUnloaded += OnSceneUnloaded;
+        ResourceManager.OnStorageRemoved += HandleStorageRemoved;
         UnitManager.OnMineableTypesChanged += HandleMineableTypesChanged;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
         UnitManager.OnMineableTypesChanged -= HandleMineableTypesChanged;
     }
     
@@ -125,7 +127,21 @@ public class Unit_Lifter : UnitBase
             unitMining.OnResourceMined -= HandleResourceMined;
         }
         ResourceManager.OnNewStorageAdded -= HandleNewStorageAdded;
+        ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleStorageRemoved(IStorage storage)
+    {
+        if (_targetStorage == storage)
+        {
+            _targetStorage = null;
+            
+            if (currentState == UnitState.ReturningToStorage || currentState == UnitState.Unloading)
+            {
+                HandleTargetNotFound(); 
+            }
+        }
     }
 
     private void InitializeCarryAmounts()
@@ -216,6 +232,12 @@ public class Unit_Lifter : UnitBase
     private void OnReturnToStorage()
     {
         if (_targetStorage == null || _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
+        {
+            HandleStorageLoss();
+            return;
+        }
+        
+        if (_targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
         {
             HandleStorageLoss();
             return;

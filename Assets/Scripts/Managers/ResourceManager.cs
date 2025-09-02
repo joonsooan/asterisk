@@ -44,6 +44,7 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text solanaNumber;
     
     public static event Action OnNewStorageAdded;
+    public static event Action<IStorage> OnStorageRemoved;
     
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
     private readonly List<IStorage> _allStorages = new List<IStorage>();
@@ -101,6 +102,7 @@ public class ResourceManager : MonoBehaviour
     public void RemoveStorage(IStorage storage)
     {
         _allStorages.Remove(storage);
+        OnStorageRemoved?.Invoke(storage); 
     }
 
     public List<IStorage> GetAllStorages()

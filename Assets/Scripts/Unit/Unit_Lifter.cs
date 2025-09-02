@@ -235,18 +235,12 @@ public class Unit_Lifter : UnitBase
     
     private void OnReturnToStorage()
     {
-        if (_targetStorage == null || _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
+        if (_targetStorage == null || (_targetStorage != null && _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity()))
         {
             HandleStorageLoss();
             return;
         }
-        
-        if (_targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity())
-        {
-            HandleStorageLoss();
-            return;
-        }
-        
+    
         float distanceToStorage = Vector2.Distance(transform.position, _targetStorage.GetPosition());
         if (distanceToStorage <= unloadDistance)
         {
@@ -267,6 +261,7 @@ public class Unit_Lifter : UnitBase
         {
             unitMining.StopMining();
             _targetResourceNode?.Unreserve();
+            _targetResourceNode = null;
             
             FindAndSetStorage();
             if (_targetStorage != null)
@@ -321,18 +316,18 @@ public class Unit_Lifter : UnitBase
 
     private void HandleStorageLoss()
     {
-        if (_targetResourceNode == null)
+        FindAndSetStorage();
+        
+        if (_targetStorage != null)
         {
-            FindAndSetStorage();
-            if (_targetStorage == null)
-            {
-                currentState = UnitState.Idle;
-                unitMovement.StopMovement();
-                Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
-                return;
-            }
+            unitMovement.SetNewTarget(_targetStorage.GetPosition());
         }
-        unitMovement.SetNewTarget(_targetStorage.GetPosition());
+        else
+        {
+            currentState = UnitState.Idle;
+            unitMovement.StopMovement();
+            Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
+        }
     }
 
     private void StartMiningAction()

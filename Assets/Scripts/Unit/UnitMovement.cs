@@ -119,10 +119,11 @@ public class UnitMovement : MonoBehaviour
         Vector3Int endCellPos = _grid.WorldToCell(endPos);
 
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
+        HashSet<Vector3Int> closedList = new HashSet<Vector3Int>();
         Dictionary<Vector3Int, Node> allNodes = new Dictionary<Vector3Int, Node>();
 
         int iterations = 0;
-        const int maxIterations = 40000;
+        const int maxIterations = 5000;
 
         Node startNode = new Node { Position = startCellPos, GCost = 0, HCost = GetDistance(startCellPos, endCellPos) };
         allNodes.Add(startCellPos, startNode);
@@ -136,8 +137,14 @@ public class UnitMovement : MonoBehaviour
             if (currentNode.Position == endCellPos) {
                 return ReconstructPath(currentNode);
             }
+            
+            closedList.Add(currentNode.Position);
 
             foreach (Vector3Int neighborPos in GetNeighbors(currentNode.Position)) {
+                if (closedList.Contains(neighborPos)) {
+                    continue;
+                }
+                
                 if (BuildingManager.Instance.IsResourceTile(neighborPos) && neighborPos != endCellPos) {
                     continue;
                 }

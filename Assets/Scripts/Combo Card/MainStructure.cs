@@ -26,18 +26,15 @@ public class MainStructure : Damageable, IStorage
     
     private bool _isProducing;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         currentHealth = maxHealth;
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
         {
             _currentResources[type] = 0;
         }
-    }
-    
-    protected new void OnEnable()
-    {
-        base.OnEnable();
     }
 
     private void Start()

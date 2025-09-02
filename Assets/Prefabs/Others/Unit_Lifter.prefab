@@ -131,8 +131,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af4372ae670c63e4782659217dd6001e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
+  maxHealth: 100
   currentHealth: 0
+  unitType: 0
   currentState: 0
   canvasName: ObejectUI Canvas
   floatingNumTextPrefab: {fileID: 176529985360585926, guid: c122ec1d854b9a04994f510c553243e5, type: 3}

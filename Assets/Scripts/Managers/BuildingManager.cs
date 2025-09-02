@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -16,6 +17,8 @@ public class BuildingManager : MonoBehaviour
     private List<ComboCardData> _comboCardDataList;
     private readonly Dictionary<GadgetType, TileBase> _gadgetTypeToTileCache = new Dictionary<GadgetType, TileBase>();
     private readonly Dictionary<Vector3Int, BuildingPiece> _placedPieces = new Dictionary<Vector3Int, BuildingPiece>();
+    
+    public static event Action<Vector3Int> OnTilemapChanged;
     
     public static BuildingManager Instance { get; private set; }
 
@@ -59,6 +62,12 @@ public class BuildingManager : MonoBehaviour
         if (resourceTilemap == null) return false;
         return resourceTilemap.HasTile(cellPosition);
     }
+    
+    public bool IsBuildingTile(Vector3Int cellPosition)
+    {
+        if (buildingTilemap == null) return false;
+        return buildingTilemap.HasTile(cellPosition);
+    }
 
     public bool CanPlaceBuilding(Vector3Int cellPosition)
     {
@@ -78,7 +87,7 @@ public class BuildingManager : MonoBehaviour
     public void PlaceBuilding(CardData cardData, Vector3Int cellPosition)
     {
         if (parentTransform == null) {
-            parentTransform = this.transform;
+            parentTransform = transform;
         }
         
         if (CanPlaceBuilding(cellPosition)) {
@@ -96,6 +105,7 @@ public class BuildingManager : MonoBehaviour
 
             if (cardData.gadgetTile != null) {
                 buildingTilemap.SetTile(cellPosition, cardData.gadgetTile);
+                OnTilemapChanged?.Invoke(cellPosition);
             }
 
             CheckForComboBuildings(cellPosition);
@@ -145,28 +155,32 @@ public class BuildingManager : MonoBehaviour
         foreach (var piece in comboData.recipe) {
             Vector3Int targetPos = originPos + piece.relativePosition;
             RemoveBuildingPieceAtPosition(targetPos);
-            buildingTilemap.SetTile(targetPos, null);
         }
         
-        GameObject newComboBuilding = null;
+        // 현재는 기존 건물조각이 있던 모든 타일에 콤보 건물 생성
         foreach (var piece in comboData.recipe) {
-            Vector3 worldPos = grid.GetCellCenterWorld(originPos + piece.relativePosition);
-            if (newComboBuilding == null)
+            Vector3Int targetPos = originPos + piece.relativePosition;
+            Vector3 worldPos = grid.GetCellCenterWorld(targetPos);
+
+            GameObject newComboPieceObject = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+            BuildingPiece markerPiece = newComboPieceObject.AddComponent<BuildingPiece>();
+
+            markerPiece.cellPosition = targetPos;
+            _placedPieces[targetPos] = markerPiece;
+            
+            if (comboData.comboTile != null)
             {
-                newComboBuilding = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
+                buildingTilemap.SetTile(targetPos, comboData.comboTile);
             }
-            else
-            {
-                Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
-            }
+
+            HandleComboBuildingLogic(newComboPieceObject, comboData);
         }
-        
-        HandleComboBuildingLogic(newComboBuilding, comboData);
 
         if (comboData.comboTile != null) {
             foreach (var piece in comboData.recipe) {
                 Vector3Int targetPos = originPos + piece.relativePosition;
                 buildingTilemap.SetTile(targetPos, comboData.comboTile);
+                OnTilemapChanged?.Invoke(targetPos);
             }
         }
 
@@ -190,6 +204,18 @@ public class BuildingManager : MonoBehaviour
                 }
                 break;
         }
+    }
+    
+    public void ClearBuildingDataAt(Vector3Int cellPosition)
+    {
+        if (buildingTilemap == null) return;
+        
+        if (buildingTilemap.HasTile(cellPosition))
+        {
+            buildingTilemap.SetTile(cellPosition, null);
+            OnTilemapChanged?.Invoke(cellPosition);
+        }
+        _placedPieces.Remove(cellPosition);
     }
 
     private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)

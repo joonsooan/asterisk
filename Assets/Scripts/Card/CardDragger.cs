@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,9 +9,11 @@ public class CardDragger : MonoBehaviour
 
     private GameObject _ghostBuildingInstance;
     
-    private CardData _activeCardData; 
+    private CardData _activeCardData;
+    private Vector3Int _lastPlacedCell;
     private bool _isDragging;
-    
+    private List<Vector3Int> _placedCellsInDrag;
+
     public bool IsDragging => _isDragging;
 
     private void Update()
@@ -34,6 +37,8 @@ public class CardDragger : MonoBehaviour
         
         _activeCardData = cardData;
         _isDragging = true;
+        _lastPlacedCell = Vector3Int.one * int.MaxValue;
+        _placedCellsInDrag = new List<Vector3Int>();
 
         CreateGhostBuilding();
     }
@@ -49,6 +54,8 @@ public class CardDragger : MonoBehaviour
         
         _isDragging = false;
         _activeCardData = null;
+        _lastPlacedCell = Vector3Int.one * int.MaxValue;
+        _placedCellsInDrag = null;
     }
     
     private void CreateGhostBuilding()
@@ -98,7 +105,7 @@ public class CardDragger : MonoBehaviour
 
     private void HandleMousePlacement()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             if (EventSystem.current.IsPointerOverGameObject())
             {
@@ -107,12 +114,21 @@ public class CardDragger : MonoBehaviour
             }
             
             Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
             
-            if (canPlace)
+            if (cellPosition != _lastPlacedCell)
             {
-                AttemptPlacement(cellPosition);
-                // GameManager.Instance.EndDrag();
+                if (_placedCellsInDrag != null && _placedCellsInDrag.Contains(cellPosition))
+                {
+                    return;
+                }
+
+                bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
+            
+                if (canPlace)
+                {
+                    AttemptPlacement(cellPosition);
+                    _lastPlacedCell = cellPosition;
+                }
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -127,7 +143,7 @@ public class CardDragger : MonoBehaviour
         {
             BuildingManager.Instance.PlaceBuilding(_activeCardData, cellPos);
             ResourceManager.Instance.SpendResources(_activeCardData.costs);
-            // GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
+            _placedCellsInDrag.Add(cellPos);
         }
         else
         {

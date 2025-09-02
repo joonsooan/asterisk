@@ -44,6 +44,7 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private TMP_Text solanaNumber;
     
     public static event Action OnNewStorageAdded;
+    public static event Action<IStorage> OnStorageRemoved;
     
     private readonly List<ResourceNode> _allResources = new List<ResourceNode>();
     private readonly List<IStorage> _allStorages = new List<IStorage>();
@@ -68,19 +69,35 @@ public class ResourceManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    
     private void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.C))
         {
-            _resourceCounts[ResourceType.Ferrite] += 100000;
-            _resourceCounts[ResourceType.Aether] += 100000;
-            _resourceCounts[ResourceType.Biomass] += 100000;
-            _resourceCounts[ResourceType.CryoCrystal] += 100000;
-            UpdateAllResourceUI();
+            AddCheatResources();
         }
+#endif
     }
+    
+    private void AddCheatResources()
+    {
+        const int cheatAmount = 999999;
+        Debug.Log($"<color=orange>CHEAT ACTIVATED:</color> All resources set to {cheatAmount}.");
 
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            _resourceCounts[type] = cheatAmount;
+
+            if (_mainStructure != null)
+            {
+                _mainStructure.InitializeStorage(type, cheatAmount);
+            }
+        }
+
+        UpdateAllResourceUI();
+    }
+    
     private void InitializeResourceStats()
     {
         _resourceStats.Clear();
@@ -101,6 +118,7 @@ public class ResourceManager : MonoBehaviour
     public void RemoveStorage(IStorage storage)
     {
         _allStorages.Remove(storage);
+        OnStorageRemoved?.Invoke(storage); 
     }
 
     public List<IStorage> GetAllStorages()

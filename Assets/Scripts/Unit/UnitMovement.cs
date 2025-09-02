@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class UnitMovement : MonoBehaviour
     public float waypointTolerance = 0.1f;
 
     private Vector3 _currentWaypoint;
+    private Vector3 _finalTargetPosition;
     private Grid _grid;
     private Queue<Vector3> _path = new Queue<Vector3>();
     private Rigidbody2D _rb;
@@ -21,6 +23,16 @@ public class UnitMovement : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _spriteController = GetComponent<UnitSpriteController>();
+    }
+    
+    private void OnEnable()
+    {
+        BuildingManager.OnTilemapChanged += HandleTilemapChange;
+    }
+    
+    private void OnDisable()
+    {
+        BuildingManager.OnTilemapChanged -= HandleTilemapChange;
     }
 
     private void Start()
@@ -44,9 +56,9 @@ public class UnitMovement : MonoBehaviour
     public bool SetNewTarget(Vector2 targetPosition)
     {
         Vector3Int targetCellPos = _grid.WorldToCell(targetPosition);
-        Vector3 finalTargetPos = _grid.GetCellCenterWorld(targetCellPos);
+        _finalTargetPosition = _grid.GetCellCenterWorld(targetCellPos);
 
-        _path = FindPath(transform.position, finalTargetPos);
+        _path = FindPath(transform.position, _finalTargetPosition );
 
         if (_path.Count > 0) {
             _currentWaypoint = _path.Dequeue();
@@ -81,6 +93,25 @@ public class UnitMovement : MonoBehaviour
             }
         }
     }
+    
+    private void HandleTilemapChange(Vector3Int changedCellPosition)
+    {
+        if (_path.Count == 0 && _rb.linearVelocity == Vector2.zero)
+        {
+            return;
+        }
+
+        List<Vector3> currentFullPath = new List<Vector3>(_path);
+        currentFullPath.Add(_currentWaypoint);
+
+        bool pathIsBlocked = currentFullPath.Any(waypoint => 
+            _grid.WorldToCell(waypoint) == changedCellPosition);
+        
+        if (pathIsBlocked)
+        {
+            SetNewTarget(_finalTargetPosition);
+        }
+    }
 
     private Queue<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
@@ -88,10 +119,11 @@ public class UnitMovement : MonoBehaviour
         Vector3Int endCellPos = _grid.WorldToCell(endPos);
 
         PriorityQueue<Node> openList = new PriorityQueue<Node>();
+        HashSet<Vector3Int> closedList = new HashSet<Vector3Int>();
         Dictionary<Vector3Int, Node> allNodes = new Dictionary<Vector3Int, Node>();
 
         int iterations = 0;
-        const int maxIterations = 40000;
+        const int maxIterations = 5000;
 
         Node startNode = new Node { Position = startCellPos, GCost = 0, HCost = GetDistance(startCellPos, endCellPos) };
         allNodes.Add(startCellPos, startNode);
@@ -105,16 +137,24 @@ public class UnitMovement : MonoBehaviour
             if (currentNode.Position == endCellPos) {
                 return ReconstructPath(currentNode);
             }
+            
+            closedList.Add(currentNode.Position);
 
             foreach (Vector3Int neighborPos in GetNeighbors(currentNode.Position)) {
+                if (closedList.Contains(neighborPos)) {
+                    continue;
+                }
+                
                 if (BuildingManager.Instance.IsResourceTile(neighborPos) && neighborPos != endCellPos) {
                     continue;
                 }
+                if (BuildingManager.Instance.IsBuildingTile(neighborPos) && neighborPos != endCellPos) {
+                    continue;
+                }
 
-                Node neighborNode;
                 float newGCost = currentNode.GCost + GetDistance(currentNode.Position, neighborPos);
 
-                if (allNodes.TryGetValue(neighborPos, out neighborNode)) {
+                if (allNodes.TryGetValue(neighborPos, out var neighborNode)) {
                     if (newGCost < neighborNode.GCost) {
                         neighborNode.Parent = currentNode;
                         neighborNode.GCost = newGCost;

@@ -8,6 +8,7 @@ public enum ComboType
     Generator,
     ChargeStation,
     Harvester,
+    Turret,
     Radar
 }
 

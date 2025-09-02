@@ -17,15 +17,16 @@ public class Unit_Enemy_0 : UnitBase
     private Coroutine _attackCoroutine;
     private WaitForSeconds _searchWait;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         unitMovement = GetComponent<UnitMovement>();
         _searchWait = new WaitForSeconds(targetSearchInterval);
     }
 
     private IEnumerator Start()
     {
-        currentHealth = maxHealth;
         currentState = UnitState.Idle;
 
         yield return null;
@@ -141,7 +142,6 @@ public class Unit_Enemy_0 : UnitBase
         while (currentState == UnitState.Attacking && _target != null)
         {
             _target.TakeDamage(attackDamage);
-            Debug.Log($"{gameObject.name} attacks {_target.name} for {attackDamage} damage.");
             
             yield return new WaitForSeconds(1f / attackSpeed);
         }

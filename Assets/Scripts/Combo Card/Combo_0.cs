@@ -18,17 +18,14 @@ public class Combo_0 : Damageable, IStorage
     [SerializeField] private Vector3 sliderOffset = new Vector3(0, 1.0f, 0);
     private GameObject _sliderInstance;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
         {
             _currentResources[type] = 0;
         }
-    }
-    
-    protected new void OnEnable()
-    {
-        base.OnEnable();
     }
 
     private void Start()

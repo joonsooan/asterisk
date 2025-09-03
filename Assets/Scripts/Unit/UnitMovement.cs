@@ -19,6 +19,8 @@ public class UnitMovement : MonoBehaviour
     private Rigidbody2D _rb;
     private UnitSpriteController _spriteController;
 
+    private float _finalStoppingDistance;
+    
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -55,10 +57,16 @@ public class UnitMovement : MonoBehaviour
 
     public bool SetNewTarget(Vector2 targetPosition)
     {
+        return SetNewTarget(targetPosition, waypointTolerance);
+    }
+
+    public bool SetNewTarget(Vector2 targetPosition, float stoppingDistance)
+    {
         Vector3Int targetCellPos = _grid.WorldToCell(targetPosition);
         _finalTargetPosition = _grid.GetCellCenterWorld(targetCellPos);
+        _finalStoppingDistance = stoppingDistance; // 전달받은 정지 거리 저장
 
-        _path = FindPath(transform.position, _finalTargetPosition );
+        _path = FindPath(transform.position, _finalTargetPosition);
 
         if (_path.Count > 0) {
             _currentWaypoint = _path.Dequeue();
@@ -75,7 +83,7 @@ public class UnitMovement : MonoBehaviour
 
     public void MoveToTarget()
     {
-        if (_path.Count == 0) {
+        if (_path.Count == 0 && _currentWaypoint == default) {
             StopMovement();
             return;
         }
@@ -84,11 +92,15 @@ public class UnitMovement : MonoBehaviour
         _rb.linearVelocity = direction * moveSpeed;
         _spriteController?.UpdateSpriteDirection(direction);
 
-        if (Vector3.Distance(transform.position, _currentWaypoint) < waypointTolerance) {
+        float distance = Vector3.Distance(transform.position, _currentWaypoint);
+        float threshold = (_path.Count == 0) ? _finalStoppingDistance : waypointTolerance;
+
+        if (distance < threshold) {
             if (_path.Count > 0) {
                 _currentWaypoint = _path.Dequeue();
             }
             else {
+                _currentWaypoint = default;
                 StopMovement();
             }
         }
@@ -109,7 +121,7 @@ public class UnitMovement : MonoBehaviour
         
         if (pathIsBlocked)
         {
-            SetNewTarget(_finalTargetPosition);
+            SetNewTarget(_finalTargetPosition, _finalStoppingDistance);
         }
     }
 

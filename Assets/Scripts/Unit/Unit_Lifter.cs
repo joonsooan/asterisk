@@ -204,7 +204,7 @@ public class Unit_Lifter : UnitBase
             FindAndSetStorage();
             if (_targetStorage != null)
             {
-                unitMovement.SetNewTarget(_targetStorage.GetPosition());
+                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
                 currentState = UnitState.ReturningToStorage;
             }
         }
@@ -266,7 +266,7 @@ public class Unit_Lifter : UnitBase
             FindAndSetStorage();
             if (_targetStorage != null)
             {
-                unitMovement.SetNewTarget(_targetStorage.GetPosition());
+                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
                 currentState = UnitState.ReturningToStorage;
             }
             else
@@ -320,7 +320,7 @@ public class Unit_Lifter : UnitBase
         
         if (_targetStorage != null)
         {
-            unitMovement.SetNewTarget(_targetStorage.GetPosition());
+            unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
         }
         else
         {
@@ -393,8 +393,8 @@ public class Unit_Lifter : UnitBase
                 
                 _targetResourceNode = newTarget;
                 
-                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position);
-
+                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position, unitMining.miningRange * 0.9f);
+                
                 if (pathFound)
                 {
                     currentState = UnitState.Moving;
@@ -424,7 +424,7 @@ public class Unit_Lifter : UnitBase
             if (_targetStorage != null)
             {
                 currentState = UnitState.ReturningToStorage;
-                unitMovement.SetNewTarget(_targetStorage.GetPosition());
+                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
             }
             else
             {

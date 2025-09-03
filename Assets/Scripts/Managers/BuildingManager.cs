@@ -224,6 +224,12 @@ public class BuildingManager : MonoBehaviour
         }
         _placedPieces.Remove(cellPosition);
     }
+    
+    public BuildingPiece GetPieceAt(Vector3Int cellPosition)
+    {
+        _placedPieces.TryGetValue(cellPosition, out BuildingPiece piece);
+        return piece;
+    }
 
     private void RemoveBuildingPieceAtPosition(Vector3Int cellPos)
     {

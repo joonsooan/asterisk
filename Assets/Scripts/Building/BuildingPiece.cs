@@ -9,7 +9,10 @@ public class BuildingPiece : MonoBehaviour
     {
         if (BuildingManager.Instance != null)
         {
-            BuildingManager.Instance.ClearBuildingDataAt(cellPosition);
+            if (BuildingManager.Instance.GetPieceAt(cellPosition) == this)
+            {
+                BuildingManager.Instance.ClearBuildingDataAt(cellPosition);
+            }
         }
     }
 }

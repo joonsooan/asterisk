@@ -134,6 +134,8 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   unitType: 0
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.3
   currentState: 0
   canvasName: ObejectUI Canvas
   floatingNumTextPrefab: {fileID: 176529985360585926, guid: c122ec1d854b9a04994f510c553243e5, type: 3}
@@ -171,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330c45daea6434b46bc02141d339b613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
+  moveSpeed: 5
   waypointTolerance: 0.1
 --- !u!114 &7616754858952366261
 MonoBehaviour:

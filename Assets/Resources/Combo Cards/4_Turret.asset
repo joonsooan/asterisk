@@ -19,7 +19,7 @@ MonoBehaviour:
   comboTile: {fileID: 11400000, guid: f072965ccdc03d34b9a2207192e0a9ce, type: 2}
   comboType: 3
   recipe:
-  - gadgetType: 2
+  - gadgetType: 1
     relativePosition: {x: 0, y: 0, z: 0}
   - gadgetType: 2
     relativePosition: {x: 1, y: 0, z: 0}

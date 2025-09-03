@@ -26,8 +26,8 @@ public class GameManager : MonoBehaviour
     private Coroutine _quotaCoroutine;
     private CardDragger _activeCardDragger;
     private DisplayableData _activeCardData;
-    
-    private bool _isPaused = false;
+
+    private bool _isPaused;
     private float _timeScaleBeforePause = 1f;
 
     [HideInInspector] public UnityEvent<DisplayableData> onStartDrag;

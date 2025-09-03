@@ -105,8 +105,13 @@ public class CardDragger : MonoBehaviour
 
     private void HandleMousePlacement()
     {
-        if (Input.GetMouseButton(0))
-        {
+        if (Input.GetMouseButton(0)) {
+            if (_placedCellsInDrag != null && _placedCellsInDrag.Count > 0 && IsPointerOverDragEndZone())
+            {
+                EndDrag();
+                return;
+            }
+            
             Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             
             if (cellPosition != _lastPlacedCell)
@@ -129,6 +134,25 @@ public class CardDragger : MonoBehaviour
         {
             GameManager.Instance.EndDrag();
         }
+    }
+    
+    private bool IsPointerOverDragEndZone()
+    {
+        if (EventSystem.current == null) return false;
+
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.GetComponent<UIDragEndZone>() != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void AttemptPlacement(Vector3Int cellPos)

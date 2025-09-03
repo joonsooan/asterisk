@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 4972124663225001278}
   - component: {fileID: 2837491855439050529}
   - component: {fileID: 5839969122033935923}
+  - component: {fileID: 1244078582965206228}
   m_Layer: 5
   m_Name: Card Btn
   m_TagString: Untagged
@@ -214,6 +215,18 @@ MonoBehaviour:
   cardIcon: {fileID: 446260180881203831}
   nameText: {fileID: 7202782464707504309}
   buyButton: {fileID: 2837491855439050529}
+--- !u!114 &1244078582965206228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2591208795618929879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d96008d730633834ab2e46cc7823a0f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4254415167102692210
 GameObject:
   m_ObjectHideFlags: 0

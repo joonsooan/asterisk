@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour 
+public class UIManager : MonoBehaviour
 {
     [Header("Card Info Panel")]
     [SerializeField] private GameObject cardInfoPanel;
@@ -9,60 +9,54 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text cardDescriptionText;
     [SerializeField] private GameObject cardResourcePanel;
     [SerializeField] private GameObject resourceInfoCellPrefab;
-    
+
     [Header("Recipe Info Panel")]
-    [SerializeField] private GameObject recipeInfoPanel; 
+    [SerializeField] private GameObject recipeInfoPanel;
     [SerializeField] private RecipeInfo recipeInfoComponent;
-    
+
     [Header("Tips Panel")]
     [SerializeField] private GameObject tipPanel;
 
-    private CardData _pinnedCardData = null;
-    private ComboCardData _pinnedRecipeData = null;
+    private CardData _pinnedCardData;
+    private ComboCardData _pinnedRecipeData;
 
     private void Start()
     {
         if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
         if (recipeInfoPanel != null) recipeInfoPanel.SetActive(false);
-        if (tipPanel != null) tipPanel.SetActive(false);
     }
-    
+
     public void DisplayCardInfo(CardData data)
     {
         if (data == null) return;
         cardInfoPanel.SetActive(true);
         cardNameText.text = data.displayName;
         cardDescriptionText.text = data.description;
-        
+
         foreach (Transform child in cardResourcePanel.transform) Destroy(child.gameObject);
-        foreach (var cost in data.costs)
-        {
-            var cell = Instantiate(resourceInfoCellPrefab, cardResourcePanel.transform);
+        foreach (CardCost cost in data.costs) {
+            GameObject cell = Instantiate(resourceInfoCellPrefab, cardResourcePanel.transform);
             cell.GetComponent<ResourceInfoCell>().SetInfo(cost.resourceType, cost.amount);
         }
     }
-    
+
     public void HideCardInfo()
     {
-        if (_pinnedCardData == null)
-        {
+        if (_pinnedCardData == null) {
             cardInfoPanel.SetActive(false);
         }
-        else
-        {
+        else {
             DisplayCardInfo(_pinnedCardData);
         }
     }
 
     public void PinCardInfo(CardData data)
     {
-        if (_pinnedCardData == data)
-        {
+        if (_pinnedCardData == data) {
             _pinnedCardData = null;
             cardInfoPanel.SetActive(false);
         }
-        else
-        {
+        else {
             _pinnedCardData = data;
             DisplayCardInfo(data);
         }
@@ -71,8 +65,7 @@ public class UIManager : MonoBehaviour
     public void UnpinAndHideCardPanel()
     {
         _pinnedCardData = null;
-        if (cardInfoPanel != null)
-        {
+        if (cardInfoPanel != null) {
             cardInfoPanel.SetActive(false);
         }
     }
@@ -83,52 +76,45 @@ public class UIManager : MonoBehaviour
         recipeInfoComponent.gameObject.SetActive(true);
         recipeInfoComponent.UpdateRecipeInfo(data);
     }
-    
+
     public void HideRecipeInfo()
     {
         if (recipeInfoComponent == null) return;
-        if (_pinnedRecipeData == null)
-        {
+        if (_pinnedRecipeData == null) {
             recipeInfoComponent.gameObject.SetActive(false);
         }
-        else
-        {
+        else {
             recipeInfoComponent.UpdateRecipeInfo(_pinnedRecipeData);
         }
     }
-    
+
     public void PinRecipeInfo(ComboCardData data)
     {
-        if (_pinnedRecipeData == data)
-        {
+        if (_pinnedRecipeData == data) {
             _pinnedRecipeData = null;
             recipeInfoComponent.gameObject.SetActive(false);
         }
-        else
-        {
+        else {
             _pinnedRecipeData = data;
             DisplayRecipeInfo(data);
         }
     }
-    
+
     public void ToggleRecipePanel()
     {
         if (recipeInfoPanel == null) return;
         bool isActive = !recipeInfoPanel.activeSelf;
         recipeInfoPanel.SetActive(isActive);
-        if (!isActive)
-        {
+        if (!isActive) {
             _pinnedRecipeData = null;
         }
-        else
-        {
-            if (recipeInfoComponent != null)
-            {
+        else {
+            if (recipeInfoComponent != null) {
                 recipeInfoComponent.gameObject.SetActive(false);
             }
         }
     }
-    
+
     public void ToggleTipPanel()
     {
         if (tipPanel == null) return;

@@ -152,18 +152,28 @@ public class BuildingManager : MonoBehaviour
     
     private void CreateComboBuilding(Vector3Int originPos, ComboCardData comboData)
     {
-        foreach (var piece in comboData.recipe) {
-            Vector3Int targetPos = originPos + piece.relativePosition;
+        List<Vector3Int> recipePositions = new List<Vector3Int>();
+        foreach (var piece in comboData.recipe)
+        {
+            recipePositions.Add(originPos + piece.relativePosition);
+        }
+
+        foreach (var targetPos in recipePositions)
+        {
             RemoveBuildingPieceAtPosition(targetPos);
         }
         
-        // 현재는 기존 건물조각이 있던 모든 타일에 콤보 건물 생성
-        foreach (var piece in comboData.recipe) {
-            Vector3Int targetPos = originPos + piece.relativePosition;
+        foreach (var targetPos in recipePositions)
+        {
             Vector3 worldPos = grid.GetCellCenterWorld(targetPos);
 
             GameObject newComboPieceObject = Instantiate(comboData.comboPrefab, worldPos, Quaternion.identity, parentTransform);
-            BuildingPiece markerPiece = newComboPieceObject.AddComponent<BuildingPiece>();
+            
+            BuildingPiece markerPiece = newComboPieceObject.GetComponent<BuildingPiece>();
+            if (markerPiece == null)
+            {
+                markerPiece = newComboPieceObject.AddComponent<BuildingPiece>();
+            }
 
             markerPiece.cellPosition = targetPos;
             _placedPieces[targetPos] = markerPiece;
@@ -176,12 +186,9 @@ public class BuildingManager : MonoBehaviour
             HandleComboBuildingLogic(newComboPieceObject, comboData);
         }
 
-        if (comboData.comboTile != null) {
-            foreach (var piece in comboData.recipe) {
-                Vector3Int targetPos = originPos + piece.relativePosition;
-                buildingTilemap.SetTile(targetPos, comboData.comboTile);
-                OnTilemapChanged?.Invoke(targetPos);
-            }
+        foreach (var targetPos in recipePositions)
+        {
+            OnTilemapChanged?.Invoke(targetPos);
         }
 
         Debug.Log($"Combo Building '{comboData.displayName}' Created");
@@ -227,6 +234,7 @@ public class BuildingManager : MonoBehaviour
                 Destroy(piece.gameObject);
             }
         }
+        buildingTilemap.SetTile(cellPos, null);
     }
     
     public void RemoveResourceTile(Vector3Int cellPosition)

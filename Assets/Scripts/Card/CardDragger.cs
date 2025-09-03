@@ -107,12 +107,6 @@ public class CardDragger : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                GameManager.Instance.EndDrag();
-                return;
-            }
-            
             Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             
             if (cellPosition != _lastPlacedCell)

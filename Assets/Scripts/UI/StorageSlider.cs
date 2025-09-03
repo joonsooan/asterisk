@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 
 public class StorageSlider : MonoBehaviour
 {

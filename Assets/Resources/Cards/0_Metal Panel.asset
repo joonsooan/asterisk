@@ -20,4 +20,4 @@ MonoBehaviour:
   gadgetTile: {fileID: 11400000, guid: 276b58b36d750f44195cd8aea8f6d84e, type: 2}
   costs:
   - resourceType: 0
-    amount: 10
+    amount: 20

@@ -55,7 +55,7 @@ public class EnemySpawner : MonoBehaviour
     private List<Vector2Int> FindEdgeRooms()
     {
         List<Vector2Int> edgeRooms = new List<Vector2Int>();
-        Vector2Int mapGridSize = GameManager.Instance.mapGenerator.mapGridSize;
+        Vector2Int mapGridSize = GameManager.Instance.mapGenerator.MapGridSize;
 
         for (int x = 0; x < mapGridSize.x; x++)
         {
@@ -98,8 +98,8 @@ public class EnemySpawner : MonoBehaviour
     private Vector3 GetRandomEdgeTilePosition(Vector2Int roomCoords)
     {
         var mapGenerator = GameManager.Instance.mapGenerator;
-        Vector2Int roomSize = mapGenerator.roomSize;
-        Vector2Int mapGridSize = mapGenerator.mapGridSize;
+        Vector2Int roomSize = mapGenerator.RoomSize;
+        Vector2Int mapGridSize = mapGenerator.MapGridSize;
         
         List<Vector2Int> validDirections = new List<Vector2Int>();
         if (!mapGenerator.IsRoomUnlocked(roomCoords.x + 1, roomCoords.y)) validDirections.Add(Vector2Int.right);
@@ -140,6 +140,6 @@ public class EnemySpawner : MonoBehaviour
             spawnY = roomStartY;
         }
         
-        return mapGenerator.tilemap.transform.TransformPoint(new Vector3(spawnX + 0.5f, spawnY + 0.5f, 0));
+        return mapGenerator.Tilemap.transform.TransformPoint(new Vector3(spawnX + 0.5f, spawnY + 0.5f, 0));
     }
 }

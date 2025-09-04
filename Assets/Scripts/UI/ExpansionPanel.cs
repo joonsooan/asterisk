@@ -22,16 +22,16 @@ public class ExpansionPanel : MonoBehaviour
 
     public void InitiateExpansionPanel()
     {
-        if (mapGenerator.mapGridSize.x != _roomButtons.GetLength(0) ||
-            mapGenerator.mapGridSize.y != _roomButtons.GetLength(1)) {
+        if (mapGenerator.MapGridSize.x != _roomButtons.GetLength(0) ||
+            mapGenerator.MapGridSize.y != _roomButtons.GetLength(1)) {
             return;
         }
 
         Button[] allButtons = GetComponentsInChildren<Button>();
 
         int buttonIndex = 0;
-        for (int y = mapGenerator.mapGridSize.y - 1; y >= 0; y--) {
-            for (int x = 0; x < mapGenerator.mapGridSize.x; x++) {
+        for (int y = mapGenerator.MapGridSize.y - 1; y >= 0; y--) {
+            for (int x = 0; x < mapGenerator.MapGridSize.x; x++) {
                 Button btn = allButtons[buttonIndex];
 
                 _roomButtons[x, y] = new RoomButton();
@@ -68,8 +68,8 @@ public class ExpansionPanel : MonoBehaviour
         List<Vector2Int> expandableRooms = mapGenerator.FindExpandableRooms();
 
         foreach (Vector2Int coords in expandableRooms) {
-            if (coords.x >= 0 && coords.x < mapGenerator.mapGridSize.x &&
-                coords.y >= 0 && coords.y < mapGenerator.mapGridSize.y) {
+            if (coords.x >= 0 && coords.x < mapGenerator.MapGridSize.x &&
+                coords.y >= 0 && coords.y < mapGenerator.MapGridSize.y) {
                 Button btn = _roomButtons[coords.x, coords.y].button;
                 if (btn != null) {
                     btn.image.color = expandableColor;
@@ -78,8 +78,8 @@ public class ExpansionPanel : MonoBehaviour
             }
         }
 
-        for (int x = 0; x < mapGenerator.mapGridSize.x; x++) {
-            for (int y = 0; y < mapGenerator.mapGridSize.y; y++) {
+        for (int x = 0; x < mapGenerator.MapGridSize.x; x++) {
+            for (int y = 0; y < mapGenerator.MapGridSize.y; y++) {
                 if (mapGenerator.IsRoomUnlocked(x, y)) {
                     _roomButtons[x, y].button.interactable = false;
                     _roomButtons[x, y].button.image.color = unlockedColor;
@@ -92,8 +92,8 @@ public class ExpansionPanel : MonoBehaviour
 
     private void ResetButtonColors()
     {
-        for (int x = 0; x < mapGenerator.mapGridSize.x; x++) {
-            for (int y = 0; y < mapGenerator.mapGridSize.y; y++) {
+        for (int x = 0; x < mapGenerator.MapGridSize.x; x++) {
+            for (int y = 0; y < mapGenerator.MapGridSize.y; y++) {
                 Button btn = _roomButtons[x, y].button;
                 if (btn != null) {
                     btn.image.color = defaultColor;

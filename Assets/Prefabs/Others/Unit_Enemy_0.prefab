@@ -184,7 +184,7 @@ MonoBehaviour:
   flashDuration: 0.1
   currentState: 0
   attackDamage: 10
-  attackRange: 1.5
+  attackRange: 1.2
   attackSpeed: 1
   targetSearchInterval: 1
   unitMovement: {fileID: 3132766170232860239}

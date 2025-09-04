@@ -73,10 +73,23 @@ public class Unit_Enemy_0 : UnitBase
                 if (distanceToTarget > attackRange)
                 {
                     StopAttacking();
-                    currentState = UnitState.Moving;
-                    unitMovement.SetNewTarget(_target.transform.position);
+                    MoveToTarget();
                 }
                 break;
+        }
+    }
+    
+    private void MoveToTarget()
+    {
+        if (_target == null) return;
+        
+        if (unitMovement.SetNewTarget(_target.transform.position, attackRange * 0.9f))
+        {
+            currentState = UnitState.Moving;
+        }
+        else
+        {
+            currentState = UnitState.Idle;
         }
     }
     
@@ -96,10 +109,7 @@ public class Unit_Enemy_0 : UnitBase
                     if (closestTarget != null)
                     {
                         _target = closestTarget;
-                        if (unitMovement.SetNewTarget(_target.transform.position))
-                        {
-                            currentState = UnitState.Moving;
-                        }
+                        MoveToTarget();
                     }
                 }
             }

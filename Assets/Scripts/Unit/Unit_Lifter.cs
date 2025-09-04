@@ -146,6 +146,8 @@ public class Unit_Lifter : UnitBase
     private void StartUnloadingAction()
     {
         currentState = UnitState.Unloading;
+        
+        AdjustSpriteDirectionForUnloading();
         StartCoroutine(UnloadResourceCoroutine());
     }
 
@@ -449,6 +451,39 @@ public class Unit_Lifter : UnitBase
         }
 
         unitMovement.GetComponent<UnitSpriteController>()?.UpdateSpriteDirection(targetDirection);
+    }
+    
+    private void AdjustSpriteDirectionForUnloading()
+    {
+        if (_targetStorage == null || !TryGetComponent<UnitSpriteController>(out var spriteController)) return;
+
+        var grid = BuildingManager.Instance.grid;
+        Vector3Int unitCell = grid.WorldToCell(transform.position);
+        
+        Vector3Int storageCell = grid.WorldToCell((_targetStorage as Component).transform.position);
+
+        Vector3Int relativePosition = storageCell - unitCell;
+
+        Vector2 targetDirection = Vector2.zero;
+
+        if (relativePosition.x > 0)
+        {
+            targetDirection = Vector2.right;
+        }
+        else if (relativePosition.x < 0)
+        {
+            targetDirection = Vector2.left;
+        }
+        else if (relativePosition.y > 0)
+        {
+            targetDirection = Vector2.up;
+        }
+        else if (relativePosition.y < 0)
+        {
+            targetDirection = Vector2.down;
+        }
+
+        spriteController.UpdateSpriteDirection(targetDirection);
     }
 
     private struct MiningTarget

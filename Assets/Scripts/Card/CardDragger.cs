@@ -4,37 +4,34 @@ using UnityEngine.EventSystems;
 
 public class CardDragger : MonoBehaviour
 {
+    public bool IsDragging => _isDragging;
+
     [Header("References")]
     [SerializeField] private Grid grid;
 
     private GameObject _ghostBuildingInstance;
-    
+    private SpriteRenderer _ghostBuildingRenderer;
     private CardData _activeCardData;
     private Vector3Int _lastPlacedCell;
     private bool _isDragging;
     private List<Vector3Int> _placedCellsInDrag;
-
-    public bool IsDragging => _isDragging;
-
+    private PointerEventData _pointerEventData;
+    
     private void Update()
     {
-        if (_isDragging)
-        {
-            HandleDragVisuals();
-            HandleMousePlacement();
-        }
-    }
+        if (!_isDragging) return;
 
+        HandleDragVisuals();
+        HandleMousePlacement();
+    }
+    
     public void StartDrag(DisplayableData data)
     {
         if (_isDragging) return;
-        
+
         CardData cardData = data as CardData;
-        if (cardData == null || cardData.buildingPrefab == null || _isDragging)
-        {
-            return;
-        }
-        
+        if (cardData == null || cardData.buildingPrefab == null) return;
+
         _activeCardData = cardData;
         _isDragging = true;
         _lastPlacedCell = Vector3Int.one * int.MaxValue;
@@ -49,28 +46,27 @@ public class CardDragger : MonoBehaviour
         {
             Destroy(_ghostBuildingInstance);
         }
-        
+
         GameManager.Instance.uiManager?.UnpinAndHideCardPanel();
-        
+
         _isDragging = false;
         _activeCardData = null;
-        _lastPlacedCell = Vector3Int.one * int.MaxValue;
-        _placedCellsInDrag = null;
+        _ghostBuildingRenderer = null;
     }
     
     private void CreateGhostBuilding()
     {
         _ghostBuildingInstance = Instantiate(_activeCardData.buildingPrefab, Vector3.zero, Quaternion.identity);
-        
-        SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
-        if (sr != null)
+        _ghostBuildingRenderer = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
+
+        if (_ghostBuildingRenderer != null)
         {
-            Color ghostColor = sr.color;
+            Color ghostColor = _ghostBuildingRenderer.color;
             ghostColor.a = 0.5f;
-            sr.color = ghostColor;
+            _ghostBuildingRenderer.color = ghostColor;
         }
     }
-    
+
     private void HandleDragVisuals()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -78,52 +74,42 @@ public class CardDragger : MonoBehaviour
 
         Vector3Int cellPosition = grid.WorldToCell(mouseWorldPos);
         Vector3 cellCenterWorld = grid.GetCellCenterWorld(cellPosition);
-        
+
         if (_ghostBuildingInstance != null)
         {
             _ghostBuildingInstance.transform.position = cellCenterWorld;
         }
-        
-        bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) 
-                        && IsRoomUnlockedForPlacement(cellPosition)
-                        && ResourceManager.Instance.HasEnoughResources(_activeCardData.costs);
-        
+
+        bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) &&
+                        IsRoomUnlockedForPlacement(cellPosition) &&
+                        ResourceManager.Instance.HasEnoughResources(_activeCardData.costs);
+
         UpdateGhostColor(canPlace);
     }
-    
+
     private void UpdateGhostColor(bool canPlace)
     {
-        if (_ghostBuildingInstance == null) return;
-        
-        SpriteRenderer sr = _ghostBuildingInstance.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            Color color = canPlace ? Color.green : Color.red;
-            sr.color = new Color(color.r, color.g, color.b, 0.5f);
-        }
-    }
+        if (_ghostBuildingRenderer == null) return;
 
+        Color color = canPlace ? Color.green : Color.red;
+        _ghostBuildingRenderer.color = new Color(color.r, color.g, color.b, 0.5f);
+    }
+    
     private void HandleMousePlacement()
     {
-        if (Input.GetMouseButton(0)) {
-            if (_placedCellsInDrag != null && _placedCellsInDrag.Count > 0 && IsPointerOverDragEndZone())
+        if (Input.GetMouseButton(0))
+        {
+            if (_placedCellsInDrag.Count > 0 && IsPointerOverDragEndZone())
             {
                 EndDrag();
                 return;
             }
-            
-            Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            
-            if (cellPosition != _lastPlacedCell)
-            {
-                if (_placedCellsInDrag != null && _placedCellsInDrag.Contains(cellPosition))
-                {
-                    return;
-                }
 
-                bool canPlace = BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition);
-            
-                if (canPlace)
+            Vector3Int cellPosition = grid.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+
+            if (cellPosition != _lastPlacedCell && !_placedCellsInDrag.Contains(cellPosition))
+            {
+                if (BuildingManager.Instance.CanPlaceBuilding(cellPosition) && IsRoomUnlockedForPlacement(cellPosition))
                 {
                     AttemptPlacement(cellPosition);
                     _lastPlacedCell = cellPosition;
@@ -134,25 +120,6 @@ public class CardDragger : MonoBehaviour
         {
             GameManager.Instance.EndDrag();
         }
-    }
-    
-    private bool IsPointerOverDragEndZone()
-    {
-        if (EventSystem.current == null) return false;
-
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (RaycastResult result in results)
-        {
-            if (result.gameObject.GetComponent<UIDragEndZone>() != null)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void AttemptPlacement(Vector3Int cellPos)
@@ -171,12 +138,29 @@ public class CardDragger : MonoBehaviour
 
     private bool IsRoomUnlockedForPlacement(Vector3Int cellPos)
     {
-        if (GameManager.Instance.mapGenerator == null)
-        {
-            return false;
-        }
+        if (GameManager.Instance.mapGenerator == null) return false;
 
         Vector2Int roomCoordinates = GameManager.Instance.mapGenerator.GetRoomCoordinates(grid.GetCellCenterWorld(cellPos));
         return GameManager.Instance.mapGenerator.IsRoomUnlocked(roomCoordinates.x, roomCoordinates.y);
+    }
+
+    private bool IsPointerOverDragEndZone()
+    {
+        if (EventSystem.current == null) return false;
+
+        _pointerEventData ??= new PointerEventData(EventSystem.current);
+        _pointerEventData.position = Input.mousePosition;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(_pointerEventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.GetComponent<UIDragEndZone>() != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

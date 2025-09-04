@@ -7,51 +7,60 @@ using UnityEngine.SceneManagement;
 
 public class Unit_Lifter : UnitBase
 {
-    private readonly Dictionary<ResourceType, int> _currentCarryAmounts = new();
-    private WaitForSeconds _searchWait;
-    
-    private Coroutine _findResourceCoroutine;
-    private IStorage _targetStorage;
-    private ResourceNode _targetResourceNode;
-
-    [Header("VFX")]
-    [SerializeField] private string canvasName = "ObejectUI Canvas";
-    [SerializeField] private GameObject floatingNumTextPrefab;
-    [SerializeField] private bool showFloatingText;
-    private Canvas _canvas;
-
     [Header("References")]
     [SerializeField] private UnitMovement unitMovement;
     [SerializeField] private UnitMining unitMining;
-    [SerializeField] private UnitSpriteController unitSpriteController;
-    
+
     [Header("Cargo")]
     public int maxCarryAmount = 50;
     [SerializeField] private float unloadDistance = 1.5f;
     [SerializeField] private float resourceSearchInterval = 2.0f;
     public ResourceType[] mineableResourceTypes;
 
+    [Header("VFX")]
+    [SerializeField] private string canvasName = "ObejectUI Canvas";
+    [SerializeField] private GameObject floatingNumTextPrefab;
+    [SerializeField] private bool showFloatingText;
+    
+    private readonly Dictionary<ResourceType, int> _currentCarryAmounts = new();
+    private WaitForSeconds _searchWait;
+    private Coroutine _findResourceCoroutine;
+    private IStorage _targetStorage;
+    private ResourceNode _targetResourceNode;
+    private Canvas _canvas;
+    
     protected override void Awake()
     {
         base.Awake();
-
         _canvas = GameObject.Find(canvasName)?.GetComponent<Canvas>();
-
-        SubscribeEvents();
-        InitializeCarryAmounts();
-        
         _searchWait = new WaitForSeconds(resourceSearchInterval);
+        InitializeCarryAmounts();
     }
-    
+
     private void Start()
     {
-        if (UnitManager.Instance != null)
+        mineableResourceTypes = UnitManager.Instance != null 
+            ? UnitManager.Instance.CurrentMineableTypes.ToArray() 
+            : (ResourceType[])Enum.GetValues(typeof(ResourceType));
+    }
+    
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        SubscribeEvents();
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        UnsubscribeEvents();
+    }
+    
+    private void OnDestroy()
+    {
+        if (_targetResourceNode != null && _targetResourceNode.IsReserved && _targetResourceNode.GetReservedUnit() == this)
         {
-            mineableResourceTypes = UnitManager.Instance.CurrentMineableTypes.ToArray();
-        }
-        else
-        {
-            mineableResourceTypes = (ResourceType[])Enum.GetValues(typeof(ResourceType));
+            _targetResourceNode.Unreserve();
         }
     }
 
@@ -64,118 +73,14 @@ public class Unit_Lifter : UnitBase
             unitMovement.MoveToTarget();
         }
     }
-
-    private void OnDestroy()
-    {
-        UnsubscribeEvents();
-        if (_targetResourceNode != null && _targetResourceNode.IsReserved && _targetResourceNode.GetReservedUnit() == this) {
-            _targetResourceNode.Unreserve();
-        }
-    }
     
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
-        ResourceManager.OnStorageRemoved += HandleStorageRemoved;
-        UnitManager.OnMineableTypesChanged += HandleMineableTypesChanged;
-    }
-
-    protected override void OnDisable()
-    {
-        base.OnDisable();
-        
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
-        ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
-        UnitManager.OnMineableTypesChanged -= HandleMineableTypesChanged;
-    }
-    
-    private void HandleMineableTypesChanged(ResourceType[] newTypes)
-    {
-        mineableResourceTypes = newTypes;
-
-        if (currentState == UnitState.Mining || currentState == UnitState.Moving)
-        {
-            if (_targetResourceNode != null && !mineableResourceTypes.Contains(_targetResourceNode.resourceType))
-            {
-                HandleTargetLoss();
-            }
-        }
-        else if (currentState == UnitState.Idle)
-        {
-            FindAndSetTarget();
-        }
-    }
-    
-    private void OnSceneUnloaded(Scene scene)
-    {
-        if (_targetStorage is MainStructure)
-        {
-            _targetStorage = null;
-        }
-    }
-
-    private void SubscribeEvents()
-    {
-        if (unitMining != null) {
-            unitMining.OnResourceMined += HandleResourceMined;
-        }
-        ResourceManager.OnNewStorageAdded += HandleNewStorageAdded;
-        SceneManager.sceneLoaded += HandleSceneLoaded;
-    }
-
-    private void UnsubscribeEvents()
-    {
-        if (unitMining != null) {
-            unitMining.OnResourceMined -= HandleResourceMined;
-        }
-        ResourceManager.OnNewStorageAdded -= HandleNewStorageAdded;
-        ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-    }
-
-    private void HandleStorageRemoved(IStorage storage)
-    {
-        if (_targetStorage == storage)
-        {
-            _targetStorage = null;
-            
-            if (currentState == UnitState.ReturningToStorage || currentState == UnitState.Unloading)
-            {
-                HandleTargetNotFound(); 
-            }
-        }
-    }
-
-    private void InitializeCarryAmounts()
-    {
-        
-        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType))) {
-            _currentCarryAmounts[type] = 0;
-        }
-    }
-
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        _targetStorage = null;
-    }
-
-    public void TryStartActions()
-    {
-        if (_findResourceCoroutine != null)
-        {
-            StopCoroutine(_findResourceCoroutine);
-        }
-        _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
-    }
-
     private void DecideNextAction()
     {
         switch (currentState)
         {
             case UnitState.Idle:
-                if (_findResourceCoroutine == null) {
+                if (_findResourceCoroutine == null)
+                {
                     TryStartActions();
                 }
                 break;
@@ -191,22 +96,6 @@ public class Unit_Lifter : UnitBase
             case UnitState.ReturningToStorage:
                 OnReturnToStorage();
                 break;
-            
-            case UnitState.Unloading:
-                break;
-        }
-    }
-
-    private void HandleNewStorageAdded()
-    {
-        if (currentState is UnitState.Idle or UnitState.ReturningToStorage)
-        {
-            FindAndSetStorage();
-            if (_targetStorage != null)
-            {
-                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
-                currentState = UnitState.ReturningToStorage;
-            }
         }
     }
 
@@ -224,7 +113,7 @@ public class Unit_Lifter : UnitBase
             StartMiningAction();
         }
     }
-    
+
     private void OnMining()
     {
         if (_targetResourceNode == null || _targetResourceNode.IsDepleted)
@@ -232,104 +121,22 @@ public class Unit_Lifter : UnitBase
             HandleTargetLoss();
         }
     }
-    
+
     private void OnReturnToStorage()
     {
-        if (_targetStorage == null || (_targetStorage != null && _targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity()))
+        if (_targetStorage == null || (_targetStorage.GetTotalCurrentAmount() >= _targetStorage.GetMaxCapacity()))
         {
             HandleStorageLoss();
             return;
         }
-    
+
         float distanceToStorage = Vector2.Distance(transform.position, _targetStorage.GetPosition());
         if (distanceToStorage <= unloadDistance)
         {
             StartUnloadingAction();
         }
     }
-
-    private void HandleResourceMined(ResourceType type, int amount)
-    {
-        if (currentState != UnitState.Mining) return;
-        
-        _currentCarryAmounts[type] = _currentCarryAmounts.GetValueOrDefault(type) + amount;
-        ShowFloatingText(amount);
-
-        int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
-        
-        if (totalCarriedAmount >= maxCarryAmount)
-        {
-            unitMining.StopMining();
-            _targetResourceNode?.Unreserve();
-            _targetResourceNode = null;
-            
-            FindAndSetStorage();
-            if (_targetStorage != null)
-            {
-                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
-                currentState = UnitState.ReturningToStorage;
-            }
-            else
-            {
-                unitMovement.StopMovement();
-                Debug.Log("Cargo is full, no storage available. Waiting.");
-            }
-        }
-    }
     
-    private void StartUnloadingAction()
-    {
-        currentState = UnitState.Unloading;
-        StartCoroutine(UnloadResourceCoroutine());
-    }
-
-    private IEnumerator UnloadResourceCoroutine()
-    {
-        unitMovement.StopMovement();
-        yield return new WaitForSeconds(1f);
-        
-        if (_targetStorage != null)
-        {
-            foreach (var pair in _currentCarryAmounts.Where(p => p.Value > 0))
-            {
-                _targetStorage.TryAddResource(pair.Key, pair.Value);
-            }
-        }
-
-        InitializeCarryAmounts();
-        _targetResourceNode = null;
-        _targetStorage = null;
-        
-        currentState = UnitState.Idle;
-        TryStartActions();
-    }
-    
-    private void HandleTargetLoss()
-    {
-        unitMining?.StopMining(); 
-        
-        _targetResourceNode?.Unreserve();
-        currentState = UnitState.Idle;
-        unitMovement.StopMovement();
-        _targetResourceNode = null;
-    }
-
-    private void HandleStorageLoss()
-    {
-        FindAndSetStorage();
-        
-        if (_targetStorage != null)
-        {
-            unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
-        }
-        else
-        {
-            currentState = UnitState.Idle;
-            unitMovement.StopMovement();
-            Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
-        }
-    }
-
     private void StartMiningAction()
     {
         currentState = UnitState.Mining;
@@ -337,15 +144,19 @@ public class Unit_Lifter : UnitBase
         unitMining.StartMining(_targetResourceNode);
     }
     
-    private void FindAndSetStorage()
+    private void StartUnloadingAction()
     {
-        var storages = ResourceManager.Instance.GetAllStorages();
-        
-        var availableStorages = storages.Where(s => s != null && s.GetTotalCurrentAmount() < s.GetMaxCapacity());
-
-        _targetStorage = availableStorages
-            .OrderBy(s => Vector2.Distance(transform.position, s.GetPosition()))
-            .FirstOrDefault();
+        currentState = UnitState.Unloading;
+        StartCoroutine(UnloadResourceCoroutine());
+    }
+    
+    public void TryStartActions()
+    {
+        if (_findResourceCoroutine != null)
+        {
+            StopCoroutine(_findResourceCoroutine);
+        }
+        _findResourceCoroutine = StartCoroutine(FindNearestResourceCoroutine());
     }
     
     private IEnumerator FindNearestResourceCoroutine()
@@ -360,42 +171,64 @@ public class Unit_Lifter : UnitBase
         }
     }
     
+    private IEnumerator UnloadResourceCoroutine()
+    {
+        unitMovement.StopMovement();
+        yield return new WaitForSeconds(1f);
+
+        if (_targetStorage != null)
+        {
+            foreach (var pair in _currentCarryAmounts.Where(p => p.Value > 0))
+            {
+                _targetStorage.TryAddResource(pair.Key, pair.Value);
+            }
+        }
+
+        InitializeCarryAmounts();
+        _targetResourceNode = null;
+        _targetStorage = null;
+
+        currentState = UnitState.Idle;
+    }
+    
     private void FindAndSetTarget()
     {
-        int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
-    
-        if (totalCarriedAmount > 0)
+        if (_currentCarryAmounts.Values.Sum() > 0)
         {
-            HandleTargetNotFound();
+            GoToStorage();
             return;
         }
         
-        var allResources = ResourceManager.Instance.GetAllResources();
+        ResourceNode closestNode = null;
+        float minDistance = float.MaxValue;
         
-        var availableResources = allResources.Where(r => 
-            r != null && !r.IsDepleted && r.gameObject.activeInHierarchy && 
-            mineableResourceTypes.Contains(r.resourceType) &&
-            (!r.IsReserved || r.GetReservedUnit() == this)
-        );
+        var availableResources = ResourceManager.Instance.GetAllResources()
+            .Where(r => r != null && !r.IsDepleted && r.gameObject.activeInHierarchy && 
+                        mineableResourceTypes.Contains(r.resourceType) &&
+                        (!r.IsReserved || r.GetReservedUnit() == this));
 
-        var newTarget = availableResources
-            .OrderBy(r => Vector2.Distance(transform.position, r.transform.position))
-            .FirstOrDefault();
-
-        if (newTarget != null)
+        foreach (var resource in availableResources)
         {
-            if (newTarget.Reserve(this))
+            float distance = Vector2.Distance(transform.position, resource.transform.position);
+            if (distance < minDistance)
             {
-                if (_targetResourceNode != null && _targetResourceNode != newTarget)
+                minDistance = distance;
+                closestNode = resource;
+            }
+        }
+
+        if (closestNode != null)
+        {
+            if (closestNode.Reserve(this))
+            {
+                if (_targetResourceNode != null && _targetResourceNode != closestNode)
                 {
                     _targetResourceNode.Unreserve();
                 }
-                
-                _targetResourceNode = newTarget;
-                
-                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position, unitMining.miningRange * 0.9f);
-                
-                if (pathFound)
+
+                _targetResourceNode = closestNode;
+
+                if (unitMovement.SetNewTarget(_targetResourceNode.transform.position, unitMining.miningRange * 0.9f))
                 {
                     currentState = UnitState.Moving;
                 }
@@ -409,28 +242,158 @@ public class Unit_Lifter : UnitBase
         }
         else
         {
-            _targetResourceNode = null;
             currentState = UnitState.Idle;
         }
     }
 
-    private void HandleTargetNotFound()
+    private void FindAndSetStorage()
     {
-        int totalCarriedAmount = _currentCarryAmounts.Values.Sum();
-        if (totalCarriedAmount > 0)
+        IStorage closestStorage = null;
+        float minDistance = float.MaxValue;
+
+        var availableStorages = ResourceManager.Instance.GetAllStorages()
+            .Where(s => s != null && s.GetTotalCurrentAmount() < s.GetMaxCapacity());
+
+        foreach (var storage in availableStorages)
         {
-            Debug.Log("[자원 고갈] 남은 자원을 저장고에 저장합니다.");
-            FindAndSetStorage();
-            if (_targetStorage != null)
+            float distance = Vector2.Distance(transform.position, storage.GetPosition());
+            if (distance < minDistance)
             {
-                currentState = UnitState.ReturningToStorage;
-                unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
+                minDistance = distance;
+                closestStorage = storage;
             }
-            else
+        }
+        
+        _targetStorage = closestStorage;
+    }
+    
+    private void GoToStorage()
+    {
+        FindAndSetStorage();
+        if (_targetStorage != null)
+        {
+            currentState = UnitState.ReturningToStorage;
+            unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
+        }
+        else
+        {
+            currentState = UnitState.Idle;
+            Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
+        }
+    }
+
+    private void HandleTargetLoss()
+    {
+        unitMining?.StopMining();
+        _targetResourceNode?.Unreserve();
+        _targetResourceNode = null;
+        currentState = UnitState.Idle;
+        unitMovement.StopMovement();
+    }
+
+    private void HandleStorageLoss()
+    {
+        FindAndSetStorage();
+        if (_targetStorage != null)
+        {
+            unitMovement.SetNewTarget(_targetStorage.GetPosition(), unloadDistance * 0.9f);
+        }
+        else
+        {
+            currentState = UnitState.Idle;
+            unitMovement.StopMovement();
+            Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
+        }
+    }
+    
+    private void SubscribeEvents()
+    {
+        if (unitMining != null)
+        {
+            unitMining.OnResourceMined += HandleResourceMined;
+        }
+        ResourceManager.OnNewStorageAdded += HandleNewStorageAdded;
+        ResourceManager.OnStorageRemoved += HandleStorageRemoved;
+        UnitManager.OnMineableTypesChanged += HandleMineableTypesChanged;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    private void UnsubscribeEvents()
+    {
+        if (unitMining != null)
+        {
+            unitMining.OnResourceMined -= HandleResourceMined;
+        }
+        ResourceManager.OnNewStorageAdded -= HandleNewStorageAdded;
+        ResourceManager.OnStorageRemoved -= HandleStorageRemoved;
+        UnitManager.OnMineableTypesChanged -= HandleMineableTypesChanged;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+    }
+
+    private void HandleResourceMined(ResourceType type, int amount)
+    {
+        if (currentState != UnitState.Mining) return;
+
+        _currentCarryAmounts[type] += amount;
+        ShowFloatingText(amount);
+
+        if (_currentCarryAmounts.Values.Sum() >= maxCarryAmount)
+        {
+            unitMining.StopMining();
+            _targetResourceNode?.Unreserve();
+            _targetResourceNode = null;
+            GoToStorage();
+        }
+    }
+    
+    private void HandleNewStorageAdded()
+    {
+        if (currentState is UnitState.Idle or UnitState.ReturningToStorage)
+        {
+            GoToStorage();
+        }
+    }
+
+    private void HandleStorageRemoved(IStorage storage)
+    {
+        if (_targetStorage == storage)
+        {
+            _targetStorage = null;
+            if (currentState is UnitState.ReturningToStorage or UnitState.Unloading)
             {
-                currentState = UnitState.Idle;
-                Debug.Log("모든 저장소가 가득 찼습니다. 대기합니다.");
+                GoToStorage();
             }
+        }
+    }
+
+    private void HandleMineableTypesChanged(ResourceType[] newTypes)
+    {
+        mineableResourceTypes = newTypes;
+
+        if ((currentState == UnitState.Mining || currentState == UnitState.Moving) && 
+            _targetResourceNode != null && !mineableResourceTypes.Contains(_targetResourceNode.resourceType))
+        {
+            HandleTargetLoss();
+        }
+        else if (currentState == UnitState.Idle)
+        {
+            FindAndSetTarget();
+        }
+    }
+    
+    private void OnSceneUnloaded(Scene scene)
+    {
+        if (_targetStorage != null && (_targetStorage as Component)?.gameObject.scene == scene)
+        {
+            _targetStorage = null;
+        }
+    }
+    
+    private void InitializeCarryAmounts()
+    {
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            _currentCarryAmounts[type] = 0;
         }
     }
 
@@ -439,9 +402,8 @@ public class Unit_Lifter : UnitBase
         if (!showFloatingText || floatingNumTextPrefab == null || _canvas == null) return;
 
         GameObject textInstance = Instantiate(floatingNumTextPrefab, transform.position, Quaternion.identity, _canvas.transform);
-
-        FloatingNumText floatingText = textInstance.GetComponent<FloatingNumText>();
-        if (floatingText != null) {
+        if (textInstance.TryGetComponent<FloatingNumText>(out var floatingText))
+        {
             floatingText.SetText($"+{amount}");
         }
     }

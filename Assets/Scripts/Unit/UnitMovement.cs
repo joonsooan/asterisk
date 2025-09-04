@@ -62,17 +62,22 @@ public class UnitMovement : MonoBehaviour
         }
     }
     
+    public bool SetNewTarget(Vector2 targetPosition)
+    {
+        return SetNewTarget(targetPosition, waypointTolerance);
+    }
+
     public bool SetNewTarget(Vector2 targetPosition, float stoppingDistance)
     {
         Vector3Int targetCellPos = _grid.WorldToCell(targetPosition);
         _finalTargetPosition = _grid.GetCellCenterWorld(targetCellPos);
         _finalStoppingDistance = stoppingDistance;
 
-        Queue<Vector3> newPath = FindPath(transform.position, _finalTargetPosition);
+        _path = FindPath(transform.position, _finalTargetPosition);
 
-        if (newPath != null && newPath.Count > 0)
-        {
-            _path = newPath;
+        if (_path.Count > 0) {
+
+
             _currentWaypoint = _path.Dequeue();
             return true;
         }

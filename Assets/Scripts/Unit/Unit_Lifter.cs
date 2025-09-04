@@ -228,7 +228,9 @@ public class Unit_Lifter : UnitBase
 
                 _targetResourceNode = closestNode;
 
-                if (unitMovement.SetNewTarget(_targetResourceNode.transform.position, unitMining.miningRange * 0.9f))
+                bool pathFound = unitMovement.SetNewTarget(_targetResourceNode.transform.position);
+                
+                if (pathFound)
                 {
                     currentState = UnitState.Moving;
                 }

@@ -7,6 +7,8 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+
     [Header("Mission Quota")]
     [SerializeField] private float resourceCheckInterval = 120f;
     [SerializeField] private List<int> requiredResourceAmounts;
@@ -18,22 +20,18 @@ public class GameManager : MonoBehaviour
     public MapGenerator mapGenerator;
     public UIManager uiManager;
     public CardDragger cardDragger;
-    
+
     [Header("UI Elements")]
     [SerializeField] private GameObject pausePanel;
-    
+
     private int _currentQuotaIndex;
     private Coroutine _quotaCoroutine;
-    private CardDragger _activeCardDragger;
     private DisplayableData _activeCardData;
-
     private bool _isPaused;
-    private float _timeScaleBeforePause = 1f;
 
     [HideInInspector] public UnityEvent<DisplayableData> onStartDrag;
     [HideInInspector] public UnityEvent onEndDrag;
-    public static GameManager Instance { get; private set; }
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -47,108 +45,82 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        InitializeGameScene();
     }
 
-    private void InitializeGameScene()
-    {
-        if (SceneManager.GetActiveScene().name == "GameScene")
-        {
-            InitializeAllManagers();
-        }
-    }
-
-    private void OnDestroy()
+    private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Update()
     {
-        HandlePauseInput();
-        
+        HandleGameInput();
+    }
+    
+    private void HandleGameInput()
+    {
+        if (SceneManager.GetActiveScene().name != "GameScene") return;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TogglePause();
+        }
+
         if (_isPaused) return;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) Time.timeScale = 1;
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) Time.timeScale = 2;
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) Time.timeScale = 3;
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) Time.timeScale = 4;
         
-        SetTimeScale();
-        ToggleExpansionPanel();
+        if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
+        {
+            expansionPanel.TogglePanelVisibility();
+        }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
         }
     }
-    
-    private void HandlePauseInput()
-    {
-        if (SceneManager.GetActiveScene().name == "GameScene" && Input.GetKeyDown(KeyCode.Space))
-        {
-            TogglePause();
-        }
-    }
-    
-    public void TogglePause()
+
+    private void TogglePause()
     {
         _isPaused = !_isPaused;
+        Time.timeScale = _isPaused ? 0f : 1f;
 
-        if (_isPaused)
+        if (pausePanel != null)
         {
-            _timeScaleBeforePause = Time.timeScale;
-            Time.timeScale = 0f;
-            
-            if (pausePanel != null)
-            {
-                pausePanel.SetActive(true);
-            }
-        }
-        else
-        {
-            Time.timeScale = _timeScaleBeforePause;
-            
-            if (pausePanel != null)
-            {
-                pausePanel.SetActive(false);
-            }
+            pausePanel.SetActive(_isPaused);
         }
     }
-
-    private void ToggleExpansionPanel()
+    
+    public int GetRequiredAmountForCurrentQuota()
     {
-        if (Input.GetKeyDown(KeyCode.M) && expansionPanel != null)
-        {
-            expansionPanel.TogglePanelVisibility();
-        }
+        return (_currentQuotaIndex >= 0 && _currentQuotaIndex < requiredResourceAmounts.Count)
+            ? requiredResourceAmounts[_currentQuotaIndex]
+            : -1;
+    }
+
+    public void GameOver()
+    {
+        _currentQuotaIndex = 0;
+        Time.timeScale = 1;
+        SceneManager.LoadScene("TitleScene");
     }
     
     public void StartDrag(DisplayableData data)
     {
-        if (cardDragger == null) 
-        {
-            return;
-        }
+        if (cardDragger == null) return;
 
         _activeCardData = data;
         cardDragger.StartDrag(_activeCardData);
         onStartDrag?.Invoke(_activeCardData);
     }
-    
-    public int GetRequiredAmountForCurrentQuota()
-    {
-        if (_currentQuotaIndex >= 0 && _currentQuotaIndex < requiredResourceAmounts.Count)
-        {
-            return requiredResourceAmounts[_currentQuotaIndex];
-        }
-        return -1;
-    }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        _isPaused = false;
-        InitializeGameScene();
-    }
-    
     public void EndDrag()
     {
         if (cardDragger != null)
@@ -157,20 +129,23 @@ public class GameManager : MonoBehaviour
         }
         _activeCardData = null;
         onEndDrag?.Invoke();
-        uiManager.UnpinAndHideCardPanel();
-    }
-    
-    public bool IsDragging()
-    {
-        return _activeCardDragger  != null && _activeCardDragger .IsDragging;
-    }
-    
-    public DisplayableData GetActiveData()
-    {
-        return _activeCardData;
+        uiManager?.UnpinAndHideCardPanel();
     }
 
-    private void InitializeAllManagers()
+    public bool IsDragging() => cardDragger != null && cardDragger.IsDragging;
+    public DisplayableData GetActiveData() => _activeCardData;
+    
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "GameScene")
+        {
+            _isPaused = false;
+            Time.timeScale = 1f;
+            InitializeGameScene();
+        }
+    }
+
+    private void InitializeGameScene()
     {
         slider = FindFirstObjectByType<Slider>();
         mapGenerator = FindFirstObjectByType<MapGenerator>();
@@ -187,7 +162,7 @@ public class GameManager : MonoBehaviour
 
         mapGenerator?.GenerateMap();
         expansionPanel?.InitiateExpansionPanel();
-
+        
         StartCoroutine(DelayedInitialization());
     }
 
@@ -197,31 +172,25 @@ public class GameManager : MonoBehaviour
 
         InitializeSpawnersAndUnits();
 
-        if (_quotaCoroutine != null)
-        {
-            StopCoroutine(_quotaCoroutine);
-        }
+        if (_quotaCoroutine != null) StopCoroutine(_quotaCoroutine);
         _quotaCoroutine = StartCoroutine(CheckResourceQuota());
     }
 
     private void InitializeSpawnersAndUnits()
     {
-        BuildingSpawner[] buildingSpawners = FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None);
-        foreach (BuildingSpawner spawner in buildingSpawners)
+        foreach (var spawner in FindObjectsByType<BuildingSpawner>(FindObjectsSortMode.None))
         {
             spawner.SpawnBuildings();
-            spawner.BuildingTilemap?.gameObject.SetActive(false);
+            if(spawner.BuildingTilemap != null) spawner.BuildingTilemap.gameObject.SetActive(false);
         }
 
-        ResourceSpawner[] resourceSpawners = FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None);
-        foreach (ResourceSpawner spawner in resourceSpawners)
+        foreach (var spawner in FindObjectsByType<ResourceSpawner>(FindObjectsSortMode.None))
         {
             spawner.SpawnResources();
-            spawner.ResourceTilemap?.gameObject.SetActive(false);
+            if(spawner.ResourceTilemap != null) spawner.ResourceTilemap.gameObject.SetActive(false);
         }
 
-        Unit_Lifter[] allUnits = FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None);
-        foreach (Unit_Lifter unit in allUnits)
+        foreach (var unit in FindObjectsByType<Unit_Lifter>(FindObjectsSortMode.None))
         {
             unit.TryStartActions();
         }
@@ -232,10 +201,9 @@ public class GameManager : MonoBehaviour
         if (slider != null)
         {
             slider.maxValue = resourceCheckInterval;
-            slider.value = 0f;
         }
 
-        while (true)
+        while (_currentQuotaIndex < requiredResourceAmounts.Count)
         {
             float elapsedTime = 0f;
             while (elapsedTime < resourceCheckInterval)
@@ -255,35 +223,15 @@ public class GameManager : MonoBehaviour
             {
                 rm.SpendResources(requiredResourceType, currentRequiredAmount);
                 _currentQuotaIndex++;
-                ResourceManager.Instance?.UpdateAllResourceUI();
+                rm.UpdateAllResourceUI();
             }
             else
             {
                 GameOver();
                 yield break;
             }
-            
-            if (slider != null)
-            {
-                slider.value = 0f;
-            }
         }
-    }
-
-    public void GameOver()
-    {
-        SceneManager.LoadScene("TitleScene");
-        _currentQuotaIndex = 0;
-        Time.timeScale = 1;
-    }
-
-    private void SetTimeScale()
-    {
-        if (SceneManager.GetActiveScene().name != "GameScene" || _isPaused) return;
-
-        if (Input.GetKeyDown(KeyCode.Alpha1)) Time.timeScale = 1;
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) Time.timeScale = 2;
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) Time.timeScale = 3;
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) Time.timeScale = 4;
+        
+        Debug.Log("All quotas met! Game Win!");
     }
 }

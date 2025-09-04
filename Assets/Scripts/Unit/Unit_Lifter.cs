@@ -348,7 +348,7 @@ public class Unit_Lifter : UnitBase
     
     private void HandleNewStorageAdded()
     {
-        if (currentState is UnitState.Idle or UnitState.ReturningToStorage)
+        if (_currentCarryAmounts.Values.Sum() > 0 && currentState is UnitState.Idle or UnitState.ReturningToStorage)
         {
             GoToStorage();
         }

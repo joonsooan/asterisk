@@ -502,7 +502,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17ab7edb7e41cd14fba2d87c27d59786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceCheckInterval: 90
+  resourceCheckInterval: 120
   requiredResourceAmounts: 00000000050000003200000064000000c800000090010000e8030000d00700008813000010270000204e000050c30000
   requiredResourceType: 4
   slider: {fileID: 0}
